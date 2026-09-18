@@ -8,6 +8,8 @@ Main project repository for the game, artwork, plans, tests and publishing.
 - `dist/blast-demo.html`: earlier blast animation study (legacy reference).
 - `tests/`: gameplay simulation and graphics source-bound checks.
 - `docs/level-2-plan.md`: Level 2 design only; not implemented.
+- `docs/game-script.md`: dialogue and story script. Level 1 lines match the shipped game; Level 2 lines are proposed.
+- `docs/level-2-assets.md`: required graphics for Level 2 — plate sizes, cell layouts, palette and weight budget.
 - `.github/workflows/pages.yml`: verify and publish `dist/` to GitHub Pages.
 
 ## Run locally

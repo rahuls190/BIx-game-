@@ -1,0 +1,117 @@
+.dialogue,
+.dialogue.system {
+  left: clamp(14px, 2vw, 28px);
+  right: auto;
+  top: 86px;
+  bottom: auto;
+  transform: none;
+  width: min(420px, calc(100vw - 28px));
+  max-width: none;
+  padding: 8px 12px;
+  border-left: 0;
+  border-top: 2px solid var(--mint);
+  background: linear-gradient(90deg, #071217ed, #071217bd);
+  box-shadow: 0 7px 20px #0009;
+  backdrop-filter: blur(8px);
+}
+
+#game {
+  filter: saturate(1.08) contrast(1.06);
+}
+
+.objective {
+  border-top-width: 3px;
+  box-shadow: 0 9px 24px #0006;
+}
+
+.objective strong,
+.cogs strong {
+  color: #fff;
+}
+
+#touchControls button {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+#touchControls button:active,
+#joystick:active {
+  transform: scale(.94);
+  filter: brightness(1.35);
+}
+
+.dialogue span,
+.dialogue.system span {
+  margin-right: 10px;
+  font-size: .64rem;
+}
+
+.dialogue p,
+.dialogue.system p {
+  font-size: .78rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.dialogue.system {
+  left: auto;
+  right: clamp(14px, 2vw, 28px);
+  width: auto;
+  max-width: min(320px, 65vw);
+  border-top-color: var(--yellow);
+}
+
+.dialogue.system span {
+  color: var(--yellow);
+}
+
+@media (pointer: coarse), (max-width: 800px) {
+  .dialogue.system {
+    top: 76px;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: auto;
+    max-width: 62vw;
+  }
+
+  .dialogue:not(.system) {
+    top: 76px;
+    left: max(12px, env(safe-area-inset-left));
+    width: min(380px, 58vw);
+  }
+
+  .prompt {
+    left: auto;
+    right: max(84px, calc(env(safe-area-inset-right) + 74px));
+    bottom: max(88px, calc(env(safe-area-inset-bottom) + 78px));
+    transform: none;
+    padding: 6px 9px;
+    font-size: .62rem;
+  }
+}
+
+@media (orientation: landscape) {
+  .dialogue.system {
+    top: 76px;
+    bottom: auto;
+  }
+
+  .dialogue:not(.system) {
+    top: 76px;
+    bottom: auto;
+  }
+}
+
+@media (orientation: portrait) {
+  .dialogue,
+  .dialogue.system {
+    top: 108px;
+    width: calc(100vw - 28px);
+    max-width: none;
+  }
+}
+
+/* Reserve a compact message rail below the objective in both orientations. */
+.dialogue,.dialogue.system,.dialogue:not(.system){top:112px;left:max(14px,env(safe-area-inset-left));right:auto;width:min(420px,42vw);max-width:none;}
+@media(orientation:portrait){.dialogue,.dialogue.system,.dialogue:not(.system){top:118px;width:calc(100vw - 28px);}.objective strong{font-size:.8rem;}}
+.touch-right button,.touch-right .jump{min-width:64px;min-height:64px;}
+#joystick:active{transform:none;}
