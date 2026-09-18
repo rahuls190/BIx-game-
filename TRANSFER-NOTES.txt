@@ -1,0 +1,4 @@
+Extract the contents into C:\Users\Rahul\OneDrive - VISO Inc\Documents\BIX game
+Includes game, assets, tests, Level 2 plan, Pages workflow and design source.
+Git internals and hosting session configuration excluded.
+Original files differing from the prepared repository are preserved under original-project-backup if present.

@@ -1,0 +1,7 @@
+/* Level 2 only: Pack's single charge, shared by PING and CATCH. */
+.pack-charge{position:absolute;left:50%;top:14px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:7px 14px;background:#071217d9;border:1px solid #29424b;border-radius:999px;font-size:.66rem;font-weight:900;letter-spacing:.16em;color:#59e2c2;pointer-events:none;backdrop-filter:blur(8px);z-index:4}
+.pack-charge .dot{width:11px;height:11px;border-radius:50%;background:#59e2c2;box-shadow:0 0 12px #59e2c2}
+.pack-charge.spent{color:#7f9895;border-color:#25373d}
+.pack-charge.spent .dot{background:#2d444b;box-shadow:none}
+@media(pointer:coarse),(max-width:800px){.pack-charge{top:auto;bottom:max(12px,env(safe-area-inset-bottom));font-size:.58rem;padding:5px 11px}.pack-charge .dot{width:9px;height:9px}}
+@media(orientation:portrait){.pack-charge{top:74px;bottom:auto}}

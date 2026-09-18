@@ -1,0 +1,15 @@
+html,body,#shell{width:100%;max-width:100%;height:100%;min-height:100dvh}
+#touchControls{left:0;right:0;width:auto;padding:0;align-items:flex-end}
+.touch-left{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:0}
+.touch-right{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:0;gap:13px}
+.touch-right button{width:64px;height:64px;background:#071217c9;font-size:1.15rem;font-weight:950;box-shadow:inset 0 0 20px #59e2c212}
+.touch-right .jump{width:82px;height:82px;border:2px solid #ffd75a99;background:#16201dd9;font-size:1.7rem}
+#joystick{pointer-events:auto;position:relative;width:116px;height:116px;border:1px solid #dff7ee44;border-radius:50%;background:radial-gradient(circle,#17313a99 0 28%,#071217bd 30% 67%,#59e2c21c 69%);box-shadow:inset 0 0 24px #0009;touch-action:none}
+#joystick:before,#joystick:after{content:"";position:absolute;background:#dff7ee22;pointer-events:none}
+#joystick:before{left:17px;right:17px;top:57px;height:1px}
+#joystick:after{top:17px;bottom:17px;left:57px;width:1px}
+#joystickKnob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border:2px solid #59e2c288;border-radius:50%;background:#173740ee;box-shadow:0 5px 18px #000b,inset 0 0 14px #59e2c222;transform:translate(0,0);transition:transform .08s ease-out}
+@media(pointer:coarse),(max-width:800px){.dialogue{bottom:125px}.prompt{bottom:165px}}
+@media(orientation:portrait){#hud{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}.objective{min-width:54vw;padding-left:10px;padding-right:10px}.objective strong{font-size:.85rem}.touch-left,.touch-right{bottom:max(6px,env(safe-area-inset-bottom))}}
+@media(orientation:landscape){#touchControls{bottom:max(8px,env(safe-area-inset-bottom))}.touch-left{left:max(24px,env(safe-area-inset-left))}.touch-right{right:max(24px,env(safe-area-inset-right))}#joystick{width:96px;height:96px}#joystick:before{top:47px}#joystick:after{left:47px}.touch-right .jump{width:70px;height:70px}.touch-right button{width:56px;height:56px}.dialogue{bottom:92px}.prompt{bottom:120px}}
+@media(max-height:430px){#joystick{width:82px;height:82px}#joystick:before{top:40px}#joystick:after{left:40px}#joystickKnob{width:44px;height:44px;margin:-22px}.touch-right .jump{width:62px;height:62px}.touch-right button{width:50px;height:50px}#hud{padding-top:9px}.objective{padding-top:6px}.dialogue{bottom:78px}}

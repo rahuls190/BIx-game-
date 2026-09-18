@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Project Mayhem — Molten Blast Lab</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03090c;color:#edf7f7;font-family:Inter,system-ui,sans-serif}
+    body{display:grid;place-items:center;background:radial-gradient(circle at 50% 80%,#261007 0,#071318 36%,#020608 72%)}
+    canvas{width:100vw;height:100svh;display:block;touch-action:manipulation}
+    .hud{position:fixed;inset:0;pointer-events:none;padding:max(18px,env(safe-area-inset-top)) 20px 20px;display:flex;flex-direction:column;justify-content:space-between}
+    .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.eyebrow{font-size:11px;letter-spacing:.3em;color:#70f2dc;font-weight:800}.title{margin-top:7px;font-size:clamp(18px,4vw,30px);font-weight:850;letter-spacing:.02em}.phase{font:800 12px/1.2 ui-monospace,monospace;color:#ffcf55;border:1px solid #a56f28;background:#151007cc;padding:9px 12px;border-radius:999px;box-shadow:0 0 22px #ff790533}
+    .bottom{display:flex;justify-content:center}.hint{font-size:12px;letter-spacing:.12em;color:#a8bec2;background:#061015c9;border:1px solid #1b343a;border-radius:999px;padding:10px 16px;backdrop-filter:blur(8px)}
+    @media(max-width:520px){.hud{padding-left:14px;padding-right:14px}.phase{padding:7px 10px}.hint{font-size:10px}}
+  </style>
+</head>
+<body>
+  <canvas id="fx" aria-label="Looping molten metal blast animation"></canvas>
+  <div class="hud"><div class="top"><div><div class="eyebrow">ANIMATION LAB 01</div><div class="title">MOLTEN PRESSURE BLAST</div></div><div class="phase" id="phase">CHARGING</div></div><div class="bottom"><div class="hint">TAP ANYWHERE TO REPLAY BLAST</div></div></div>
+  <script>
+  (()=>{
+    const c=document.querySelector('#fx'),x=c.getContext('2d'),phase=document.querySelector('#phase');let W,H,dpr,particles=[],start=performance.now(),last=0,shake=0;
+    const rand=(a,b)=>a+Math.random()*(b-a), clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)), ease=t=>1-(1-t)**3;
+    function size(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',size);size();
+    function spark(cx,cy,n,power){for(let i=0;i<n;i++){const a=rand(-Math.PI*.91,-Math.PI*.09),s=rand(150,520)*power;particles.push({x:cx+rand(-18,18),y:cy-5,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:rand(1.1,4.5),life:rand(.38,1.1),age:0,hot:Math.random()>.25})}}
+    function smoke(cx,cy,n){for(let i=0;i<n;i++)particles.push({x:cx+rand(-28,28),y:cy,vx:rand(-45,45),vy:rand(-190,-70),r:rand(14,38),life:rand(1.1,2),age:0,smoke:1})}
+    function restart(){start=performance.now();particles=[];shake=0}addEventListener('pointerdown',restart);
+    function metal(){const floor=H*.79, cx=W*.5;
+      let g=x.createLinearGradient(0,floor-72,0,floor+50);g.addColorStop(0,'#394b50');g.addColorStop(.18,'#111b1f');g.addColorStop(.52,'#25383e');g.addColorStop(1,'#050a0c');x.fillStyle=g;x.fillRect(0,floor,W,H-floor);
+      x.fillStyle='#091116';x.fillRect(0,floor-10,W,12);x.strokeStyle='#52666b';x.lineWidth=2;x.beginPath();x.moveTo(0,floor-10);x.lineTo(W,floor-10);x.stroke();
+      for(let i=0;i<W;i+=74){x.fillStyle=i%148?'#17252a':'#24353a';x.fillRect(i+4,floor+10,58,9);x.fillStyle='#05090a';x.beginPath();x.arc(i+13,floor+31,4,0,7);x.arc(i+53,floor+31,4,0,7);x.fill()}
+      x.save();x.translate(cx,floor-9);x.shadowColor='#ff7a00';x.shadowBlur=22;x.fillStyle='#131d20';x.beginPath();x.arc(0,0,54,Math.PI,0);x.lineTo(42,14);x.lineTo(-42,14);x.closePath();x.fill();x.strokeStyle='#8f5723';x.lineWidth=7;x.stroke();x.fillStyle='#05090a';x.beginPath();x.arc(0,-2,29,Math.PI,0);x.lineTo(29,7);x.lineTo(-29,7);x.fill();x.restore();
+    }
+    function plume(cx,base,p){if(p<=0)return;const h=H*clamp(p*1.08)*.68,w=24+86*Math.sin(clamp(p)*Math.PI*.72)+22*p; x.save();x.globalCompositeOperation='lighter';x.shadowColor='#ff4b00';x.shadowBlur=38;
+      const g=x.createLinearGradient(cx,base,cx,base-h);g.addColorStop(0,'#fffbd8');g.addColorStop(.18,'#ffe02e');g.addColorStop(.52,'#ff5600');g.addColorStop(.82,'#a91500');g.addColorStop(1,'rgba(100,8,0,0)');x.fillStyle=g;
+      x.beginPath();x.moveTo(cx-w*.34,base);for(let i=0;i<=18;i++){const q=i/18,yy=base-h*q,sw=w*(1-q*.76)*(1+Math.sin(q*24+p*9)*.16);x.lineTo(cx-sw,yy)}for(let i=18;i>=0;i--){const q=i/18,yy=base-h*q,sw=w*(1-q*.76)*(1+Math.cos(q*21+p*8)*.14);x.lineTo(cx+sw,yy)}x.closePath();x.fill();
+      x.fillStyle='#fff';x.globalAlpha=.88;x.beginPath();x.moveTo(cx-9,base);x.quadraticCurveTo(cx-22,base-h*.38,cx+2,base-h*.76);x.quadraticCurveTo(cx+18,base-h*.36,cx+9,base);x.fill();x.restore();
+    }
+    function frame(now){const dt=Math.min((now-last)/1000,.033);last=now;let t=((now-start)/1000)%4.6;if(t<.02&&now-start>4600)restart();const charge=clamp(t/1.35), blast=clamp((t-1.35)/.3), sustain=t>1.35&&t<2.85?1:clamp(1-(t-2.85)/.7), cx=W*.5, base=H*.79-12;
+      if(t<1.35)phase.textContent='PRESSURE '+Math.round(charge*100)+'%';else if(t<1.7)phase.textContent='IGNITION';else if(t<2.9)phase.textContent='CRITICAL FLOW';else phase.textContent='COOLING';
+      if(t>1.35&&t<1.39){spark(cx,base,70,1.25);smoke(cx,base,14);shake=18}
+      if(t>1.45&&t<2.8&&Math.random()<.42)spark(cx,base-rand(30,H*.42),2,.45);
+      particles.forEach(p=>{p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.smoke){p.vx*=.985;p.vy-=7*dt;p.r+=20*dt}else p.vy+=520*dt});particles=particles.filter(p=>p.age<p.life);
+      shake*=.9;const sx=rand(-shake,shake),sy=rand(-shake,shake);x.setTransform(dpr,0,0,dpr,sx*dpr,sy*dpr);x.clearRect(-40,-40,W+80,H+80);
+      const bg=x.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#020608');bg.addColorStop(.62,'#07161a');bg.addColorStop(1,'#1d0d05');x.fillStyle=bg;x.fillRect(-30,-30,W+60,H+60);
+      x.globalAlpha=.16;x.strokeStyle='#6f9ba2';for(let i=0;i<9;i++){const px=(i+1)*W/10;x.lineWidth=i%2?8:3;x.beginPath();x.moveTo(px,0);x.lineTo(px,H*.76);x.stroke()}x.globalAlpha=1;
+      metal();
+      x.save();x.globalCompositeOperation='lighter';x.shadowColor='#ff7800';x.shadowBlur=55;x.fillStyle=`rgba(255,70,0,${.06+charge*.22})`;x.beginPath();x.arc(cx,base,35+charge*38,0,7);x.fill();x.restore();
+      plume(cx,base,blast*sustain);
+      if(blast>0&&t<1.95){const q=clamp((t-1.35)/.6);x.strokeStyle=`rgba(255,196,80,${1-q})`;x.lineWidth=5*(1-q)+1;x.beginPath();x.arc(cx,base,35+q*W*.42,0,7);x.stroke()}
+      particles.forEach(p=>{const a=clamp(1-p.age/p.life);if(p.smoke){x.fillStyle=`rgba(38,35,32,${a*.4})`;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}else{x.save();x.globalCompositeOperation='lighter';x.shadowColor=p.hot?'#ffb000':'#ff3b00';x.shadowBlur=10;x.fillStyle=p.hot?'#fff4a8':'#ff4a00';x.globalAlpha=a;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill();x.restore()}});
+      if(t>1.35&&t<1.52){x.fillStyle=`rgba(255,241,188,${(1-(t-1.35)/.17)*.42})`;x.fillRect(-30,-30,W+60,H+60)}
+      x.setTransform(dpr,0,0,dpr,0,0);requestAnimationFrame(frame)}requestAnimationFrame(frame);
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+tmp/
+extra/
+
+# Legacy generated Level 2 placeholders. Production uses the v2 plates.
+design/build_level2_placeholders.py
+design/level2-plate-contact-sheet.png
+dist/assets/pack-assist-v1.png
+dist/assets/supervisor-head-v1.png
+dist/assets/enemy-crawler-v1.png
+dist/assets/enemy-spitter-v1.png
+dist/assets/enemy-claw-v1.png
+dist/assets/enemy-wasp-v1.png
+dist/assets/furnace-background-v1.png
+dist/assets/furnace-platform-atlas-v1.png
+dist/assets/furnace-prop-atlas-v1.png
+dist/assets/casting-mold-v1.png
+dist/assets/coolant-mist-v1.png
+dist/assets/conveyor-belt-v1.png
+dist/assets/lava-channel-v1.png
