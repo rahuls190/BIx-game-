@@ -4,7 +4,7 @@
 (()=>{
 'use strict';
 const c=document.getElementById('game'),x=c.getContext('2d'),$=id=>document.getElementById(id);
-const ui=Object.fromEntries(['start','complete','dialogue','speaker','line','prompt','zone','objective','cogCount','finalCogs','finalTime','finalFalls','resultLine','touchControls','packCharge','packChargeLabel'].map(id=>[id,$(id)]));
+const ui=Object.fromEntries(['start','complete','dialogue','speaker','line','prompt','zone','objective','cogCount','finalCogs','finalTime','finalFalls','resultLine','saveNote','touchControls','packCharge','packChargeLabel'].map(id=>[id,$(id)]));
 const D=window.L2DATA,ART=window.L2ART,EN=window.L2ENEMIES;
 function fatal(msg){x.setTransform(1,0,0,1,0,0);x.fillStyle='#071217';x.fillRect(0,0,c.width,c.height);x.fillStyle='#ff8b55';x.font='600 20px system-ui';x.textAlign='center';x.fillText(msg,c.width/2,c.height/2)}
 if(!D||!ART||!EN){fatal('Level 2 failed to load: '+[!D&&'level2-data.js',!ART&&'level2-art.js',!EN&&'level2-enemies.js'].filter(Boolean).join(', '));return}
@@ -317,6 +317,8 @@ function interact(now){
 }
 const canStun=e=>!!EN.consts.STUNNABLE[e.type];
 
+// Hand the finished run to progress.js (device copy, plus the cloud when signed in) and tell the player where it went.
+function saveResult(level,sec,cogs,falls){const M=window.Mayhem;if(!M||!ui.saveNote)return;M.recordResult(level,{timeSec:sec,cogs,falls}).then(t=>{ui.saveNote.textContent=t;ui.saveNote.hidden=!t}).catch(()=>{})}
 function finish(){
   done=1;running=0;ui.touchControls.classList.remove('playing');
   const sec=Math.floor((performance.now()-startTime)/1000);
@@ -324,6 +326,7 @@ function finish(){
   ui.finalTime.textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
   ui.finalFalls.textContent=P.falls;
   ui.resultLine.textContent=cogs===COG_TOTAL?'Pack has filed this as “reclaimed with distinction.”':'Shift complete. Several cogs have been reclassified as landfill.';
+  saveResult('level2',sec,cogs,P.falls);
   ui.complete.classList.remove('hidden');
 }
 

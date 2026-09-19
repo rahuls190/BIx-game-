@@ -158,3 +158,26 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:40px
   html{scroll-behavior:auto}
   .btn-primary{transition:none}
 }
+
+/* ---------- account (hidden until sign-in is configured) ---------- */
+.account{display:flex;align-items:center;gap:16px;margin-left:16px}
+.account[hidden],.acct-user[hidden],.notice[hidden],.privacy[hidden],.badge[hidden]{display:none}
+.acct-btn,.acct-link{font-family:var(--display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.acct-btn{min-height:44px;padding:0 16px;border:2px solid var(--cream);background:transparent;color:var(--cream);font-size:18px}
+.acct-btn:hover:not(:disabled){background:var(--cream);color:var(--ink)}
+.acct-btn:disabled{opacity:.6;cursor:progress}
+.acct-btn .short{display:inline}.acct-btn .long{display:none}
+.acct-user{display:flex;align-items:center;gap:12px}
+.acct-name{font-size:16px;font-weight:600;color:var(--mint)}
+.acct-link{min-height:44px;padding:0 4px;border:0;background:none;color:var(--cream);font-size:16px;text-decoration:underline}
+.acct-link:hover{color:var(--accent)}
+.acct-btn:focus-visible,.acct-link:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.nav.has-account .nav-play{display:none}
+.notice{margin:0;padding:12px var(--pad);background:var(--panel2);border-bottom:1px solid var(--line);font-size:15px;color:var(--cream)}
+.badge{margin:0;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint)}
+.privacy{margin:0;padding:20px var(--pad);border-top:1px solid var(--line);font-size:14px;line-height:1.5;color:var(--mute)}
+@media (min-width:1000px){
+  .account{margin-left:36px}
+  .acct-btn .short{display:none}.acct-btn .long{display:inline}
+  .privacy{max-width:none}
+}

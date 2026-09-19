@@ -6,6 +6,7 @@ Main project repository for the game, artwork, plans, tests and publishing.
 
 - `dist/index.html` + `dist/landing.css`: the landing page, the site's front door.
 - `dist/level1.html`, `dist/level2.html`: the two playable levels, with all shipped graphics in `dist/assets/`.
+- `dist/progress.js`, `dist/auth.js`, `dist/account-ui.js`, `dist/firebase-config.js`, `firestore.rules`: optional Google sign-in and cloud saves. They stay off until a Firebase config is added; see `docs/login-setup.md`.
 - `dist/blast-demo.html`: earlier blast animation study (legacy reference).
 - `tests/`: gameplay simulation and graphics source-bound checks.
 - `docs/level-2-plan.md`: Level 2 route, mechanics, enemies, and difficulty specification.
@@ -21,7 +22,7 @@ From the repository root, run `python3 -m http.server 8000 --directory dist`, th
 
 ## Checks
 
-Requires Node.js 22 or later. CI runs every check listed in `.github/workflows/pages.yml`; run any of them locally as `node tests/<name>.cjs` from the repository root. `tests/landing.cjs` covers the landing page: every link, image and stylesheet must exist, and the buttons must lead to the real games.
+Requires Node.js 22 or later. CI runs every check listed in `.github/workflows/pages.yml`; run any of them locally as `node tests/<name>.cjs` from the repository root. `tests/landing.cjs` covers the landing page: every link, image and stylesheet must exist, the buttons must lead to the real games, and the two `404.html` redirects must map addresses correctly without looping. `tests/progress.cjs` covers saved progress, the sign-in wiring and the Firestore rules file.
 These are automated simulations and rendering-call checks, not a substitute for visual device testing.
 
 ## Publishing

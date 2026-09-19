@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Project Mayhem cloud saves.
+//
+// Each signed-in player can read, write and delete ONLY their own record, players/{their uid}, and what they
+// write must be a well-formed progress record with every number inside its allowed range. Nothing else in
+// the database is readable or writable by anyone.
+//
+// Keep the limits below in step with dist/progress.js (LEVELS, MAX_TIME, MAX_FALLS, MAX_PLAYS);
+// tests/progress.cjs fails if they drift apart.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validLevel(l, maxCogs) {
+      return l.keys().hasOnly(['completed', 'bestTimeSec', 'bestCogs', 'fewestFalls', 'plays'])
+        && l.completed is bool
+        && (l.bestTimeSec == null || (l.bestTimeSec is int && l.bestTimeSec >= 1 && l.bestTimeSec <= 86399))
+        && l.bestCogs is int && l.bestCogs >= 0 && l.bestCogs <= maxCogs
+        && (l.fewestFalls == null || (l.fewestFalls is int && l.fewestFalls >= 0 && l.fewestFalls <= 9999))
+        && l.plays is int && l.plays >= 0 && l.plays <= 1000000;
+    }
+
+    function validProgress(p) {
+      return p.keys().hasOnly(['v', 'levels', 'updatedAt'])
+        && p.v == 1
+        && p.updatedAt is number && p.updatedAt >= 0
+        && p.levels.keys().hasOnly(['level1', 'level2'])
+        && validLevel(p.levels.level1, 12)
+        && validLevel(p.levels.level2, 14);
+    }
+
+    match /players/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['progress'])
+        && validProgress(request.resource.data.progress);
+    }
+  }
+}

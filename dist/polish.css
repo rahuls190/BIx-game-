@@ -121,6 +121,10 @@
 .panel .next-level span{margin-left:26px}
 #joystick:active{transform:none;}
 
+/* where the finished run was saved (only shown when accounts are switched on) */
+.save-note{margin:-6px 0 20px;font-size:.88rem;color:#59e2c2}
+.save-note[hidden]{display:none}
+
 /* On a touch screen, holding a button or dragging the joystick must never start selecting text or pop the
    copy / image callout. Text stays selectable on a mouse device, and in form fields everywhere. */
 @media (hover: none), (pointer: coarse) {

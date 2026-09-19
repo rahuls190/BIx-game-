@@ -37,6 +37,7 @@
       <h2>BARELY<br><em>AUTHORIZED</em></h2>
       <div class="results"><span>COGS<strong id="finalCogs">0 / 12</strong></span><span>TIME<strong id="finalTime">00:00</strong></span><span>FALLS<strong id="finalFalls">0</strong></span></div>
       <p id="resultLine">Pack has filed this as “mostly intentional.”</p>
+      <p id="saveNote" class="save-note" hidden></p>
       <div class="completion-actions">
         <a class="next-level" href="./level2.html">DESCEND TO LEVEL 02 <span>→</span></a>
         <button id="replayButton">PLAY AGAIN <span>↻</span></button>
@@ -48,6 +49,9 @@
       <div class="touch-right"><button data-key="interact" aria-label="Action">ACT</button><button class="jump" data-key="jump" aria-label="Jump">↑</button></div>
     </div>
   </main>
-  <script src="./game.js?v=26"></script>
+  <script src="./firebase-config.js"></script>
+  <script src="./progress.js"></script>
+  <script src="./game.js?v=27"></script>
+  <script src="./auth.js" defer></script>
 </body>
 </html>
