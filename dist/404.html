@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Page not found — Project Mayhem</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#071217;color:#edf0dc;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+    main{max-width:520px}
+    h1{margin:0 0 8px;font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-size:96px;line-height:.9;color:#ffd75a}
+    p{margin:0 0 24px;font-size:18px;line-height:1.5;color:#a4b8b3}
+    a{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;background:#ffd75a;color:#101010;font-weight:700;text-decoration:none;box-shadow:6px 6px 0 #ff8b55}
+    a:focus-visible{outline:3px solid #ffd75a;outline-offset:3px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>404</h1>
+    <p>That page isn't here. Bix checked twice.</p>
+    <a href="./">Back to Project Mayhem</a>
+  </main>
+  <script>
+    /* The site is published from the dist/ folder, so its pages live at the root: /level2.html, not /dist/level2.html.
+       Older links and bookmarks that still include /dist/ are sent to the right address. A path that is still missing
+       after the "/dist" is removed shows this page and stops, so this can never loop. */
+    (function () {
+      var p = location.pathname, q = p.replace(/\/dist(\/|$)/, '/');
+      if (q !== p) location.replace(q + location.search + location.hash);
+    })();
+  </script>
+</body>
+</html>
