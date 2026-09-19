@@ -22,5 +22,5 @@ enemies:[{type:'crawler',x:400,y:610,range:120,dir:1},{type:'spitter',x:1290,y:5
 pickups:[{type:'cell',x:250,y:580}],
 sockets:[{x:1900,y:580}],
 triggers:[{x:200,s:'PACK',t:'Smoke test. Try not to enjoy it.'}],
-exit:{x:2050,y:560}
+exit:{x:2050,y:610}   // like the real data: x is the lift centre, y the deck surface Bix stands on
 };

@@ -27,6 +27,7 @@ jobs:
           node tests/level2-engine.cjs
           node tests/level2-enemies.cjs
           node tests/level2-geometry.cjs
+          node tests/level2-finish.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

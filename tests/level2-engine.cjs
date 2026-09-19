@@ -115,7 +115,7 @@ ok(q.state().cellDone === 1, 'power cell was not installed');
 // --- three shutters, then the exit finishes the level -----------------------
 for (const s of q.D.shutters) { Object.assign(q.P, { x: s.x - 10, y: s.y - q.P.h, vx: 0, vy: 0, inv: 999 }); q.K.interact = 1; tick() }
 ok(q.state().shutters === 3, 'shutters did not all open');
-Object.assign(q.P, { x: q.D.exit.x, y: q.D.exit.y, vx: 0, vy: 0, inv: 999 }); tick();
+Object.assign(q.P, { x: q.D.exit.x - q.P.w / 2, y: q.D.exit.y - q.P.h, vx: 0, vy: 0, inv: 999 }); tick();   // standing on the deck
 ok(q.state().done === 1, 'reaching the exit did not finish the level');
 
 // --- falling out of the world costs a life, not a crash ---------------------

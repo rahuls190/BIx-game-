@@ -56,6 +56,7 @@ function solids(now){
   return out.concat(moving(now));
 }
 function gateOpen(g){
+  if(Array.isArray(g.needs))return g.needs.every(id=>(D.valves||[]).some(v=>v.id===id&&v.on));   // e.g. ['valveUpper','valveLower']
   if(g.needs==='valves')return valves>=2;
   if(g.needs==='cell')return cellDone;
   if(g.needs==='shutters')return shutters>=3;
@@ -230,7 +231,8 @@ function update(dt){
   ui.zone.textContent=area?area.name:'';
   ui.objective.textContent=objective(area);
   if(msgTime>0){msgTime-=dt;if(msgTime<=0)ui.dialogue.classList.add('hidden')}
-  if(D.exit&&shutters>=3&&Math.hypot(P.x-D.exit.x,P.y-D.exit.y)<90)finish();
+  // exit.y is the lift deck's surface, so measure from Bix's feet, not his top-left corner
+  if(D.exit&&shutters>=3&&Math.abs(P.x+P.w/2-D.exit.x)<120&&Math.abs(P.y+P.h-D.exit.y)<40)finish();
 }
 function ventHeight(v,i,now){const z=(now+(v.p||0))%4.2;return z>.72&&z<2.05?(175+Math.sin(now*16+i)*16)*Math.min(1,(z-.72)/.2)*Math.min(1,(2.05-z)/.3):0}
 function objective(a){
