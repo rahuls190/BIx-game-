@@ -17,4 +17,9 @@
  * list of authorised domains in the Firebase console and firestore.rules, which lets each player read and write
  * only their own record. Never put a service-account key or any password in this file.
  */
-window.MAYHEM_FIREBASE = null;
+window.MAYHEM_FIREBASE = {
+  apiKey: "AIzaSyCJ-GQYSfSnnYqIdzL4-Z-tM48sEXiYpF0",
+  authDomain: "bix-1910.firebaseapp.com",
+  projectId: "bix-1910",
+  appId: "1:333469632220:web:f4f805bebee4a33d93d619"
+};
