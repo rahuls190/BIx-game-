@@ -18,6 +18,16 @@ const img=s=>{const a=new Image;a.src='./assets/'+s;return a};
 const IMG={};for(const k of Object.keys(ART))IMG[k]=img(k);
 const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 const SX=v=>v-camX,SY=v=>v-camY;
+// Where Bix sits across the screen. On a narrow (phone-portrait) view he stays left of centre,
+// and further left still while running right, so the player can see what is coming and react.
+// Running left swings him across so the way ahead on that side is visible too. Wide views keep 42%.
+const narrow=()=>viewW<700;
+const leadTarget=()=>narrow()?(P.vx>40?.14:P.vx<-40?.55:.24):.42;
+let lead=.42;
+const camLead=()=>lead;
+// Camera height outside the vertical shaft. 0 cut the view at y=720, so the molten channel
+// (y 760) and the tunnel below it were never on screen; nothing playable is above y~190.
+const flatCamY=()=>D.world.camY??80;
 
 const P={x:0,y:0,w:42,h:96,vx:0,vy:0,ground:0,oldGround:0,coyote:0,buffer:0,face:1,falls:0,anim:0,land:0,hang:0,hangRect:null,climb:0,grabCD:0,support:null,dropTime:0,jumpTime:0,inv:0};
 const pack={x:0,y:0};
@@ -26,12 +36,16 @@ const seen=new Set();               // checkpoints already taken
 let enemies=[];
 
 // ---- drawing helpers -------------------------------------------------------
-function sprite(plate,i,cx,bottom,height,flip){
+// `ref` (optional): the cell whose height sets the scale. Every frame then shares one scale, so
+// an animation doesn't grow and shrink as its tight crops change; without it each frame is
+// normalised to `height` (right for one-off props).
+function sprite(plate,i,cx,bottom,height,flip,ref){
   const a=ART[plate],im=IMG[plate];if(!a||!im||!im.complete||!im.naturalWidth)return 0;
   const r=a.cells[i];if(!r)return 0;
-  const w=height*r[2]/r[3];                       // per-cell aspect: cells vary a lot
+  const rc=ref!==undefined?a.cells[ref]:null,s=rc?height/rc[3]:0;
+  const w=s?r[2]*s:height*r[2]/r[3],h=s?r[3]*s:height;   // per-cell aspect: cells vary a lot
   x.save();x.translate(SX(cx),SY(bottom));if(flip<0)x.scale(-1,1);
-  x.drawImage(im,r[0],r[1],r[2],r[3],-w/2,-height,w,height);x.restore();return 1;
+  x.drawImage(im,r[0],r[1],r[2],r[3],-w/2,-h,w,h);x.restore();return 1;
 }
 function tile(plate,i,px,py,w,h){
   const a=ART[plate],im=IMG[plate];if(!a||!im||!im.complete||!im.naturalWidth)return 0;
@@ -44,6 +58,8 @@ function tile(plate,i,px,py,w,h){
 function box(px,py,w,h,f,s){x.fillStyle=f;x.fillRect(SX(px),SY(py),w,h);if(s){x.strokeStyle=s;x.lineWidth=2;x.strokeRect(SX(px),SY(py),w,h)}}
 
 // ---- world queries ---------------------------------------------------------
+// A one-way surface (a belt) lying exactly on a solid deck: there is nothing to drop to.
+const onDeck=r=>D.platforms.some(p=>Math.abs(p[1]-r.y)<=4&&r.x+r.w>p[0]&&r.x<p[0]+p[2]);
 function moving(now){return (D.movers||[]).map((m,id)=>({id,x:m.x+(m.a==='x'?Math.sin(now*.9+(m.p||0))*m.r:0),y:m.y+(m.a==='y'?Math.sin(now*.9+(m.p||0))*m.r:0),w:m.w,h:m.h,ledge:1}))}
 function pipeOut(now,i){return Math.sin(now*.8+i*1.7)>.45}              // retracting upper-route segments
 function solids(now){
@@ -77,18 +93,39 @@ function setCharge(v){charge=v;ui.packCharge.classList.toggle('spent',!v);ui.pac
 function setCP(cp){checkpoint=cp;setCharge(1);toast('SYSTEM',`Checkpoint · ${cp.name}`,1.2,1)}
 function setPackAction(cell,seconds,now,target=null){packMode=cell;packUntil=now+seconds;packTarget=target}
 
+// Enemies from the level data. Two data conventions need translating for the enemy module:
+//  - spitters carry `face`, the module reads `dir`;
+//  - crawlers are authored with y at the surface they walk on, but y is their box's TOP, which
+//    would bury them inside the deck (they could never touch a standing player).
+function spawnEnemies(){
+  return (D.enemies||[]).map(e=>{
+    const cfg={...e};
+    if(cfg.dir===undefined&&cfg.face!==undefined)cfg.dir=cfg.face;
+    if(e.type==='crawler'){
+      const top=[...D.platforms,...D.ledges].find(s=>Math.abs(s[1]-e.y)<=3&&e.x>=s[0]-160&&e.x<=s[0]+s[2]+160);
+      if(top){
+        cfg.y=top[1]-EN.consts.SIZE.crawler[1];
+        // keep the whole patrol on that surface: it must not walk out into the air
+        const bw=EN.consts.SIZE.crawler[0],r0=EN.make('crawler',cfg).range;
+        cfg.range=Math.max(20,Math.min(r0,cfg.x-top[0],top[0]+top[2]-bw-cfg.x));
+      }
+    }
+    return EN.make(e.type,cfg);
+  });
+}
 function reset(full=1){
   Object.assign(P,{x:full?(D.checkpoints[0]||{}).x??120:checkpoint.x,y:(full?(D.checkpoints[0]||{}).y??400:checkpoint.y)-P.h,
     vx:0,vy:0,ground:0,coyote:0,buffer:0,falls:full?0:P.falls+1,hang:0,hangRect:null,climb:0,support:null,dropTime:0,jumpTime:0,grabCD:.32,inv:.75});
-  pack.x=P.x-65;pack.y=P.y+18;camX=Math.max(0,P.x-viewW*.38);
-  camY=isVertical(areaAt(P.x,P.y))?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):0;
+  lead=leadTarget();pack.x=P.x-65;pack.y=P.y+18;camX=Math.max(0,P.x-viewW*camLead());
+  camY=isVertical(areaAt(P.x,P.y))?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):flatCamY();
   heat=heatBase();mistAt=-9;        // a stale mist burst must not kill wasps after a restart
+  enemies=spawnEnemies();           // every respawn rebuilds them: a wasp must not stay parked on the checkpoint
   if(full){
     cogs=valves=shutters=0;cellHeld=cellDone=done=0;setCharge(1);
     startTime=performance.now();checkpoint=D.checkpoints[0]||checkpoint;seen.clear();
+    (D.gates||[]).forEach(g=>g.openT=0);
     D.cogs.forEach(v=>v.got=0);(D.valves||[]).forEach(v=>v.on=0);(D.shutters||[]).forEach(v=>v.on=0);
     (D.triggers||[]).forEach(v=>v.used=0);
-    enemies=(D.enemies||[]).map(e=>EN.make(e.type,e));
     setPackAction(7,1,performance.now()/1000);
     ui.complete.classList.add('hidden');
   }
@@ -149,6 +186,7 @@ function grab(now){
 function hurt(t){
   if(P.inv||done)return;
   if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
+    P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;
     seen.add(checkpoint);       // the catch lands ON the checkpoint; don't let it refund the charge
     toast('PACK','Got you. That counts as overtime.',2.1,1);return}
   shake=18;flash=.18;reset(0);toast('PACK',t,2.1,1);
@@ -163,7 +201,7 @@ function update(dt){
 
   if(P.hangRect&&P.hangRect.id!==undefined)P.hangRect=moving(now)[P.hangRect.id];
   if(P.ground&&P.support&&P.support.id!==undefined){const m=moving(now)[P.support.id];P.x+=m.x-P.support.x;P.y+=m.y-P.support.y;P.support=m}
-  if(K.down&&P.ground&&P.support?.ledge){P.dropTime=.25;P.ground=0;P.y+=5;P.coyote=0}
+  if(K.down&&P.ground&&P.support?.ledge&&!onDeck(P.support)){P.dropTime=.25;P.ground=0;P.y+=5;P.coyote=0}
 
   if(P.climb){
     P.climb=Math.max(0,P.climb-dt);const p=1-P.climb/.45,r=P.hangRect,e=p*p*(3-2*p);
@@ -203,7 +241,7 @@ function update(dt){
   enemies=enemies.filter(e=>!e.dead||now-(e.dissolveAt??now)<.55);
 
   // hazards from the level data
-  for(const [i,v] of (D.vents||[]).entries()){const h=ventHeight(v,i,now);if(h>30&&overlap(P,{x:v.x-25,y:v.y-h,w:50,h}))hurt('Molten metal: one. Bix: recast.')}
+  for(const [i,v] of (D.vents||[]).entries()){const h=ventHeight(v,i,now);if(!v.safe&&h>30&&overlap(P,{x:v.x-25,y:v.y-h,w:50,h}))hurt('Molten metal: one. Bix: recast.')}
   for(const g of (D.lasers||[])){const z=(now+(g.p||0))%4,on=g.pair?(z>2.4&&z<3.6):(z>1.05&&z<2.35);
     if(on&&overlap(P,{x:g.x-8,y:g.y0,w:16,h:g.y1-g.y0}))hurt('Laser gate: one. Bix: sliced.')}
   for(const L of (D.lava||[]))if(overlap(P,{x:L.x,y:L.y,w:L.w,h:60}))hurt('The channel was clearly marked.')
@@ -223,8 +261,11 @@ function update(dt){
   interact(now);
 
   // camera: 2D, but only the vertical area lets it leave the floor line
-  const tx=Math.max(0,Math.min(D.world.w-viewW,P.x-viewW*.42));
-  const ty=isVertical(area)?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):0;
+  lead+=(leadTarget()-lead)*(1-Math.exp(-3*dt));
+  // The camera trails Bix by roughly vx/4.5 px while he runs; add that back on a phone so the
+  // lead above is where he actually appears, not where the lag drags him back toward the middle.
+  const tx=Math.max(0,Math.min(D.world.w-viewW,P.x+(narrow()?P.vx*.22:0)-viewW*camLead()));
+  const ty=isVertical(area)?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):flatCamY();
   camX+=(tx-camX)*(1-Math.exp(-4.5*dt));camY+=(ty-camY)*(1-Math.exp(-4.5*dt));
   shake=Math.max(0,shake-30*dt);flash=Math.max(0,flash-dt);
 
@@ -234,7 +275,9 @@ function update(dt){
   // exit.y is the lift deck's surface, so measure from Bix's feet, not his top-left corner
   if(D.exit&&shutters>=3&&Math.abs(P.x+P.w/2-D.exit.x)<120&&Math.abs(P.y+P.h-D.exit.y)<40)finish();
 }
-function ventHeight(v,i,now){const z=(now+(v.p||0))%4.2;return z>.72&&z<2.05?(175+Math.sin(now*16+i)*16)*Math.min(1,(z-.72)/.2)*Math.min(1,(2.05-z)/.3):0}
+// `period` and `safe` come from the data. A safe vent is the teaching vent: it animates but is
+// low and never hurts. Peak is 175px (the height the geometry proof assumes).
+function ventHeight(v,i,now){const z=(now+(v.p||0))%(v.period||4.2);return z>.72&&z<2.05?(159+Math.sin(now*16+i)*16)*(v.safe?.42:1)*Math.min(1,(z-.72)/.2)*Math.min(1,(2.05-z)/.3):0}
 function objective(a){
   if(!a)return'';
   if(a.id==='cooling'||a.needs==='valves')return valves>=2?'Coolant restored · head for the sorter':`Restore both coolant valves · ${valves}/2`;
@@ -297,12 +340,13 @@ function draw(){
 
   const lavaFrame=Math.floor(now*6)%4,beltFrame=Math.floor(now*10)%4;
   for(const L of (D.lava||[]))tile('lava-channel-v2.png',lavaFrame,L.x,L.y,L.w,56)||box(L.x,L.y,L.w,56,'#ff7a00');
-  for(const b of (D.belts||[]))tile('conveyor-belt-v2.png',beltFrame,b.x,b.y,b.w,20)||box(b.x,b.y,b.w,18,'#152830','#48707a');
   D.platforms.forEach((p,i)=>slab(p[0],p[1],p[2],i%2?1:0,78));
-  D.ledges.forEach((l,i)=>slab(l[0],l[1],l[2],2,32));
-  (D.pipes||[]).forEach((p,i)=>{if(pipeOut(now,i))slab(p.x,p.y,p.w,5,26);else{x.save();x.globalAlpha=.25;slab(p.x,p.y,p.w,5,26);x.restore()}});
+  D.ledges.forEach((l,i)=>slab(l[0],l[1],l[2],2,54));
+  // Belts lie exactly on a deck top, so they must be drawn AFTER every deck and ledge or it paints over them.
+  for(const b of (D.belts||[]))tile('conveyor-belt-v2.png',beltFrame,b.x,b.y-22,b.w,44)||box(b.x,b.y-4,b.w,18,'#152830','#48707a');
+  (D.pipes||[]).forEach((p,i)=>{if(pipeOut(now,i))slab(p.x,p.y,p.w,2,44);else{x.save();x.globalAlpha=.25;slab(p.x,p.y,p.w,2,44);x.restore()}});
   moving(now).forEach(m=>{if(!sprite('casting-mold-v2.png',0,m.x+m.w/2,m.y+m.h+16,46))box(m.x,m.y,m.w,m.h,'#3a2418','#ff9d23')});
-  for(const g of (D.gates||[]))if(!gateOpen(g))box(g.x,g.y,g.w,g.h,'#2a1420','#ff4d3a');
+  for(const g of (D.gates||[]))drawGate(g,now);
 
   (D.vents||[]).forEach((v,i)=>{prop(0,v.x,v.y,104,86);const h=ventHeight(v,i,now);
     if(h>4){x.save();x.globalCompositeOperation='lighter';const gr=x.createLinearGradient(0,SY(v.y),0,SY(v.y-h));
@@ -321,14 +365,10 @@ function draw(){
   (D.pickups||[]).forEach(p=>{if(!cellHeld&&!cellDone)prop(5,p.x,p.y,54,54)});
   if(D.exit)prop(6,D.exit.x,D.exit.y,120,150);
 
-  D.cogs.forEach((q,i)=>{if(q.got)return;const bob=Math.sin(now*2+i)*5;
-    x.save();x.shadowColor='#5ff7de';x.shadowBlur=9;
-    const im=IMG['energy-cog-v1.png'];
-    x.fillStyle='#ffd75a';x.beginPath();x.arc(SX(q.x),SY(q.y+bob),16,0,7);x.fill();
-    x.fillStyle='#3a3010';x.beginPath();x.arc(SX(q.x),SY(q.y+bob),8,0,7);x.fill();x.restore()});
+  D.cogs.forEach((q,i)=>cog(q,i,now));
 
   for(const e of enemies)drawEnemy(e,now);
-  if(now-mistAt<.7){const k=Math.min(7,Math.floor((now-mistAt)/.7*8));sprite('coolant-mist-v2.png',k,mistX,mistY+40,180,1)}
+  if(now-mistAt<.7){const k=Math.min(7,Math.floor((now-mistAt)/.7*8));sprite('coolant-mist-v2.png',k,mistX,mistY+40,180,1,3)}
 
   // Pack, then Bix
   const packPlate='pack-assist-v2.png',packCell=packUntil>now?packMode:cellHeld?3:0;
@@ -348,27 +388,78 @@ function draw(){
 function slab(px,py,w,cell,h){
   const a=ART['furnace-platform-atlas-v2.png'],im=IMG['furnace-platform-atlas-v2.png'];
   if(!a||!im||!im.complete||!im.naturalWidth||!a.cells[cell]){box(px,py,w,h,'#1a2e36','#48707a');x.fillStyle='#ffc84a';x.fillRect(SX(px)+8,SY(py)-1,Math.max(0,w-16),2);return}
-  const r=a.cells[cell],cap=Math.min(42,w*.24),mid=Math.max(0,w-cap*2),cs=Math.min(r[2]*.22,52);
-  x.drawImage(im,r[0],r[1],cs,r[3],SX(px),SY(py)-2,cap,h);
-  if(mid)x.drawImage(im,r[0]+cs,r[1],r[2]-cs*2,r[3],SX(px)+cap,SY(py)-2,mid,h);
-  x.drawImage(im,r[0]+r[2]-cs,r[1],cs,r[3],SX(px)+w-cap,SY(py)-2,cap,h);
-  x.fillStyle='#ffc84a';x.fillRect(SX(px)+8,SY(py)-1,Math.max(0,w-16),2);
+  // Each atlas cell is a complete deck section (end posts + centre detail). Draw it at its
+  // true proportions and repeat it to fill wide platforms, mirroring every other section,
+  // instead of stretching one small strip across the whole width.
+  const r=a.cells[cell],s=h/r[3],n=Math.max(1,Math.round(w/(r[2]*s))),sw=w/n;
+  for(let i=0;i<n;i++){
+    x.save();
+    if(i%2){x.translate(SX(px)+(i+1)*sw,0);x.scale(-1,1);x.drawImage(im,r[0],r[1],r[2],r[3],0,SY(py)-2,sw+1,h)}
+    else x.drawImage(im,r[0],r[1],r[2],r[3],SX(px)+i*sw,SY(py)-2,sw+1,h);
+    x.restore();
+  }
+}
+// Same painted cog and animation as Level 1: it spins (alternating direction per cog), bobs and glows.
+// COG_SRC is the tight alpha crop of energy-cog-v1.png, shared with Level 1's artBounds.cog.
+const cogImg=img('energy-cog-v1.png'),COG_SRC=[53,57,1148,1117];
+function cog(q,i,now){
+  if(q.got)return;
+  const bob=Math.sin(now*2+i)*5;
+  x.save();x.translate(SX(q.x),SY(q.y+bob));x.rotate(now*.55*(i%2?1:-1));x.shadowColor='#5ff7de';x.shadowBlur=9;
+  if(cogImg.complete&&cogImg.naturalWidth){const[sx,sy,sw,sh]=COG_SRC,h=54,w=h*sw/sh;x.drawImage(cogImg,sx,sy,sw,sh,-w/2,-h/2,w,h)}
+  else{x.fillStyle='#ffd75a';x.beginPath();x.arc(0,0,16,0,7);x.fill()}
+  x.restore();
+}
+// A gate is a stack of the louvred shutter panel (prop cell 2), sized to its collision box. When it
+// opens it slides up and fades over GATE_OPEN seconds (its collision opens at once; this is visual).
+const GATE_OPEN=.6;
+function drawGate(g,now){
+  const open=gateOpen(g);
+  if(!open)g.openT=0;else if(!g.openT)g.openT=now;
+  const k=open?Math.min(1,(now-g.openT)/GATE_OPEN):0;
+  if(k>=1)return;
+  const n=Math.max(1,Math.round(g.h/((g.w+32)*137/135))),sh=g.h/n,cx=g.x+g.w/2;
+  x.save();x.globalAlpha=1-k;
+  for(let i=0;i<n;i++){
+    const bottom=g.y+(i+1)*sh-k*g.h*.8;
+    if(!sprite('furnace-prop-atlas-v2.png',2,cx,bottom,sh,1))box(g.x,bottom-sh,g.w,sh,'#2a1420','#ff4d3a');
+  }
+  x.restore();
 }
 function prop(cell,px,py,w,h){return sprite('furnace-prop-atlas-v2.png',cell,px,py,h)||box(px-w/2,py-h,w,h,'#243d43','#638086')}
 const ENEMY_PLATE={crawler:'enemy-crawler-v2.png',spitter:'enemy-spitter-v2.png',claw:'enemy-claw-v2.png',wasp:'enemy-wasp-v2.png',supervisor:'supervisor-head-v2.png'};
+// Where an enemy is drawn. The module's x,y are the TOP-LEFT of its box (the claw and the
+// supervisor's beam are the exceptions: see hazard()), so the picture is centred on that box.
+// `h` is the reference-cell height each animation is scaled from.
+function enemyPose(e){
+  if(e.type==='claw')return{cx:e.headX,bottom:e.headY+e.h,h:112};
+  if(e.type==='supervisor')return{cx:e.beamX,bottom:e.y+14,h:104};      // head rides above the beam it casts
+  if(e.type==='crawler')return{cx:e.x+e.w/2,bottom:e.y+e.h+3,h:62};
+  if(e.type==='wasp')return{cx:e.x+e.w/2,bottom:e.y+e.h+6,h:44};
+  return{cx:e.x+e.w/2,bottom:e.y+e.h+4,h:66};                            // spitter
+}
+// The claw hangs from a carriage on a rail; the cable pays out as it slams.
+function drawClawRig(e,plate,pose){
+  const lo=Math.min(...e.lanes)-90,hi=Math.max(...e.lanes)+90,rail=e.y-70;
+  box(lo,rail,hi-lo,10,'#1a2e36','#48707a');box(lo,rail,hi-lo,3,'#ffc84a');
+  const top=pose.bottom-pose.h;
+  if(top>rail+30){x.strokeStyle='#33454c';x.lineWidth=5;x.beginPath();x.moveTo(SX(e.headX),SY(rail+34));x.lineTo(SX(e.headX),SY(top+8));x.stroke()}
+  sprite(plate,7,e.headX,rail+40,44,1);
+}
 function drawEnemy(e,now){
   const plate=ENEMY_PLATE[e.type];if(!plate)return;
   const ph=EN.phaseName?EN.phaseName(e):'',tell=EN.tell?EN.tell(e):0;
   let cell=0;
   if(e.type==='crawler')cell=e.stun?6:ph==='wake'?5:ph==='turn'?4:Math.hypot(P.x-e.x,P.y-e.y)<72?7:Math.floor(now*7)%4;
   else if(e.type==='spitter')cell=ph==='wake'?6:ph==='charge'?(tell>.6?2:1):ph==='fire'?(e.t<.16?3:4):ph==='cooldown'?(e.t<.5?4:e.t>1.15?6:5):0;
-  else if(e.type==='claw')cell=ph==='wake'?7:ph==='lock'?2:ph==='slam'?(e.t<e.dur.slam*.72?3:4):ph==='retract'?(e.t<.28?5:6):1;
+  else if(e.type==='claw')cell=ph==='wake'?0:ph==='lock'?2:ph==='slam'?(e.t<e.dur.slam*.72?3:4):ph==='retract'?(e.t<.28?5:6):1;
   else if(e.type==='wasp')cell=e.dead?Math.min(7,5+Math.floor((now-e.dissolveAt)/.18)):ph==='wake'?4:Math.floor(now*9)%4;
   else if(e.type==='supervisor')cell=ph==='wake'?5:ph==='stall'?4:ph==='hold'?3:ph==='sweepLeft'?1:ph==='sweepRight'?2:6;
-  const hz=EN.hazard(e);
-  if(tell>0&&!hz){x.save();x.globalAlpha=.25+tell*.5;x.fillStyle='#ffb43c';x.beginPath();x.arc(SX(e.x),SY(e.y-40),14+tell*10,0,7);x.fill();x.restore()}
-  sprite(plate,cell,e.x,e.y+30,e.type==='wasp'?42:e.type==='supervisor'?96:74,e.dir<0?-1:1);
-  if(e.shot){sprite(plate,7,e.shot.x+e.shot.w/2,e.shot.y+e.shot.h,30,e.dir<0?-1:1)||
+  const hz=EN.hazard(e),pose=enemyPose(e),flip=e.dir<0?-1:1;
+  if(tell>0&&!hz){x.save();x.globalAlpha=.25+tell*.5;x.fillStyle='#ffb43c';x.beginPath();x.arc(SX(pose.cx),SY(pose.bottom-pose.h-18),14+tell*10,0,7);x.fill();x.restore()}
+  if(e.type==='claw')drawClawRig(e,plate,pose);
+  sprite(plate,cell,pose.cx,pose.bottom,pose.h,flip,0);
+  if(e.shot){sprite(plate,7,e.shot.x+e.shot.w/2,e.shot.y+e.shot.h,30,flip)||
     (x.fillStyle='#ff9d23',x.beginPath(),x.arc(SX(e.shot.x+9),SY(e.shot.y+9),9,0,7),x.fill())}
   if(hz&&e.type==='supervisor'){x.save();x.globalCompositeOperation='lighter';x.fillStyle='rgba(255,77,58,.16)';
     x.fillRect(SX(hz.x),SY(hz.y),hz.w,hz.h);x.restore()}

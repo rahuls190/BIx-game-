@@ -58,6 +58,7 @@ ok(q.P.ground === 1, 'Bix never landed on the start platform');
 ok(Math.abs(q.P.y + q.P.h - 610) < 2, 'Bix did not settle on the floor, y=' + q.P.y);
 
 // --- running right actually moves, and the camera follows -------------------
+q.P.inv = 999;   // the fixture crawler now really stands on the floor; this segment measures movement
 const x0 = q.P.x, cam0 = q.state().camX;
 q.K.right = 1; tick(180);
 ok(q.P.x > x0 + 150, `running right moved only ${(q.P.x - x0).toFixed(0)}px`);
