@@ -78,7 +78,7 @@ platforms: [
  /*28*/ [9150,624,220,160],   /* lower coolant valve */
  /*29*/ [9460,612,240,160],
  /*30*/ [9790,596,220,160],
- /*31*/ [10090,500,340,200],  /* A3 rejoin, behind the coolant gate */
+ /*31*/ [10090,460,340,240],  /* A3 rejoin, in front of the coolant gate. Raised 40px so the climb back up to the upper route (p21, 290) is a 170px rise, not 210 */
  /*32*/ [10540,520,340,200],  /* A4 sorter entry */
  /*33*/ [11000,530,420,190],  /* A4 belt deck 1 */
  /*34*/ [11560,540,300,180],
@@ -136,7 +136,7 @@ ledges: [
  /*36*/ [14700,-845,230,22],
  /*37*/ [15380,250,150,22],   /* A5 cog perch */
  /*38*/ [14420,-70,150,22],   /* A5 cog perch */
- /*39*/ [15380,-590,150,22]   /* A5 cog perch */
+ /*39*/ [15380,-590,150,22],  /* A5 cog perch */
 ],
 
 /* --- MOVERS: x,y is the CENTRE of travel. The test proves every required hop at the
@@ -198,7 +198,7 @@ checkpoints: [
  {x:2790,  y:520,  name:'FIRST ISLAND',  area:'casting'},
  {x:4960,  y:515,  name:'MOLD DECK',     area:'casting'},
  {x:6660,  y:420,  name:'PUMP HUB',      area:'cooling'},
- {x:10180, y:500,  name:'COOLANT GATE',  area:'cooling'},
+ {x:10180, y:460,  name:'COOLANT GATE',  area:'cooling'},
  {x:10600, y:520,  name:'SORTER ENTRY',  area:'sorter'},
  {x:12600, y:535,  name:'CELL DECK',     area:'sorter'},
  {x:14400, y:520,  name:'FURNACE BASE',  area:'furnace'},
@@ -226,7 +226,7 @@ shutters: [
 ],
 
 gates: [
- {x:10460, y:150, w:40, h:410, needs:['valveUpper','valveLower']}
+ {x:10460, y:115, w:40, h:445, needs:['valveUpper','valveLower']}
 ],
 
 enemies: [
@@ -295,6 +295,7 @@ chains: [
  {id:'a2-rail',    kind:'optional', nodes:[['p',5],['l',3],['l',4],['l',5],['l',6],['l',7],['l',8],['l',9],['l',10],['m',3],['l',11],['l',12]]},
  {id:'a3-upper',   kind:'required', nodes:[['p',11],['p',12],['p',13],['p',14],['p',15],['p',16],['p',17],['p',18],['p',19],['p',20],['p',21],['p',31]]},
  {id:'a3-lower',   kind:'required', nodes:[['p',12],['p',22],['p',23],['p',24],['p',25],['p',26],['p',27],['p',28],['p',29],['p',30],['p',31]]},
+ {id:'a3-return',  kind:'required', nodes:[['p',31],['p',21]]},   /* the way back up from the gate deck to the upper route */
  {id:'a4-main',    kind:'required', nodes:[['p',31],['p',32],['p',33],['p',34],['p',35],['p',36],['p',37],['p',38],['p',39],['p',40]]},
  {id:'a4-catwalk', kind:'optional', nodes:[['p',32],['l',16],['l',17],['l',18],['l',19],['l',20],['l',21],['l',22],['l',23]]},
  {id:'a4-tunnel',  kind:'pack',     nodes:[['p',41],['p',42],['p',43],['p',44]]},

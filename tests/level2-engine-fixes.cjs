@@ -1,10 +1,11 @@
 // Regression tests for the engine bugs found in the physics + graphics reviews.
 // Runs the REAL engine on the REAL level data. Each check fails on the code from before the fix.
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const noop=()=>{};let clock=0;const drawn=[],rots=[];
+const noop=()=>{};let clock=0;const drawn=[],rots=[],arcs=[];
 const ctx=new Proxy({
   drawImage(im,...a){drawn.push({src:String(im.src),a})},
   rotate(r){rots.push(r)},
+  arc(...a){arcs.push({a,fill:this.fillStyle})},
   createLinearGradient:()=>({addColorStop:noop}),createRadialGradient:()=>({addColorStop:noop})},{get:(o,k)=>o[k]||noop});
 const el=()=>({classList:{add:noop,remove:noop,toggle:noop},style:{},dataset:{},addEventListener:noop,setPointerCapture:noop,
   getBoundingClientRect:()=>({width:1280,height:720,left:0,top:0}),getContext:()=>ctx,focus:noop,textContent:''});
@@ -134,6 +135,30 @@ drawn.length=0;clock=5;q.draw();
 ok(gatePanels().length>=1,'the gate vanished the instant it opened, with no slide');
 drawn.length=0;clock=6;q.draw();
 ok(gatePanels().length===0,'an open gate is still drawn a second later');
+D.valves.forEach(v=>v.on=0);
+
+// 12. The gate tells the player what it wants: a lamp per valve (red until restored, then green) and a spoken hint when
+//     they walk up to it. (A player once stared at the closed gate with no idea it wanted two valves.)
+const lampFills=()=>{arcs.length=0;clock+=.5;q.draw();return arcs.filter(a=>a.a[2]===8&&Math.abs(a.a[1]-(gate.y+30))<1).map(a=>a.fill)};
+D.valves.forEach(v=>v.on=0);q.reset(1);q.start();
+let lamps=lampFills();
+ok(lamps.length===gate.needs.length,`the closed gate shows ${lamps.length} lamps for its ${gate.needs.length} valves`);
+ok(lamps.every(f=>f==='#ff4d3a'),'with both valves off every gate lamp should be red, got '+lamps);
+D.valves[0].on=1;lamps=lampFills();
+ok(lamps.filter(f=>f==='#59e2c2').length===1&&lamps.filter(f=>f==='#ff4d3a').length===1,'one restored valve should light exactly one green lamp, got '+lamps);
+D.valves.forEach(v=>v.on=0);
+const spoken=()=>Object.values(els).map(e=>e.textContent).filter(t=>/Coolant gate locked/.test(t));
+Object.values(els).forEach(e=>e.textContent='');
+q.setCP(D.checkpoints.find(c=>/gate/i.test(c.name)));
+D.triggers.forEach(t=>t.used=1);D.checkpoints.forEach(c=>q.setCP(c));   // other lines of dialogue would overwrite the hint
+stand(gate.x-60,D.platforms[31][1]);tick(2);
+ok(spoken().length===1,'walking up to the closed gate did not say what it needs: '+JSON.stringify(spoken()));
+ok(/0 of 2/.test(spoken()[0]),'the gate hint should count the valves restored so far: '+spoken());
+Object.values(els).forEach(e=>e.textContent='');
+stand(gate.x-60,D.platforms[31][1]);tick(30);
+ok(spoken().length===0,'the gate hint repeats within 6 seconds and would nag');
+D.valves.forEach(v=>v.on=1);clock+=10;Object.values(els).forEach(e=>e.textContent='');stand(gate.x-60,D.platforms[31][1]);tick(3);
+ok(spoken().length===0,'an open gate still says it is locked');
 D.valves.forEach(v=>v.on=0);
 
 console.log(JSON.stringify({checks,crawlers:q.enemies().filter(e=>e.type==='crawler').length,belts:D.belts.length,camY:Math.round(camY)}));

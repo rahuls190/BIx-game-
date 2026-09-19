@@ -256,6 +256,10 @@ function update(dt){
   for(const q of D.cogs)if(!q.got&&Math.hypot(P.x+21-q.x,P.y+40-q.y)<65){q.got=1;cogs++;ui.cogCount.textContent=`${cogs} / ${COG_TOTAL}`;
     toast('PACK',cogs===COG_TOTAL?'All cogs recovered. The supervisor would call that theft.':`Cog ${cogs} secured.`,1.4,1)}
   for(const t of (D.triggers||[]))if(!t.used&&P.x>t.x){t.used=1;toast(t.s,t.t,2.8,1)}
+  // walk up to a closed gate and it says what it wants (at most every 6 s, so it never nags)
+  for(const g of (D.gates||[]))if(!gateOpen(g)&&Array.isArray(g.needs)&&P.x+P.w>g.x-90&&P.x<g.x&&P.y<g.y+g.h&&P.y+P.h>g.y&&(g.hintAt||0)<performance.now()/1000){
+    g.hintAt=performance.now()/1000+6;const got=g.needs.filter(id=>D.valves.some(v=>v.id===id&&v.on)).length;
+    toast('SYSTEM',`Coolant gate locked. Restore both valves (${got} of ${g.needs.length}).`,2.4,1)}
   for(const cp of D.checkpoints)if(!seen.has(cp)&&P.x>cp.x-40&&Math.abs(P.y+P.h-cp.y)<220){seen.add(cp);setCP(cp)}
 
   interact(now);
@@ -427,6 +431,11 @@ function drawGate(g,now){
     if(!sprite('furnace-prop-atlas-v2.png',2,cx,bottom,sh,1))box(g.x,bottom-sh,g.w,sh,'#2a1420','#ff4d3a');
   }
   x.restore();
+  // one lamp per valve the gate waits for: red while it is off, green once it is restored
+  if(!open&&Array.isArray(g.needs))g.needs.forEach((id,i)=>{
+    const on=(D.valves||[]).some(v=>v.id===id&&v.on),lx=cx+(i-(g.needs.length-1)/2)*26,ly=g.y+30;
+    x.save();x.fillStyle=on?'#59e2c2':'#ff4d3a';x.shadowColor=x.fillStyle;x.shadowBlur=on?14:8+6*Math.sin(now*6+i);
+    x.beginPath();x.arc(lx,ly,8,0,7);x.fill();x.restore()});
 }
 function prop(cell,px,py,w,h){return sprite('furnace-prop-atlas-v2.png',cell,px,py,h)||box(px-w/2,py-h,w,h,'#243d43','#638086')}
 const ENEMY_PLATE={crawler:'enemy-crawler-v2.png',spitter:'enemy-spitter-v2.png',claw:'enemy-claw-v2.png',wasp:'enemy-wasp-v2.png',supervisor:'supervisor-head-v2.png'};

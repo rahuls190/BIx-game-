@@ -120,3 +120,18 @@
 .panel .next-level:hover,.panel .next-level:focus-visible{transform:translate(3px,3px);box-shadow:4px 4px 0 #168f83}
 .panel .next-level span{margin-left:26px}
 #joystick:active{transform:none;}
+
+/* On a touch screen, holding a button or dragging the joystick must never start selecting text or pop the
+   copy / image callout. Text stays selectable on a mouse device, and in form fields everywhere. */
+@media (hover: none), (pointer: coarse) {
+  html, body, canvas, #game, .hud, .panel, #touchControls, #joystick, button, a {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
