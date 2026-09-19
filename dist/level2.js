@@ -391,11 +391,13 @@ function slab(px,py,w,cell,h){
   // Each atlas cell is a complete deck section (end posts + centre detail). Draw it at its
   // true proportions and repeat it to fill wide platforms, mirroring every other section,
   // instead of stretching one small strip across the whole width.
-  const r=a.cells[cell],s=h/r[3],n=Math.max(1,Math.round(w/(r[2]*s))),sw=w/n;
+  // A platform narrower than one section is drawn SMALLER at true proportions, not squashed to fit.
+  const r=a.cells[cell];let s=h/r[3];if(w<r[2]*s*.75)s=w/r[2];
+  const dh=r[3]*s,n=Math.max(1,Math.round(w/(r[2]*s))),sw=w/n;
   for(let i=0;i<n;i++){
     x.save();
-    if(i%2){x.translate(SX(px)+(i+1)*sw,0);x.scale(-1,1);x.drawImage(im,r[0],r[1],r[2],r[3],0,SY(py)-2,sw+1,h)}
-    else x.drawImage(im,r[0],r[1],r[2],r[3],SX(px)+i*sw,SY(py)-2,sw+1,h);
+    if(i%2){x.translate(SX(px)+(i+1)*sw,0);x.scale(-1,1);x.drawImage(im,r[0],r[1],r[2],r[3],0,SY(py)-2,sw+1,dh)}
+    else x.drawImage(im,r[0],r[1],r[2],r[3],SX(px)+i*sw,SY(py)-2,sw+1,dh);
     x.restore();
   }
 }

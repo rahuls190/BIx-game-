@@ -41,8 +41,8 @@ areas: [
  {id:'lift',    name:'BROKEN LIFT',    objective:'Climb down out of the wrecked lift', x0:0,     x1:2600},
  {id:'casting', name:'CASTING HALL',   objective:'Ride the molds across the molten channel', x0:2600, x1:6200},
  {id:'cooling', name:'COOLING WORKS',  objective:'Open both coolant valves', x0:6200, x1:10500},
- {id:'sorter',  name:'SCRAP SORTER',   objective:'Seat the power cell past the laser gates', x0:10500, x1:14500},
- {id:'furnace', name:'FURNACE ESCAPE', objective:'Open three shutters and board the lift', x0:14500, x1:16600}
+ {id:'sorter',  name:'SCRAP SORTER',   objective:'Seat the power cell past the laser gates', x0:10500, x1:14360},
+ {id:'furnace', name:'FURNACE ESCAPE', objective:'Open three shutters and board the lift', x0:14360, x1:16600}
 ],
 
 /* --- SOLID PLATFORMS (index order is load-bearing: chains[] and retracts[] point at it) --- */
@@ -58,17 +58,17 @@ platforms: [
  /* 8*/ [4930,515,320,160],   /* A2 deck */
  /* 9*/ [5390,545,300,160],   /* A2 deck */
  /*10*/ [5790,500,320,160],   /* A2 deck (rail lane drops back here) */
- /*11*/ [6210,540,300,160],   /* A2 -> A3 transition */
- /*12*/ [6600,520,520,180],   /* A3 central pump hub — route splits here */
- /*13*/ [7230,420,220,90],    /* A3 upper pipe */
- /*14*/ [7560,400,200,90],
- /*15*/ [7870,395,200,90],    /* retracting */
- /*16*/ [8180,400,200,90],    /* retracting */
- /*17*/ [8490,390,200,90],    /* retracting */
- /*18*/ [8800,400,220,90],    /* spitter target slab */
- /*19*/ [9130,395,200,90],    /* retracting */
- /*20*/ [9440,410,220,90],    /* upper coolant valve */
- /*21*/ [9770,430,240,90],
+ /*11*/ [6210,500,300,160],   /* A2 -> A3 transition (level with deck 10, one 80 px step up to the hub) */
+ /*12*/ [6600,420,520,180],   /* A3 central pump hub — route splits here: JUMP right = upper pipes, WALK OFF = tunnel */
+ /*13*/ [7230,300,220,90],    /* A3 upper pipe */
+ /*14*/ [7560,285,200,90],
+ /*15*/ [7870,280,200,90],    /* retracting */
+ /*16*/ [8180,285,200,90],    /* retracting */
+ /*17*/ [8490,275,200,90],    /* retracting */
+ /*18*/ [8800,285,220,90],    /* spitter target slab */
+ /*19*/ [9130,280,200,90],    /* retracting */
+ /*20*/ [9440,290,220,90],    /* upper coolant valve */
+ /*21*/ [9770,290,240,90],
  /*22*/ [7230,620,240,160],   /* A3 lower maintenance tunnel */
  /*23*/ [7560,632,220,160],
  /*24*/ [7870,620,220,160],
@@ -78,7 +78,7 @@ platforms: [
  /*28*/ [9150,624,220,160],   /* lower coolant valve */
  /*29*/ [9460,612,240,160],
  /*30*/ [9790,596,220,160],
- /*31*/ [10110,500,320,200],  /* A3 rejoin, behind the coolant gate */
+ /*31*/ [10090,500,340,200],  /* A3 rejoin, behind the coolant gate */
  /*32*/ [10540,520,340,200],  /* A4 sorter entry */
  /*33*/ [11000,530,420,190],  /* A4 belt deck 1 */
  /*34*/ [11560,540,300,180],
@@ -110,9 +110,9 @@ ledges: [
  /*10*/ [4900,335,170,22],
  /*11*/ [5460,340,170,22],    /* after the moving rail gap */
  /*12*/ [5760,325,170,22],
- /*13*/ [7600,250,150,22],    /* A3 upper cog perch */
- /*14*/ [8540,240,150,22],    /* A3 upper cog perch */
- /*15*/ [7900,540,150,22],    /* A3 lower cog perch */
+ /*13*/ [7600,150,150,22],    /* A3 upper cog perch */
+ /*14*/ [8540,150,150,22],    /* A3 upper cog perch */
+ /*15*/ [8040,540,100,22],    /* A3 lower cog perch (over the right end of deck 24: does not sit in the landing zone of 23 -> 24) */
  /*16*/ [10700,375,180,22],   /* A4 catwalk — every span keeps a belt deck within 200 px below it */
  /*17*/ [11020,355,170,22],
  /*18*/ [11340,365,170,22],
@@ -122,17 +122,17 @@ ledges: [
  /*22*/ [12620,365,170,22],
  /*23*/ [12940,355,170,22],
  /*24*/ [14700,415,230,22],   /* A5 climb 1 (left column) */
- /*25*/ [15040,310,230,22],   /* A5 climb 2 (right column) */
+ /*25*/ [15040,320,230,22],   /* A5 climb 2 (right column) */
  /*26*/ [14700,205,230,22],   /* shutter 1 */
- /*27*/ [15040,100,230,22],
- /*28*/ [14700,-5,230,22],    /* REST LEDGE A — checkpoint */
- /*29*/ [15040,-110,230,22],
+ /*27*/ [15040,110,230,22],
+ /*28*/ [14700,-5,230,22],
+ /*29*/ [15040,-110,230,22],  /* REST LEDGE A — checkpoint (right column, 220 px above ledge 27) */
  /*30*/ [14700,-215,230,22],  /* shutter 2 */
  /*31*/ [15040,-320,230,22],
- /*32*/ [14700,-425,230,22],  /* REST LEDGE B — checkpoint */
- /*33*/ [15040,-530,230,22],
+ /*32*/ [14700,-425,230,22],
+ /*33*/ [15040,-540,230,22],  /* REST LEDGE B — checkpoint (right column, 220 px above ledge 31) */
  /*34*/ [14700,-635,230,22],  /* shutter 3 */
- /*35*/ [15040,-740,230,22],  /* override console */
+ /*35*/ [14860,-750,150,22],  /* override console — clear of the lift deck's underside (x < 15020-42 at take-off) */
  /*36*/ [14700,-845,230,22],
  /*37*/ [15380,250,150,22],   /* A5 cog perch */
  /*38*/ [14420,-70,150,22],   /* A5 cog perch */
@@ -186,7 +186,7 @@ lava: [
 /* --- 14 OPTIONAL COGS, all on hang-rail / catwalk / side-perch routes --- */
 cogs: [
  {x:3205,y:290},  {x:3785,y:285},  {x:4375,y:280},  {x:5845,y:275},   /* A2 hang-rail lane */
- {x:7675,y:200},  {x:8615,y:190},  {x:7975,y:490},                    /* A3 both routes */
+ {x:7675,y:100},  {x:8615,y:100},  {x:8090,y:490},                    /* A3 both routes */
  {x:11105,y:305}, {x:11745,y:300}, {x:12385,y:300}, {x:13025,y:305},  /* A4 catwalk */
  {x:15455,y:200}, {x:14495,y:-120},{x:15455,y:-640}                   /* A5 side perches */
 ],
@@ -197,25 +197,25 @@ checkpoints: [
  {x:1760,  y:560,  name:'SHAFT BASE',    area:'lift'},
  {x:2790,  y:520,  name:'FIRST ISLAND',  area:'casting'},
  {x:4960,  y:515,  name:'MOLD DECK',     area:'casting'},
- {x:6660,  y:520,  name:'PUMP HUB',      area:'cooling'},
+ {x:6660,  y:420,  name:'PUMP HUB',      area:'cooling'},
  {x:10180, y:500,  name:'COOLANT GATE',  area:'cooling'},
  {x:10600, y:520,  name:'SORTER ENTRY',  area:'sorter'},
  {x:12600, y:535,  name:'CELL DECK',     area:'sorter'},
  {x:14400, y:520,  name:'FURNACE BASE',  area:'furnace'},
- {x:14760, y:-5,   name:'REST LEDGE A',  area:'furnace'},
- {x:14760, y:-425, name:'REST LEDGE B',  area:'furnace'}
+ {x:15100, y:-110, name:'REST LEDGE A',  area:'furnace'},
+ {x:15100, y:-540, name:'REST LEDGE B',  area:'furnace'}
 ],
 
 /* --- PACK ACT TERMINALS --- */
 terminals: [
- {x:7930,  y:395,  label:'PIPE CONTROL',  does:'Pack holds the retracting pipe span out for 6 s', area:'cooling', route:'upper'},
+ {x:7930,  y:280,  label:'PIPE CONTROL',  does:'Pack holds the retracting pipe span out for 6 s', area:'cooling', route:'upper'},
  {x:7930,  y:620,  label:'TUNNEL PUMP',   does:'Pack delays the next flood by 8 s',               area:'cooling', route:'lower'},
  {x:11030, y:530,  label:'SERVICE HATCH', does:'Pack drops into the tunnel and clears the claw rail', area:'sorter'},
- {x:15100, y:-740, label:'OVERRIDE',      does:'Pack holds the lift shutter while Bix boards',   area:'furnace'}
+ {x:14990, y:-750, label:'OVERRIDE',      does:'Pack holds the lift shutter while Bix boards',   area:'furnace'}
 ],
 
 valves: [
- {x:9530, y:410, id:'valveUpper'},
+ {x:9530, y:290, id:'valveUpper'},
  {x:9250, y:624, id:'valveLower'}
 ],
 
@@ -226,13 +226,13 @@ shutters: [
 ],
 
 gates: [
- {x:10460, y:340, w:40, h:220, needs:['valveUpper','valveLower']}
+ {x:10460, y:150, w:40, h:410, needs:['valveUpper','valveLower']}
 ],
 
 enemies: [
  {type:'crawler',    x:3560, y:530,  x0:3500,  x1:3740,  speed:78, pause:.6, area:'casting'},
  {type:'crawler',    x:5080, y:515,  x0:5060,  x1:5230,  speed:78, pause:.6, area:'casting'},
- {type:'spitter',    x:9120, y:320,  face:-1, period:2.6, tell:.8, landX:8910, landY:400, area:'cooling', route:'upper'},
+ {type:'spitter',    x:9120, y:205,  face:-1, period:2.6, tell:.8, landX:8910, landY:285, area:'cooling', route:'upper'},
  {type:'spitter',    x:8820, y:540,  face:-1, period:2.6, tell:.8, landX:8620, landY:622, area:'cooling', route:'lower'},
  {type:'claw',       x:12200,y:300,  x0:11060, x1:13340, period:3.2, lanes:[11210,12200,13190], area:'sorter'},
  {type:'crawler',    x:11800,y:780,  x0:11720, x1:11980, speed:78, pause:.6, area:'sorter', packOnly:1},
@@ -286,7 +286,7 @@ floods: [
  {x0:7180, x1:10060, yDry:900, yWet:648, period:16, wet:5, p:0}
 ],
 
-heat: {x0:14380, x1:15560, yStart:820, rate:34, perShutter:14},
+heat: {x0:14360, x1:15560, yStart:820, rate:34, perShutter:14},
 
 /* --- TRAVERSAL PROOFS. kind:'required' must clear the envelope with real margin. --- */
 chains: [
