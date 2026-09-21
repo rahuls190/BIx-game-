@@ -56,7 +56,7 @@ const dt = 1 / 60;
     q.tick(1, dt); if (/SHIELD ACTIVE/.test(q.line())) { blocked = true; break } if (q.P.falls !== f0 || q.state().charge !== c0) break }
   ok(blocked && q.P.falls === f0 && q.state().charge === c0, 'a raised shield absorbs a falling scrap block instead of dying');
   const r = boot(); r.setEnemies([]); r.setDrones([]); r.D.triggers.forEach(t => { t.used = 1 }); r.setCP(r.D.checkpoints.find(c => c.name === 'RAIL HEAD')); r.reset(0); r.tick(3, dt); r.P.falls = 0; r.P.inv = 0;
-  const T = r.train(); T.obs = T.obs.filter(o => o.k === 'R' && o.at === 12500); r.tick(Math.round(2.2 / dt), dt); r.P.x = r.train().x + 300; r.K.shield = 0;
+  const T = r.train(); T.saves = 0; T.obs = T.obs.filter(o => o.k === 'R' && o.at === 12500); r.tick(Math.round(2.2 / dt), dt); r.P.x = r.train().x + 300; r.K.shield = 0;
   let saved = false; for (let i = 0; i < 60 * 6 && !saved; i++) {
     const th = r.train().things.find(k => k.k === 'R'); r.K.shield = th && (th.ph === 'fall' || th.ph === 'roll') && Math.abs(r.train().x + th.bx - (r.P.x + 21)) < 90 && th.y > r.P.y - 130 ? 1 : 0;
     r.tick(1, dt); if (/SHIELD ACTIVE/.test(r.line())) saved = true; if (r.P.falls) break;

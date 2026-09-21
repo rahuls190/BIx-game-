@@ -77,7 +77,7 @@ const at = name => boot().D.checkpoints.find(c => c.name === name);
   { const r = boot(); r.setEnemies([]); r.setDrones([]); r.D.triggers.forEach(t => { t.used = 1 });
     r.setCP(r.D.checkpoints.find(c => c.name === 'RAIL HEAD')); r.reset(0); r.tick(3, dt); r.P.falls = 0; r.P.inv = 0; r.setGlove(1);
     r.place(r.train().x + 40, r.D.train.y); r.tick(5, dt);
-    let sawJoltHint = false, sawJoltPrompt = false, sawRock = false, sawRockPrompt = false, blue = 0;
+    let sawJoltHint = false, sawJoltPrompt = false, sawRock = false, sawRockPrompt = false, sawDroneHint = false, sawLoadPrompt = false, blue = 0;
     for (let i = 0; i < 60 * 14 && !r.train().done && r.P.falls === 0; i++) {
       const T = r.train(), jolt = T.obs.find(o => o.k === 'J' && o.st === 2); r.K.blue = jolt ? 1 : 0;
       r.tick(1, dt);
@@ -85,10 +85,22 @@ const at = name => boot().D.checkpoints.find(c => c.name === name);
       if (/HOLD BLUE/.test(r.els.prompt.textContent)) sawJoltPrompt = true;
       if (/Rock! Jump it/.test(r.line())) sawRock = true;
       if (/ROCK · JUMP IT OR HOLD RED/.test(r.els.prompt.textContent)) sawRockPrompt = true;
+      if (/DRONE · JUMP IT OR RAISE THE SHIELD/.test(r.els.prompt.textContent)) sawDroneHint = true;
+      if (/SWING-LOAD · HOLD RED/.test(r.els.prompt.textContent)) sawLoadPrompt = true;
     }
     ok(sawJoltHint && sawJoltPrompt, 'the first jolt gets a Pack hint and a HOLD BLUE prompt');
     ok(sawRock && sawRockPrompt, 'the first rock gets a Pack hint and a JUMP OR HOLD RED prompt');
-    ok(r.train().done || r.P.falls === 0, 'a player who answers the jolts and rocks as told reaches the buffer'); }
+    ok(sawLoadPrompt && sawDroneHint, 'swing-loads and drones get their prompts too');
+  }
+  // the ride gives two free hits from Pack: hits 1 and 2 are absorbed, hit 3 ends the ride
+  { const f = ride({ saves: 2, only: () => false }); f.tick(Math.round(2.2 / dt), dt); f.P.x = f.train().x + 210; f.tick(2, dt);
+    ok(f.train().run === 1 && f.train().saves === 2 && /2 FREE HITS/.test(f.els.packChargeLabel.textContent), 'a ride starts with two free hits, shown by the Pack indicator');
+    f.P.inv = 0; f.hurt('rock'); f.tick(2, dt); ok(f.P.falls === 0 && f.train().saves === 1 && /Pack takes the hit/.test(f.line()) && /1 FREE HIT$/.test(f.els.packChargeLabel.textContent), 'the first hit is absorbed by Pack');
+    f.P.inv = 0; f.hurt('rock'); f.tick(2, dt); ok(f.P.falls === 0 && f.train().saves === 0 && /last free one/.test(f.line()), 'the second is too');
+    f.P.inv = 0; f.hurt('rock'); f.tick(2, dt); ok(f.P.falls === 1 && !f.train().run, 'the third ends the ride and returns Bix to the rail head');
+    const g = ride({ saves: 2, only: o => o.k === 'R' && o.at === 12500 }); g.tick(Math.round(2.2 / dt), dt); g.P.x = g.train().x + 210; let alive = true;
+    for (let i = 0; i < 60 * 4 && alive; i++) { g.tick(1, dt); if (g.P.falls) alive = false }
+    ok(alive && g.train().saves === 1, 'standing under the first falling rock costs one free hit, not the ride'); }
   // Field Boost (4 cogs) makes cores 30% faster
   const q6 = boot(); q6.setEnemies([]); q6.setDrones([]); q6.setCogs(4); q6.place(T0.x - 21, T0.y); q6.K.interact = 1; q6.tick(2, dt); q6.K.interact = 0; q6.K.red = 1;
   const x0 = q6.cores()[0].x; q6.tick(60, dt); near(q6.cores()[0].x - x0, 240 * 1.3, 10, 'from 4 cogs a core moves 30% faster');
@@ -144,6 +156,7 @@ function ride(opts = {}) {
   q.D.triggers.forEach(t => { t.used = 1 });        // the captions along the way have played
   q.reset(0); q.tick(3, dt); q.P.inv = 0; q.K.right = 0; q.P.falls = 0;
   if (opts.only) q.train().obs = q.train().obs.filter(o => opts.only(o));         // (a respawn rebuilds the train, so filter after it)
+  q.train().saves = opts.saves ?? 0;                                               // the hazard tests measure the hazard itself; the two free hits have their own test below
   return q;
 }
 {

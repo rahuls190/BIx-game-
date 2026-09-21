@@ -192,6 +192,7 @@ drones: [
    drone at bed height (jump it, or parry). At buffer x the bed stops and Bix is thrown on a fixed arc onto the vault threshold. */
 train: {
   start: 11290, y: -320, len: 420, v0: 110, accel: 120, vmax: 427, boardWait: 2.0, buffer: 16300, land: { x: 16860, y: -200 }, flight: 1.25, flightRise: 300,
+  saves: 2,      /* free hits per ride: Pack takes the first two rocks, swing-loads or drones; a missed jolt or stepping off still ends the ride */
   jolt: 0.9, need: 0.4, tell: 0.6,       /* seconds of warning: the amber lamps, the rock's shadow, the chain creak */
   obs: [
     { k: 'J', at: 12100 }, { k: 'R', at: 12500 }, { k: 'G', at: 12900 }, { k: 'D', at: 13300 }, { k: 'J', at: 13800 },

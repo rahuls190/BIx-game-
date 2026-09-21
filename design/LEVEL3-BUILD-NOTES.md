@@ -49,3 +49,10 @@ Tests: `tests/level3-rules.cjs`.
 A gate is never a ledge; Kinetic Recoil never slows a jump; a pad launch cannot be cancelled by coyote time; a jump press during a climb, tether or flight is
 dropped; Up/W climb the wall strip; hanging on an island or the train follows it; dropping through a ledge does not re-grab it; a respawn lets Pack go.
 Tests: `tests/level3-physics.cjs` (with a 16-run random-input fuzz at 30 to 240 fps).
+
+## Clarity and forgiveness fixes after playtesting
+- **Lab terminals:** Pack's line at each terminal names the button (Red pushes core B: hold X; Blue pulls core A: hold Z at its socket), and he speaks up if Blue is held where it cannot pull. Hold time stays 24 s (`hint` on each terminal in `level3-data.js`).
+- **Ore train prompts:** the prompt box names the button while an obstacle needs an answer (`trainPrompt()` in `level3.js`: HOLD BLUE for a jolt, ROCK / SWING-LOAD / DRONE for the nearest hazard), and Pack says it the first time each appears.
+- **Two free hits per ride** (`saves: 2` in `TR`): Pack takes the first two rock, swing-load or drone hits (1.3 s grace, shown as "PACK · 2 FREE HITS"); the third hit, a missed jolt, or stepping off the bed still ends the ride. The tests that prove each hazard is lethal set `saves` to 0.
+- **Gantry sprite:** `design/fix_gantry_sprite.py` cleans a white blob and smear on the left pillar and the magenta fringe in `dist/assets/l3-world2-v3.webp` (a cut-out artefact; the atlas is re-encoded at quality 90).
+- **Testing note:** the harness's `place()` makes Bix invulnerable (`inv: 999`); set `q.P.inv = 0` for any test that needs real damage.

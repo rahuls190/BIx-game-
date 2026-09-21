@@ -124,7 +124,7 @@ function buildAreas(full){
   drones=(D.drones||[]).map(d=>({...d,x:(d.x0+d.x1)/2,y:d.y,dead:0}));
   const now=performance.now()/1000;
   isl=(D.islands||[]).map(v=>{const q=islandAt(v,now);return{id:v.id,t:v.t,w:v.w,h:26,x:q.x,y:q.y,dx:0,dy:0}});
-  train={x:TR.start,v:0,t:0,run:0,wait:0,done:0,riding:0,off:0,dx:0,boarded:0,vela:0,things:[],obs:TR.obs.map(o=>({...o,st:0,t:0,hold:0,ok:0}))};
+  train={x:TR.start,v:0,t:0,run:0,wait:0,done:0,riding:0,off:0,dx:0,boarded:0,vela:0,saves:TR.saves??2,things:[],obs:TR.obs.map(o=>({...o,st:0,t:0,hold:0,ok:0}))};
   flight=null;doorHold=0;doorNear=0;doorT=0;gflash=0;recoil=0;inArchive=0;
 }
 function buildWorldState(full){
@@ -225,7 +225,9 @@ function letGo(){P.gird=null;P.cling=null}
 function trainFail(){shake=18;flash=.18;reset(0);toast('SYSTEM','[ERROR] Locomotive collision. Maintenance requested in Sector 3.',2.6,1)}
 function hurt(t){
   if(P.inv||done||flight||doorT>0)return;
-  if(train&&train.run&&!train.done){trainFail();return}          // the ride has no Pack catch: it is short, and a retry starts at the rail head
+  if(train&&train.run&&!train.done){
+    if(train.saves>0){train.saves--;P.inv=Math.max(P.inv,1.3);shake=10;flash=.1;toast('PACK',train.saves?'Pack takes the hit! One free hit left this ride.':'Pack takes the hit! That was the last free one.',2.4,1);return}
+    trainFail();return}          // Pack's catch cannot teleport Bix off a moving train, so the ride has its own two free hits; the third ends it and a retry starts at the rail head
   if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.buffer=0;P.coyote=0;P.jumpTime=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
     P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;letGo();tether=null;
     seen.add(checkpoint);
@@ -612,6 +614,8 @@ function update(dt){
   shake=Math.max(0,shake-30*dt);flash=Math.max(0,flash-dt);
 
   ui.zone.textContent=area?area.name:'';ui.objective.textContent=area?area.objective:'';
+  {const ride=!!(train&&train.run&&!train.done),lab=ride?`PACK · ${train.saves} FREE HIT${train.saves===1?'':'S'}`:(charge?'PACK READY':'PACK SPENT');
+    if(ui.packChargeLabel.textContent!==lab)ui.packChargeLabel.textContent=lab;ui.packCharge.classList.toggle('spent',ride?!train.saves:!charge)}
   hud();
   if(msgTime>0){msgTime-=dt;if(msgTime<=0)ui.dialogue.classList.add('hidden')}
 }
@@ -637,8 +641,16 @@ function trainPrompt(){
   if(!train||!train.run||train.done)return '';
   const j=train.obs.find(o=>o.k==='J'&&(o.st===1||o.st===2)&&!o.ok);
   if(j)return j.st===2?`HOLD BLUE${keyHint('Z')} NOW`:`JOLT AHEAD · GET READY TO HOLD BLUE${keyHint('Z')}`;
-  if(train.things.some(k=>k.k==='R'&&(k.ph==='tell'||k.ph==='fall'||k.ph==='roll')))return `ROCK · JUMP IT OR HOLD RED${keyHint('X')}`;
-  if(train.things.some(k=>k.k==='G'&&!k.gone))return `SWING-LOAD · HOLD RED${keyHint('X')} TO LIFT IT`;
+  // the hazard nearest to Bix decides the prompt (a rock rolling away must not hide the swing-load or the drone that is about to arrive)
+  const pc=P.x+P.w/2;let best=null,bd=520;
+  for(const k of train.things){
+    let d=null,txt='';
+    if(k.k==='R'&&(k.ph==='tell'||k.ph==='fall'||k.ph==='roll')){d=Math.abs(train.x+k.bx-pc);txt=`ROCK · JUMP IT OR HOLD RED${keyHint('X')}`}
+    else if(k.k==='G'&&!k.gone&&k.x!==undefined){d=Math.abs(k.x-pc);txt=`SWING-LOAD · HOLD RED${keyHint('X')} TO LIFT IT`}
+    else if(k.k==='D'&&!k.dead){d=Math.abs(train.x+k.bx-pc);txt=`DRONE · JUMP IT OR RAISE THE SHIELD${keyHint('C')}`}
+    if(d!==null&&d<bd){bd=d;best=txt}
+  }
+  if(best)return best;
   return '';
 }
 function nearest(list,r){let best=null,bd=r;for(const q of (list||[])){const d=Math.hypot(P.x+21-q.x,P.y+48-q.y);if(d<bd){bd=d;best=q}}return best}
