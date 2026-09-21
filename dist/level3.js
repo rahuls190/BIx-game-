@@ -226,7 +226,7 @@ function trainFail(){shake=18;flash=.18;reset(0);toast('SYSTEM','[ERROR] Locomot
 function hurt(t){
   if(P.inv||done||flight||doorT>0)return;
   if(train&&train.run&&!train.done){trainFail();return}          // the ride has no Pack catch: it is short, and a retry starts at the rail head
-  if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.buffer=0;P.coyote=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
+  if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.buffer=0;P.coyote=0;P.jumpTime=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
     P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;letGo();tether=null;
     seen.add(checkpoint);
     toast('PACK','Got you. That counts as overtime.',2.1,1);return}
