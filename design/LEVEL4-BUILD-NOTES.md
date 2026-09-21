@@ -33,10 +33,14 @@ Then open http://localhost:8000/level4.html. It is locked until Levels 1 to 3 ha
 ## Numbers (checked by tests/level4-geometry.cjs)
 Every jump on the route (34 of them) works in the real engine's physics both carrying the core in its zone and without it, so a dropped core never traps Bix. The spine also needs no updraft. Every cog and slip is collectable. Cog c11 (the mastery cog, y -1500) is out of reach of a plain jump and reachable only with the buoyant core from ledge b1. Heavy steps rise 100 with gaps under 100; buoyant steps rise 140 with gaps of 80; spine steps rise 80 to 100.
 
+## Art (Krea 2 in a local ComfyUI, `design/comfy_l4.py` then `design/build_l4_art.py`)
+Level 4 has its own look, not Level 3's blue-grey steel: each area has its own deck, underside and catwalk in its own materials and palette (transit slate concrete, rust-red freight container steel, timber and teal for the market, galvanised lattice for the spine, black composite with violet for the relay bay, black iron with a red lip for the shaft), its own painted backdrop, and the gates have their own doors (freight shutter, customs barrier, relay blast door, steel cage). New props: the core in four looks (grey-white, amber, cyan, violet), core cradle, scale plates, belt, vent, arc pylons, relay nodes, vending bot, busker bot, customs desk, lift socket, delivery slip, cargo crane container and cable. `build_l4_art.py --tag=vN` keys the magenta, packs `dist/assets/l4-world-vN.webp`, writes six `l4-bg-*-vN.jpg` backdrops and `dist/level4-art.js` (window.L4ART); choices are in `design/level4-art-krea/choices.json` (candidate folders are git-ignored). The engine draws every picture through `blit()` with a plain-shape fallback, and falls back to Level 3's art only for a name Level 4 lacks. Change the tag when the pictures change, so browsers do not keep the old atlas. The landing picture is `dist/assets/landing-level4-v1.jpg` (`design/comfy_landing_l4.py`).
+Speed note: give the area pieces ONE small reference (the backdrop at 512 px). Two references made each picture take five minutes instead of 17 seconds.
+
 ## Not built yet (stage 2 and later)
 - **Courier chase** (a courier bot steals the core on the spine) and **Courier Prime's three-core choice**. Stage 1 has his lines and the cage gate but no fight-free puzzle yet.
 - **Blackout and Pack's Lens Beam** (hidden platforms), the **Antenna nest** and **Lost & Found** as separate rooms with their own puzzles (Lost & Found is two ledges with a cog and a stamp), **Zero Margin** and **No-drop** skill branches with ghost replay, **weak floors**, **rotating dishes**, **Nib** and the market NPCs as characters, the **busker band**.
-- **Real art** for every plate and backdrop (Krea 2 in ComfyUI, side-on flat camera), the real **landing picture**, and **sound** for Levels 3 and 4.
+- **Art for the stage 2 pieces** (Courier, Courier Prime, the blackout, the Lens Beam, the secret rooms), and **sound** for Levels 3 and 4.
 - The **three-agent review** (graphics, physics, game rules), then the user's go-ahead before any push.
 
 ## Decisions taken as defaults (the user said "story, and start making it")

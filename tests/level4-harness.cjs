@@ -20,8 +20,8 @@ function boot(opts = {}) {
   sb.window = sb; vm.createContext(sb);
   if (opts.mayhem) sb.Mayhem = opts.mayhem;
   if (opts.progress) sb.MayhemProgress = opts.progress;
-  for (const f of ['dist/level2-art.js', 'dist/level2-enemies.js', 'dist/level3-glove.js', 'dist/level4-core.js', opts.data || 'dist/level4-data.js'])
-    vm.runInContext(fs.readFileSync(path.isAbsolute(f) ? f : path.join(ROOT, f), 'utf8'), sb, { filename: f });
+  for (const f of ['dist/level2-art.js', 'dist/level2-enemies.js', 'dist/level3-glove.js', ...(opts.noart ? [] : ['dist/level3-art.js', 'dist/level4-art.js']), 'dist/level4-core.js', opts.data || 'dist/level4-data.js'])
+    { const full = path.isAbsolute(f) ? f : path.join(ROOT, f); if (/level[34]-art\.js$/.test(f) && !fs.existsSync(full)) continue; vm.runInContext(fs.readFileSync(full, 'utf8'), sb, { filename: f }); }
   let src = fs.readFileSync(path.join(ROOT, 'dist/level4.js'), 'utf8');
   if (!src.includes(HOOK)) throw new Error('boot hook string not found in dist/level4.js');
   src = src.replace(HOOK, `resize();reset(1);globalThis.qa={P,K,D,GL,CO,update,draw,reset,start,solids,seen,pressState,phaseOn,hurt,pickUp,setDown,throwCore,placeCoreBeside,interact,finish,seatCore,
