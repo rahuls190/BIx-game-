@@ -243,6 +243,14 @@ function perfect(q) {
   const f = ride(); f.tick(Math.round(2.2 / dt), dt); f.P.x = f.train().x + 210; let tt = 0; while (f.P.falls === 0 && tt < 20) { f.tick(1, dt); tt += dt } const errLine = f.line(); f.tick(3, dt);
   ok(f.P.falls === 1 && !f.train().run && f.train().x === TR.start && f.P.ground && Math.abs(f.P.x - 11310) < 4, 'losing the ride respawns Bix at the rail head with the bed reset'); ok(/Locomotive collision/.test(errLine), 'with the design\'s error line');
   ok(f.state().charge === 1, 'and the train never spends the Pack catch (a retry is quick)');
+  // the failure line says why: a missed jolt, leaving the bed, and running out of free hits each get their own reason
+  { const j = ride({ only: J1, saves: 2 }); j.tick(Math.round(2.2 / dt), dt); j.P.x = j.train().x + 210; j.tick(Math.round(6 / dt), dt, () => j.P.falls === 0);
+    ok(j.P.falls === 1 && /Missed the jolt: hold Blue/.test(j.line()), 'a missed jolt is named');
+    const o = ride({ only: () => false }); o.tick(Math.round(2.2 / dt), dt); o.P.x = o.train().x - 400; o.P.y = o.D.train.y - 300; o.P.vy = 0; o.tick(Math.round(1.5 / dt), dt, () => o.P.falls === 0);
+    ok(o.P.falls === 1 && /You left the train/.test(o.line()), 'leaving the bed is named');
+    const h = ride({ only: () => false, saves: 0 }); h.tick(Math.round(2.2 / dt), dt); h.P.x = h.train().x + 210; h.tick(2, dt); h.P.inv = 0; h.hurt('rock');
+    ok(h.P.falls === 1 && /Out of free hits/.test(h.line()), 'running out of free hits is named'); }
+
 }
 {
   // the train cogs: some jump timing collects each of them (they hang over the bed between obstacles)

@@ -222,12 +222,13 @@ function grab(now){
 }
 function letGo(){P.gird=null;P.cling=null}
 // Pack's catch spends the single charge to save a death; otherwise respawn.
-function trainFail(){shake=18;flash=.18;reset(0);toast('SYSTEM','[ERROR] Locomotive collision. Maintenance requested in Sector 3.',2.6,1)}
+// the design's error line, plus the reason, so a lost ride says what to do differently
+function trainFail(why){shake=18;flash=.18;reset(0);toast('SYSTEM','[ERROR] Locomotive collision. '+(why||'Maintenance requested in Sector 3.'),3.4,1)}
 function hurt(t){
   if(P.inv||done||flight||doorT>0)return;
   if(train&&train.run&&!train.done){
     if(train.saves>0){train.saves--;P.inv=Math.max(P.inv,1.3);shake=10;flash=.1;toast('PACK',train.saves?'Pack takes the hit! One free hit left this ride.':'Pack takes the hit! That was the last free one.',2.4,1);return}
-    trainFail();return}          // Pack's catch cannot teleport Bix off a moving train, so the ride has its own two free hits; the third ends it and a retry starts at the rail head
+    trainFail('Out of free hits: jump, Red or shield.');return}          // Pack's catch cannot teleport Bix off a moving train, so the ride has its own two free hits; the third ends it and a retry starts at the rail head
   if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.buffer=0;P.coyote=0;P.jumpTime=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
     P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;letGo();tether=null;
     seen.add(checkpoint);
@@ -443,7 +444,7 @@ function updateTrain(dt,now,pol){
     return;
   }
   const front=train.x+TR.len,pcx=P.x+P.w/2;
-  if(!train.riding&&!flight){train.off=(train.off||0)+dt;if(train.off>.5){trainFail();return}}else train.off=0;      // off the bed for half a second: the ride is lost
+  if(!train.riding&&!flight){train.off=(train.off||0)+dt;if(train.off>.5){trainFail('You left the train: stay on the bed.');return}}else train.off=0;      // off the bed for half a second: the ride is lost
   for(const o of train.obs){
     if(o.st===0&&front>=o.at-Math.max(80,train.v*TR.tell)){
       o.st=1;
@@ -460,7 +461,7 @@ function updateTrain(dt,now,pol){
         o.t+=dt;if(pol===1){o.hold+=dt;engaged=true}
         if(o.hold>=TR.need)o.ok=1;
         shake=Math.max(shake,o.ok?3:8);
-        if(o.t>=TR.jolt){if(!o.ok){trainFail();return}o.st=3}
+        if(o.t>=TR.jolt){if(!o.ok){trainFail('Missed the jolt: hold Blue until it ends.');return}o.st=3}
       }
     }
   }
