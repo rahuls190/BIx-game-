@@ -46,6 +46,8 @@ jobs:
           node tests/level3-softlock.cjs
           node tests/level3-route.cjs
           node tests/level3-areas.cjs
+          node tests/level3-rules.cjs
+          node tests/level3-physics.cjs
           node tests/audio.cjs
           node tests/landing.cjs
           node tests/progress.cjs

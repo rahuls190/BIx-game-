@@ -1,3 +1,4 @@
+"""OBSOLETE: this built the first (photoreal) Level 3 art. The current art is made by design/comfy_l3.py + design/build_l3_from_comfy.py."""
 """Build the Level 3 art from the realistic masters in design/level3-art-masters-v2-real/.
 Usage (from the repo root):  python design/process_level3_assets.py
 Cuts every sprite out of its sheet (design/cut_sprites.py), scales it to about 2x its size in the game, trims the key-colour fringe,

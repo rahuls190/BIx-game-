@@ -9,14 +9,34 @@
 .glove-hud .tier{color:#7f9895;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .tier-line{color:#59e2c2;font-weight:800;letter-spacing:.06em}
 .touch-glove{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:104px;display:flex;flex-direction:column-reverse;gap:10px;align-items:flex-end;pointer-events:none}
-.touch-glove button{pointer-events:auto;min-width:64px;height:58px;padding:0 14px;border-radius:14px;font-size:.78rem;font-weight:950;letter-spacing:.1em;background:#071217c9;color:#dff7ee;border:2px solid #29424b;touch-action:none}
-.touch-glove .blue{border-color:#5fd4ff;color:#5fd4ff;width:92px;height:70px}
-.touch-glove .red{border-color:#ff8f6a;color:#ff8f6a}
-.touch-glove .shield{border-color:#59e2c2;color:#59e2c2;height:50px}
-.touch-glove button:active{filter:brightness(1.4)}
 @media(orientation:landscape) and (pointer:coarse){.touch-glove{flex-direction:row-reverse;bottom:100px;right:max(120px,env(safe-area-inset-right))}}
 @media(orientation:portrait){.glove-hud{top:112px;left:10px;right:10px;justify-content:space-between}}
 .medal{display:inline-block;margin:0 0 14px;padding:6px 16px;border-radius:999px;font-weight:950;letter-spacing:.18em;font-size:.8rem;border:2px solid #b8863a;color:#ffd75a;background:#2a1f0a}
 .medal[data-medal="silver"]{border-color:#aab6bd;color:#e3edf2;background:#1c2429}
 .medal[data-medal="bronze"]{border-color:#a5673c;color:#e0a070;background:#26160c}
 #startButton:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.7)}
+
+/* The glove buttons: round steel plates with a glowing ring and a chevron icon (Blue points inward, Red outward). */
+.touch-glove button{--g:95,212,255;position:relative;width:84px;height:84px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;color:rgb(var(--g));pointer-events:auto;touch-action:none;cursor:pointer;
+  background:radial-gradient(circle at 34% 26%,#4a6270 0,#1c2b34 48%,#0b141a 100%);
+  box-shadow:inset 0 0 0 2px #060b0f,inset 0 0 0 5px rgba(var(--g),.95),inset 0 0 0 7px #060b0f,inset 0 -8px 16px #0009,inset 0 6px 10px #ffffff18,0 0 16px rgba(var(--g),.45),0 6px 12px #000b;
+  transition:transform .08s,box-shadow .12s,filter .12s}
+.touch-glove button svg{width:46px;height:46px;filter:drop-shadow(0 0 5px rgba(var(--g),.95)) drop-shadow(0 0 12px rgba(var(--g),.55));margin-top:-8px}
+.touch-glove button .lbl{position:absolute;bottom:11px;left:0;right:0;text-align:center;font-size:.5rem;font-weight:950;letter-spacing:.2em;color:rgba(var(--g),.95);text-shadow:0 0 6px rgba(var(--g),.8)}
+.touch-glove .blue{--g:95,212,255;width:104px;height:104px}
+.touch-glove .blue svg{width:56px;height:56px}
+.touch-glove .red{--g:255,143,106;width:90px;height:90px}
+.touch-glove .shield{--g:89,226,194;width:74px;height:74px}
+.touch-glove .shield svg{width:38px;height:38px}
+.touch-glove .shield .lbl{font-size:.44rem;bottom:8px}
+.touch-glove button:active,.touch-glove button.on{transform:scale(.93);filter:brightness(1.35);
+  box-shadow:inset 0 0 0 2px #060b0f,inset 0 0 0 5px rgb(var(--g)),inset 0 0 0 7px #060b0f,inset 0 0 26px rgba(var(--g),.55),0 0 30px rgba(var(--g),.9),0 0 60px rgba(var(--g),.4)}
+.touch-glove button.on svg{animation:gpulse .5s ease-in-out infinite alternate}
+@keyframes gpulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+.touch-glove.overload .blue,.touch-glove.overload .red{--g:255,90,72;filter:grayscale(.4) brightness(.8);animation:glock .25s steps(2) infinite}
+@keyframes glock{50%{opacity:.55}}
+.touch-glove .shield.empty{filter:grayscale(1) brightness(.6)}
+.touch-glove .shield::after{content:attr(data-charges);position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#071217;border:2px solid rgb(var(--g));color:rgb(var(--g));font-size:.72rem;font-weight:950}
+
+/* desktop: the Pack chip moves out from under the zone name */
+@media(min-width:801px) and (pointer:fine){.pack-charge{left:auto;right:14px;top:102px;transform:none}}

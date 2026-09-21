@@ -133,7 +133,7 @@ function ride(opts = {}) {
 }
 {
   // wherever Bix is on the bed (rear, front, mid-jump) the launch lands him in the same place
-  const lands = [[TR.start + 10, 0], [TR.start + 380, 0], [TR.start + 200, 1]].map(([off, air]) => {
+  const lands = [[10, 0], [380, 0], [200, 1]].map(([off, air]) => {
     const q = ride({ only: () => false }); q.tick(Math.round(2.2 / dt), dt);
     q.P.x = q.train().x + off; if (air) { q.P.vy = -700; q.P.ground = 0 }
     let t = 0; while (!q.train().done && t < 30) { q.tick(1, dt); t += dt; if (q.P.y > TR.y + 60) break }

@@ -56,8 +56,9 @@ const seen=new Set();
 let enemies=[],packMode=0,packUntil=0,packTarget=null;
 
 // Best cogs of Levels 1 and 2 decide the shield tier. ?banked=N is a test switch for trying the tiers.
+const devHost=()=>{try{return !location.hostname||/^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(location.hostname)}catch(e){return true}};
 function bankedCogs(){
-  try{const q=new URLSearchParams(location.search).get('banked');if(q!==null&&q!==''&&isFinite(+q))return Math.max(0,Math.min(26,Math.floor(+q)))}catch(e){}
+  try{const q=devHost()?new URLSearchParams(location.search).get('banked'):null;if(q!==null&&q!==''&&isFinite(+q))return Math.max(0,Math.min(26,Math.floor(+q)))}catch(e){}
   try{const p=window.Mayhem&&window.Mayhem.getProgress&&window.Mayhem.getProgress();if(p&&p.levels)return(p.levels.level1?.bestCogs||0)+(p.levels.level2?.bestCogs||0)}catch(e){}
   return 0;
 }
@@ -94,7 +95,7 @@ const downdraftAt=()=>{for(const z of (D.downdraft||[])){const cx=P.x+P.w/2,cy=P
 // ---- messages and checkpoints ---------------------------------------------
 function toast(s,t,n=2.4,force=0){if(msgLock&&!force)return;ui.speaker.textContent=s;ui.line.textContent=t;ui.dialogue.classList.toggle('system',s==='SYSTEM');ui.dialogue.classList.remove('hidden');msgTime=n;msgLock=.45}
 function setCharge(v){charge=v;ui.packCharge.classList.toggle('spent',!v);ui.packChargeLabel.textContent=v?'PACK READY':'PACK SPENT'}
-function setCP(cp){checkpoint=cp;setCharge(1);GL.refill(G);toast('SYSTEM',`Checkpoint · ${cp.name}`,1.2,1)}
+function setCP(cp){checkpoint=cp;setCharge(1);GL.refill(G);toast('SYSTEM',`Checkpoint · ${cp.name}`,1.2,0)}
 function setPackAction(cell,seconds,now,target=null){packMode=cell;packUntil=now+seconds;packTarget=target}
 
 function spawnEnemies(){
@@ -116,14 +117,14 @@ const islandAt=(v,now)=>{const a=now*6.283185/v.per+v.ph;return{x:v.cx-v.w/2+v.r
 // Areas 4-6 state. A full restart clears everything; a respawn keeps the cores that are already seated (so a puzzle you solved stays solved)
 function buildAreas(full){
   if(full){seated=new Set();archiveRead=[0,0,0];archiveT=0}
-  terms=(D.terminals||[]).map(()=>({t:0}));
+  terms=(D.terminals||[]).map(()=>({t:0}));packUntil=0;packTarget=null;
   cores=(D.cores||[]).map(k=>({id:k.id,x:seated.has(k.socket)?D.sockets.find(q=>q.id===k.socket).x:k.start}));
   gateAnim=gateBlocking()?0:1;
   blocks=[];chuteN={};
   drones=(D.drones||[]).map(d=>({...d,x:(d.x0+d.x1)/2,y:d.y,dead:0}));
   const now=performance.now()/1000;
   isl=(D.islands||[]).map(v=>{const q=islandAt(v,now);return{id:v.id,t:v.t,w:v.w,h:26,x:q.x,y:q.y,dx:0,dy:0}});
-  train={x:TR.start,v:0,t:0,run:0,wait:0,done:0,riding:0,dx:0,boarded:0,vela:0,things:[],obs:TR.obs.map(o=>({...o,st:0,t:0,hold:0,ok:0}))};
+  train={x:TR.start,v:0,t:0,run:0,wait:0,done:0,riding:0,off:0,dx:0,boarded:0,vela:0,things:[],obs:TR.obs.map(o=>({...o,st:0,t:0,hold:0,ok:0}))};
   flight=null;doorHold=0;doorNear=0;doorT=0;gflash=0;recoil=0;inArchive=0;
 }
 function buildWorldState(full){
@@ -148,7 +149,7 @@ function reset(full=1){
     setPackAction(7,1,performance.now()/1000);
     ui.complete.classList.add('hidden');
     // ?at=N (a test switch, like ?banked=N): start at checkpoint N with the glove
-    try{const q=new URLSearchParams(location.search).get('at'),cp=q!==null&&D.checkpoints[+q];
+    try{const q=devHost()?new URLSearchParams(location.search).get('at'):null,cp=q!==null&&D.checkpoints[+q];
       if(cp){checkpoint=cp;seen.add(cp);gloveOn=1;Object.assign(P,{x:cp.x,y:cp.y-P.h});camX=Math.max(0,P.x-viewW*camLead());
         camY=isVertical(areaAt(P.x))?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):flatCamY()}}catch(e){}
   }
@@ -159,6 +160,7 @@ function reset(full=1){
 const UNLOCK=(window.MayhemProgress&&window.MayhemProgress.LEVEL3_UNLOCK_COGS)||13;
 const locked=()=>bankedCogs()<UNLOCK;
 function refreshLock(){
+  if(!running&&!done){const t=GL.tierFor(bankedCogs());if(G.tier!==t){G=GL.make(bankedCogs());ui.tierLabel.textContent=G.tier.name;ui.startTier.textContent=`Shield: ${G.tier.name} · ${G.banked} banked cogs`}}
   const l=locked(),b=$('startButton');
   if(b)b.disabled=l;
   if(ui.lockNote){ui.lockNote.hidden=!l;ui.lockNote.textContent=l?`Level 3 is locked. Bank more than 12 cogs in Levels 1 and 2 to open it (${bankedCogs()} so far).`:''}
@@ -212,7 +214,7 @@ function grab(now){
   if(P.ground||P.vy<45||P.grabCD)return;
   const hand=P.y+19;
   for(const r of solids()){
-    if(r.crate!==undefined)continue;                    // a crate slides: it is not a lip to hang from
+    if(r.crate!==undefined||r.gate)continue;             // a crate slides and a gate is a wall: neither is a lip to hang from
     if(hand<r.y-18||hand>r.y+32)continue;
     const ok=P.face>0?(P.x+P.w<=r.x+20&&Math.abs(P.x+P.w-r.x)<34):(P.x>=r.x+r.w-20&&Math.abs(P.x-r.x-r.w)<34);
     if(ok){P.hang=1;P.hangAt=now;P.hangRect=r;P.x=P.face>0?r.x-P.w+5:r.x+r.w-5;P.y=r.y-19;P.vx=P.vy=P.buffer=0;break}
@@ -224,11 +226,11 @@ function trainFail(){shake=18;flash=.18;reset(0);toast('SYSTEM','[ERROR] Locomot
 function hurt(t){
   if(P.inv||done||flight||doorT>0)return;
   if(train&&train.run&&!train.done){trainFail();return}          // the ride has no Pack catch: it is short, and a retry starts at the rail head
-  if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
+  if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.buffer=0;P.coyote=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
     P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;letGo();tether=null;
     seen.add(checkpoint);
     toast('PACK','Got you. That counts as overtime.',2.1,1);return}
-  shake=18;flash=.18;reset(0);toast('PACK',t,2.1,1);
+  shake=18;flash=.18;reset(0);toast(/^Gravity/.test(t)?'VELA':'PACK',t,2.1,1);
 }
 
 // ---- glove features --------------------------------------------------------
@@ -252,7 +254,7 @@ function tryCling(){
 function tryPad(now){
   if(!P.ground||padCD)return;
   for(const pad of D.pads||[])if(P.x+P.w>pad.x&&P.x<pad.x+pad.w&&Math.abs(P.y+P.h-pad.y)<4){
-    P.vy=-PAD_V*(cogs>=4?1.3:1);P.ground=0;P.support=null;P.jumpTime=1;padCD=.4;padFx=now;engaged=true;return}
+    P.vy=-PAD_V*(cogs>=4?1.3:1);P.ground=0;P.support=null;P.jumpTime=1;padCD=.4;padFx=now;engaged=true;P.coyote=0;P.buffer=0;return}
 }
 function updateGirder(dt,pol){
   const g=P.gird,input=(K.right?1:0)-(K.left?1:0);
@@ -274,6 +276,7 @@ function updateCling(dt,pol,now){
       const feet=P.y+P.h;if(feet<=r.y+6&&feet>=r.y-16){P.y=r.y-P.h;P.vy=0;P.ground=1;P.support=r;P.cling=null;P.latchCD=.25;return}}
   }
   if(pol!==1||cy<s.y0||cy>s.y1){P.cling=null;P.latchCD=.25;return}
+  if(P.buffer&&K.up)P.buffer=0;                       // Up and W are also the jump keys: while climbing they climb, they do not kick off
   if(P.buffer){P.cling=null;P.vx=240;P.vy=-JUMP*.85;P.buffer=0;P.latchCD=.35;P.jumpTime=.14;P.face=1}
 }
 function updateCrates(dt,pol){
@@ -341,6 +344,10 @@ function updateReflected(dt,now){
 
 
 // ---- Areas 4-6: the lab, the train, the vault ----------------------------------------------------------------------------
+function shieldTakes(now){       // a shield that is up soaks one hit from scrap, a rock or a swing-load (a laser beam is not something it can absorb)
+  if(!GL.shieldActive(G))return false;
+  parryFx=now;toast('SYSTEM',`[SHIELD ACTIVE] Kinetic energy dispersed. Charges remaining: ${G.charges}.`,1.8,1);return true;
+}
 function laserState(l,now){const t=(((now+l.phase)%l.period)+l.period)%l.period,offEnd=l.period-l.on;return{on:t>=offEnd,tell:t>=offEnd-l.tell&&t<offEnd?(t-(offEnd-l.tell))/l.tell:0}}
 function startTerm(i,now){
   const t=D.terminals[i];terms.forEach((q,j)=>{if(j!==i&&q.t>0){q.t=0;const c=D.cores.find(k=>k.id===D.terminals[j].core),m=cores.find(k=>k.id===c.id);if(m&&!seated.has(c.socket))m.x=c.start}});
@@ -386,7 +393,7 @@ function updateChutes(dt,now,pol){
     b.vy+=GRAV*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;
     const deck=D.platforms.find(q=>b.x+b.w/2>q[0]&&b.x+b.w/2<q[0]+q[2]&&Math.abs(q[1]-b.c.y)<2);
     if(deck&&b.y+b.h>=deck[1]){b.y=deck[1]-b.h;b.landed=1;b.vx=b.vy=0;shake=Math.max(shake,4)}
-    else if(overlap(P,b))hurt('Bix? You look significantly flatter than usual. Recalibrating...');
+    else if(overlap(P,b)){if(shieldTakes(now))b.dead=1;else hurt('Bix? You look significantly flatter than usual. Recalibrating...')}
     if(b.y>D.world.yMax)b.dead=1;
   }
   const landed=blocks.filter(b=>b.landed).sort((a,b)=>b.age-a.age);
@@ -433,6 +440,7 @@ function updateTrain(dt,now,pol){
     return;
   }
   const front=train.x+TR.len,pcx=P.x+P.w/2;
+  if(!train.riding&&!flight){train.off=(train.off||0)+dt;if(train.off>.5){trainFail();return}}else train.off=0;      // off the bed for half a second: the ride is lost
   for(const o of train.obs){
     if(o.st===0&&front>=o.at-Math.max(80,train.v*TR.tell)){
       o.st=1;
@@ -459,14 +467,14 @@ function updateTrain(dt,now,pol){
       else if(th.ph==='fling'){th.vy+=GRAV*dt;th.y+=th.vy*dt;th.bx+=th.vx*dt;if(th.t>th.flingT+1.8)th.ph='gone'}
       const rx=train.x+th.bx;
       if((th.ph==='fall'||th.ph==='roll')&&gloveOn&&pol===-1&&Math.abs(rx-pcx)<320){th.ph='fling';th.flingT=th.t;th.vx=(rx>=pcx?1:-1)*320;th.vy=-480;engaged=true}   // Red throws it clear
-      if((th.ph==='fall'||th.ph==='roll')&&overlap(P,{x:rx-28,y:th.y-28,w:56,h:56})){hurt('Bix? A rock has opinions about your skull.');return}
+      if((th.ph==='fall'||th.ph==='roll')&&overlap(P,{x:rx-28,y:th.y-28,w:56,h:56})){if(shieldTakes(now))th.ph='gone';else{hurt('Bix? A rock has opinions about your skull.');return}}
     }else if(th.k==='G'){
       const sw=Math.max(0,th.t-.6),ang=.55*Math.sin(3*sw),L=520,px=train.x+th.bx;
       const bx=px+L*Math.sin(ang),by=th.t<.6?-910+L*(th.t/.6):-910+L*Math.cos(ang);
       if(gloveOn&&pol===-1&&Math.abs(bx-pcx)<320){th.up=1.4;engaged=true}     // Red pushes the load up and away (the chain creaks for 0.6 s first: press Red then)
       th.up=Math.max(0,th.up-dt);th.off+=((th.up>0?360:0)-th.off)*Math.min(1,dt*8);
       th.px=px;th.x=bx;th.y=by-th.off;
-      if(th.t>=.6&&th.t<2&&th.off<160&&overlap(P,{x:bx-30,y:th.y-30,w:60,h:60})){hurt('Bix? The swing-load says hello. Heavily.');return}
+      if(th.t>=.6&&th.t<2&&th.off<160&&overlap(P,{x:bx-30,y:th.y-30,w:60,h:60})){if(shieldTakes(now)){th.up=1.4;th.off=360}else{hurt('Bix? The swing-load says hello. Heavily.');return}}
       if(th.t>2.3)th.gone=1;
     }else if(th.k==='D'&&!th.dead){
       th.bx-=190*dt;
@@ -521,15 +529,17 @@ function update(dt){
   const shieldEdge=!!K.shield&&!prevShield;prevShield=K.shield;
   const pol=gloveOn&&!G.overloaded?GL.polarity(!!K.blue,!!K.red):0;
   engaged=false;
+  if(tether||flight||P.climb)P.buffer=0;            // (a Space tap in those moments must not fire a jump when they end)
   const area0=areaAt(P.x),grav=area0.gravity??1;
   moversStep(dt,now);
+  if((P.hang||P.climb)&&P.hangRect&&P.hangRect.mv){const cur=solids().find(q=>q.mv===P.hangRect.mv);if(cur){const dx=cur.x-P.hangRect.x,dy=cur.y-P.hangRect.y;P.x+=dx;P.y+=dy;if(P.climb){P.climbX+=dx;P.climbTarget+=dx}P.hangRect=cur}}
 
   if(tether)updateTether(dt);
   else if(flight)updateFlight(dt);
   else if(P.gird)updateGirder(dt,pol);
   else if(P.cling)updateCling(dt,pol,now);
   else{
-    if(K.down&&P.ground&&P.support?.ledge&&!onDeck(P.support)){P.dropTime=.25;P.ground=0;P.y+=5;P.coyote=0}
+    if(K.down&&P.ground&&P.support?.ledge&&!onDeck(P.support)){P.grabCD=.4;P.dropTime=.25;P.ground=0;P.y+=5;P.coyote=0}
     if(P.climb){
       P.climb=Math.max(0,P.climb-dt);const p=1-P.climb/.45,r=P.hangRect,e=p*p*(3-2*p);
       P.x=P.climbX+(P.climbTarget-P.climbX)*e;P.y=r.y-19-(P.h-19)*e;
@@ -550,7 +560,7 @@ function update(dt){
       if(!P.ground&&gloveOn&&pol&&area0.id==='vault')steer(dt,pol);
       // Kinetic Recoil (8 cogs): one Red push in mid-air gives a second small jump
       if(P.ground)recoil=0;
-      else if(cogs>=8&&gloveOn&&K.red&&!prevRed&&!recoil&&!G.overloaded&&!P.hang){P.vy=-JUMP*.55;recoil=1;P.jumpTime=.1;engaged=true}
+      else if(cogs>=8&&gloveOn&&K.red&&!prevRed&&!recoil&&!G.overloaded&&!P.hang){P.vy=Math.min(P.vy,-JUMP*.55);recoil=1;P.jumpTime=.1;engaged=true}
       P.oldGround=P.ground;move(P,dt);grab(now);
       if(pol===1){tryLatchGirder();if(!P.gird)tryCling()}
       if(pol===-1)tryPad(now);
@@ -601,7 +611,13 @@ function update(dt){
   hud();
   if(msgTime>0){msgTime-=dt;if(msgTime<=0)ui.dialogue.classList.add('hidden')}
 }
+const qs=sel=>document.querySelector?document.querySelector(sel):null;
+const gbtn={blue:qs('.touch-glove .blue'),red:qs('.touch-glove .red'),shield:qs('.touch-glove .shield')},gwrap=qs('.touch-glove');
 function hud(){
+  if(gwrap){gwrap.classList.toggle('overload',!!G.overloaded);
+    if(gbtn.blue)gbtn.blue.classList.toggle('on',!!K.blue&&!G.overloaded&&!!gloveOn);
+    if(gbtn.red)gbtn.red.classList.toggle('on',!!K.red&&!G.overloaded&&!!gloveOn);
+    if(gbtn.shield){gbtn.shield.dataset.charges=G.charges;gbtn.shield.classList.toggle('empty',!G.charges)}}
   ui.gloveHud.classList.toggle('off',!gloveOn);
   ui.heatBar.style.width=Math.round(G.heat)+'%';
   ui.heatBar.className=G.overloaded?'lock':G.heat>=GL.consts.WARN?'warn':'';
@@ -666,8 +682,9 @@ function drawTerminal(t,now,on,cd){
 }
 function drawLab(now){
   for(const s0 of D.sockets){const on=seated.has(s0.id);
-    if(!blit('socket',s0.x-30,s0.y-96,60,60))box(s0.x-26,s0.y-90,52,52,'#2c3a40','#7d9aa5');
-    x.fillStyle=on?'#59e2c2':'#ffb43c';x.beginPath();x.arc(SX(s0.x),SY(s0.y-110),7,0,7);x.fill();glow(s0.x,s0.y-110,26,on?'#59e2c2':'#ffb43c',.45)}
+    box(s0.x-7,s0.y-24,14,24,'#26343b','#5a7480');
+    if(!blit('socket',s0.x-30,s0.y-84,60,60))box(s0.x-26,s0.y-80,52,52,'#2c3a40','#7d9aa5');
+    x.fillStyle=on?'#59e2c2':'#ffb43c';x.beginPath();x.arc(SX(s0.x),SY(s0.y-96),7,0,7);x.fill();glow(s0.x,s0.y-96,26,on?'#59e2c2':'#ffb43c',.45)}
   for(const c of D.cores){line(c.x0,c.y,c.x1,c.y,'#3b4e57',4);line(c.x0,c.y,c.x1,c.y,c.pol===1?'#5fd4ff33':'#ff8f6a33',10)}
   cores.forEach((k,i)=>{const c=D.cores[i],act=terms[D.terminals.findIndex(t=>t.core===c.id)]?.t>0,st=seated.has(c.socket),bob=st?0:Math.sin(now*3+i)*(act?7:2);
     glow(k.x,c.y+bob,act||st?64:40,st?'#59e2c2':c.pol===1?'#5fd4ff':'#ff8f6a',act||st?.5:.25);
@@ -676,7 +693,7 @@ function drawLab(now){
   for(const g of D.gates||[]){const open=gateAnim,top=g.y-g.h-open*(g.h+30);
     if(open<.98){x.save();x.globalAlpha=1-open*.7;if(!blit('hazard-door',g.x-32,top,90,g.h))box(g.x,top,g.w,g.h,'#3a4a52','#ffb43c');x.restore()}}
   for(const l of D.lasers||[]){const st=laserState(l,now),top=l.y-l.h;
-    box(l.x-9,l.y-8,18,8,'#2c3a40','#7d9aa5');box(l.x-9,top,18,8,'#2c3a40','#7d9aa5');
+    if(A.spr.emitter){blit('emitter',l.x-16,l.y-26,32,30);blit('emitter',l.x-16,top-4,32,30)}else{box(l.x-9,l.y-8,18,8,'#2c3a40','#7d9aa5');box(l.x-9,top,18,8,'#2c3a40','#7d9aa5')}
     if(st.on){x.save();x.shadowColor='#ff3b30';x.shadowBlur=22;x.fillStyle='#ff5a48';x.fillRect(SX(l.x)-3,SY(top+8),6,l.h-16);x.fillStyle='#fff';x.fillRect(SX(l.x)-1,SY(top+8),2,l.h-16);x.restore()}
     else{x.save();x.strokeStyle=st.tell>0?`rgba(255,180,60,${.4+.6*(Math.floor(st.tell*8)%2)})`:'rgba(255,90,72,.18)';x.setLineDash([4,10]);x.lineWidth=2;x.beginPath();x.moveTo(SX(l.x),SY(top+8));x.lineTo(SX(l.x),SY(l.y-8));x.stroke();x.restore();
       if(st.tell>0)glow(l.x,top+4,30,'#ffb43c',.6)}}
@@ -684,7 +701,7 @@ function drawLab(now){
     const t=(((now+c.phase)%c.period)+c.period)%c.period,tell=t>c.period-c.tell,sh0=tell?Math.sin(now*70)*2:0,h=190,w=h*(sw('hopper')||1)/(sh('hopper')||1);
     if(!blit('hopper',c.x-w/2+sh0,c.top-h+40,w,h))box(c.x-40,c.top-120,80,120,'#3a4a52','#7d9aa5');
     if(tell)glow(c.x,c.top+30,50,'#ffb43c',.5)}
-  for(const b of blocks){if(!blit('crate',b.x-4,b.y-4,b.w+8,b.h+8))box(b.x,b.y,b.w,b.h,'#6b4a26','#c99a55')}
+  for(const b of blocks){if(!blit(A.spr.block?'block':'crate',b.x-4,b.y-4,b.w+8,b.h+8))box(b.x,b.y,b.w,b.h,'#6b4a26','#c99a55')}
 }
 function drawDrone(d,now){
   if(d.dead)return;const f=d.mode===1?2:d.mode===-1?1:0,name=(d.pol===1?'drone-b':'drone-r')+f,h=66;
@@ -771,6 +788,73 @@ function drawBackdrop(){
   if(next&&mid>cur.x1-blend&&A.bg[BGKEY[next.id]||next.id])bgStrip(next.id,(mid-(cur.x1-blend))/(2*blend));
   x.fillStyle='rgba(4,8,12,.18)';x.fillRect(-20,-20,viewW+40,H+40);
 }
+
+// ---- the glove's effects on Bix ----------------------------------------------------------------------------------------------------------
+// Blue: energy rings and chevrons stream INWARD to the glove. Red: they burst OUTWARD. A heat halo climbs around Bix, overload crackles red,
+// and the shield is a shimmering dome. All additive light, all driven by the clock (no random, so it does not flicker between frames).
+function bolt(hx,hy,ang,len,seed,now){
+  x.beginPath();x.moveTo(SX(hx),SY(hy));
+  for(let k=1;k<=6;k++){const t=k/6,j=Math.sin(now*47+seed*3.1+k*5.3)*9*(1-t*.4);
+    x.lineTo(SX(hx+Math.cos(ang)*len*t-Math.sin(ang)*j),SY(hy+Math.sin(ang)*len*t+Math.cos(ang)*j))}
+  x.stroke();
+}
+function chevron(px,py,ang,size){
+  x.save();x.translate(SX(px),SY(py));x.rotate(ang);x.beginPath();x.moveTo(-size,-size);x.lineTo(0,0);x.lineTo(-size,size);x.stroke();x.restore();
+}
+function drawGloveFx(now){
+  const cx=P.x+P.w/2,cy=P.y+P.h/2,hx=cx+P.face*30,hy=cy-8;
+  const pol=gloveOn&&!G.overloaded?G.pol:0;
+  let gr;
+  x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
+  try{
+  if(pol){
+    const inward=pol===1,col=inward?'95,212,255':'255,143,106',pulse=.75+.25*Math.sin(now*22);
+    // the glow in the hand
+    gr=x.createRadialGradient(SX(hx),SY(hy),0,SX(hx),SY(hy),58);
+    gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.22,`rgba(${col},.8)`);gr.addColorStop(1,`rgba(${col},0)`);
+    x.globalAlpha=pulse;x.fillStyle=gr;x.fillRect(SX(hx)-58,SY(hy)-58,116,116);
+    // a soft aura over the whole body
+    gr=x.createRadialGradient(SX(cx),SY(cy),10,SX(cx),SY(cy),84);gr.addColorStop(0,`rgba(${col},.0)`);gr.addColorStop(.7,`rgba(${col},.16)`);gr.addColorStop(1,`rgba(${col},0)`);
+    x.globalAlpha=1;x.fillStyle=gr;x.fillRect(SX(cx)-84,SY(cy)-84,168,168);
+    // rings sweeping in (Blue) or out (Red)
+    x.lineWidth=3;
+    for(let k=0;k<3;k++){const t=(now*1.15+k/3)%1,r=inward?104-t*80:22+t*82;
+      x.strokeStyle=`rgba(${col},${inward?.12+.55*t:.6*(1-t)})`;x.beginPath();x.arc(SX(cx),SY(cy),r,0,7);x.stroke()}
+    // chevrons stream toward / away from the hand
+    x.lineWidth=2.6;
+    for(let i=0;i<18;i++){
+      const ang=i*.349+now*.35,ph=(now*1.5+i*.331)%1,r=inward?118-ph*98:26+ph*96,px=cx+Math.cos(ang)*r,py=cy+Math.sin(ang)*r*.9;
+      x.strokeStyle=`rgba(${col},${.15+.7*(inward?ph:1-ph)})`;chevron(px,py,inward?ang+Math.PI:ang,7+3*ph)}
+    // arcs of energy off the glove
+    x.lineWidth=2.2;x.strokeStyle=`rgba(${col},.9)`;
+    for(let k=0;k<4;k++){const a=-1.2+k*.8+Math.sin(now*9+k)*.45+(P.face<0?Math.PI:0);bolt(hx,hy,a,44+16*Math.sin(now*13+k*2),k,now)}
+  }
+  // heat halo: climbs around Bix as the glove warms; amber near the warning, red at overload
+  if(gloveOn&&(G.heat>6||G.overloaded)){
+    const h=Math.min(1,G.heat/100),c=G.overloaded?'255,80,60':h<.6?'95,212,255':h<.85?'255,190,80':'255,110,60';
+    x.lineWidth=5;x.strokeStyle=`rgba(${c},${.35+.4*Math.sin(now*(h>.85?30:10))*(h>.6?1:.3)})`;x.globalAlpha=.9;
+    x.beginPath();x.arc(SX(cx),SY(cy),68,-Math.PI/2,-Math.PI/2+(G.overloaded?1:h)*Math.PI*2);x.stroke();
+  }
+  // overload: red crackle around the whole body
+  if(gloveOn&&G.overloaded){
+    x.globalAlpha=1;x.lineWidth=2.2;x.strokeStyle='rgba(255,90,60,.95)';
+    for(let k=0;k<9;k++){const a=k*.7+now*3;bolt(cx+Math.cos(a)*26,cy+Math.sin(a)*40,a,30+14*Math.sin(now*17+k),k+9,now)}
+    gr=x.createRadialGradient(SX(cx),SY(cy),6,SX(cx),SY(cy),80);gr.addColorStop(0,'rgba(255,60,40,.28)');gr.addColorStop(1,'rgba(255,60,40,0)');x.fillStyle=gr;x.fillRect(SX(cx)-80,SY(cy)-80,160,160);
+  }
+  // the shield: a shimmering dome that flares as it opens and fades as it closes
+  if(GL.shieldActive(G)){
+    const r=Math.hypot(P.w/2+26,P.h/2+16),k=G.shieldT/G.tier.window;
+    x.globalAlpha=1;
+    gr=x.createRadialGradient(SX(cx),SY(cy),r*.4,SX(cx),SY(cy),r);gr.addColorStop(0,'rgba(89,226,194,0)');gr.addColorStop(.8,`rgba(89,226,194,${.12+.28*k})`);gr.addColorStop(1,`rgba(160,255,235,${.5*k+.2})`);
+    x.fillStyle=gr;x.beginPath();x.arc(SX(cx),SY(cy),r,0,7);x.fill();
+    x.lineWidth=4;x.strokeStyle=`rgba(180,255,240,${.5+.5*k})`;x.beginPath();x.arc(SX(cx),SY(cy),r,0,7);x.stroke();
+    x.lineWidth=2;x.setLineDash([9,11]);x.lineDashOffset=-now*90;x.strokeStyle='rgba(89,226,194,.9)';x.beginPath();x.arc(SX(cx),SY(cy),r-9,0,7);x.stroke();x.setLineDash([]);
+    x.lineWidth=2;x.strokeStyle='rgba(160,255,235,.7)';
+    for(let i=0;i<6;i++){const a=i*Math.PI/3+now*1.2;x.beginPath();x.moveTo(SX(cx+Math.cos(a)*r*.62),SY(cy+Math.sin(a)*r*.62));x.lineTo(SX(cx+Math.cos(a+1.05)*r*.62),SY(cy+Math.sin(a+1.05)*r*.62));x.stroke()}
+  }
+  }finally{x.restore()}       // whatever happens above, the canvas state is put back (an effect must never wreck the scene)
+}
+
 function draw(){
   const now=performance.now()/1000;
   x.save();x.clearRect(0,0,viewW,H);
@@ -783,6 +867,7 @@ function draw(){
     const th=Math.max(60,Math.min(100,p[2]/4.9)),drawn=A.spr.steel;
     if(drawn){const y0=p[1]-8+th-6,g=x.createLinearGradient(0,SY(y0),0,SY(p[1]+(p[3]||78)));g.addColorStop(0,'#1a2228');g.addColorStop(1,'#0a0e12');
       const yb=p[1]+(p[3]||78)+40,inset=Math.min(46,p[2]*.16);   // a tapering hull of scrap under the deck that fades into the haze
+      if(A.spr.hull){const hh=Math.min(150,(p[3]||78)+30);blit('hull',p[0]+4,y0-6,p[2]-8,hh);blit('steel',p[0]-6,p[1]-8,p[2]+12,th);return}
       g.addColorStop(0,'#3a2e24');g.addColorStop(.5,'#1d1814');g.addColorStop(1,'rgba(12,10,9,0)');x.fillStyle=g;
       x.beginPath();x.moveTo(SX(p[0]+3),SY(y0));x.lineTo(SX(p[0]+p[2]-3),SY(y0));x.lineTo(SX(p[0]+p[2]-inset),SY(yb));x.lineTo(SX(p[0]+inset),SY(yb));x.closePath();x.fill();
       blit('steel',p[0]-6,p[1]-8,p[2]+12,th)}
@@ -790,7 +875,7 @@ function draw(){
   });
   for(const l of D.ledges){
     const i=D.ledges.indexOf(l),s=plates[i]||{t:0,gone:0,armed:0};
-    const lt=Math.max(30,Math.min(60,l.w/4.9)),lname=l.t==='copper'?(s.armed?'copper-crack':'copper'):l.t;
+    const lt=Math.max(30,Math.min(60,l.w/4.9)),lname=l.t==='copper'?(s.armed?'copper-crack':'copper'):(l.id&&l.id[0]==='c'&&l.id[1]==='w'&&A.spr['steel-thin']?'steel-thin':l.t);
     if(A.spr[lname]){
       if(l.t==='copper'&&s.gone>0){blit('copper-broken',l.x-4,l.y-6,l.w+8,lt,1,.22);continue}
       blit(lname,l.x-4+(l.t==='copper'&&s.armed&&Math.floor(s.t*30)%2?1.5:0),l.y-6,l.w+8,lt);continue}
@@ -807,7 +892,7 @@ function draw(){
   for(const g of D.girders||[]){if(A.spr.girder){const len=g.x1-g.x0,n=Math.max(1,Math.round(len/170)),seg=len/n;for(let i=0;i<n;i++)blit('girder',g.x0+i*seg,g.y-30,seg+1,40);continue}box(g.x0,g.y-8,g.x1-g.x0,12,'#2b5f8f','#5fd4ff');chevrons(g.x0,g.y-8,g.x1-g.x0,12,1,'#bfeeff')}
   for(const p of D.pads||[]){const pulse=now-padFx<.3;if(blit(pulse?'pad-fire':'pad',p.x-6,p.y-52,p.w+12,64))continue;box(p.x,p.y-6,p.w,10,pulse?'#ffd0bd':'#b8563a',RED);chevrons(p.x,p.y-30,p.w,24,1,RED)}
   for(const n of D.nets||[]){const nn=Math.max(1,Math.round(n.w/200));let ok=1;for(let i=0;i<nn&&ok;i++)ok=blit('net',n.x+i*n.w/nn,n.y-14,n.w/nn+1,46,1,now-netFx<.3?1:.92);if(ok)continue;box(n.x,n.y,n.w,14,now-netFx<.3?'#ffd0bd':'#7a3a2a',RED);chevrons(n.x,n.y-16,n.w,16,1,RED)}
-  for(const p of D.perches||[])box(p.x,p.y,p.w,10,'#2b3a42','#48707a');
+  for(const p of D.perches||[]){if(!blit('steel-thin',p.x-4,p.y-8,p.w+8,34))box(p.x,p.y,p.w,10,'#2b3a42','#48707a')}
   for(const l of D.lockers||[]){if(A.spr.locker){const h=120,w=h*sw('locker')/sh('locker');blit('locker',l.x-w/2,l.y-h,w,h);continue}box(l.x-22,l.y-84,44,84,gloveOn?'#22323a':'#4a5a30','#9bb05a');if(!gloveOn){x.fillStyle='#ffd75a';x.fillRect(SX(l.x)-6,SY(l.y-50),12,12)}}
   for(const k of crates){if(blit('crate',k.x-6,k.y-4,k.w+12,k.h+6))continue;box(k.x,k.y,k.w,k.h,'#6b4a26','#c99a55');line(k.x,k.y,k.x+k.w,k.y+k.h,'#c99a5555',3);line(k.x+k.w,k.y,k.x,k.y+k.h,'#c99a5555',3)}
   for(const s of D.presses||[]){
@@ -832,10 +917,7 @@ function draw(){
   sprite('pack-assist-v2.png',packCell,pack.x,pack.y+32,64,-P.face);
   if(tether){line(pack.x,pack.y,P.x+P.w/2,P.y+30,'#cfe',3)}
   drawBix(now);
-  // the glove's field
-  if(gloveOn&&G.pol&&!G.overloaded){x.save();x.strokeStyle=G.pol===1?BLUE:RED;x.globalAlpha=.55+.25*Math.sin(now*14);x.lineWidth=3;
-    x.beginPath();x.arc(SX(P.x+P.w/2),SY(P.y+P.h/2),58+(G.pol===1?-6:6)*Math.sin(now*10),0,7);x.stroke();x.restore()}
-  if(GL.shieldActive(G)){x.save();x.strokeStyle='#59e2c2';x.lineWidth=4;x.beginPath();x.arc(SX(P.x+P.w/2),SY(P.y+P.h/2),Math.hypot(P.w/2+24,P.h/2+12),0,7);x.stroke();x.restore()}
+  drawGloveFx(now);
   const vig=x.createRadialGradient(viewW*.5,H*.45,H*.2,viewW*.5,H*.48,Math.max(viewW,H)*.72);
   vig.addColorStop(0,'transparent');vig.addColorStop(.74,'#00000014');vig.addColorStop(1,'#000a');
   x.fillStyle=vig;x.fillRect(0,0,viewW,H);

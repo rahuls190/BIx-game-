@@ -21,15 +21,31 @@ Banked cogs also pick the shield tier: Brittle Coil 0-11, Tempered Induction 12-
 ## Numbers that changed from the paper design
 - Ledge grab + jump climbs about 300 px; a free jump crosses about 400 px. Deck rises and pits were set from that.
 - Cores move at 240 px/s (x1.3 from 4 cogs): the longest push is 3.4 s = 68% heat, under the 85% warning.
-- Train warnings are time-based (0.6 s at any speed). The swing-load lives 2.0 s; the second one is at 15,200 so it never overlaps a jolt window.
+- Train warnings are time-based (0.6 s at any speed). The swing-load lives 2.0 s. The second one (15,200) overlaps the jolt at 15,100 and the one at 15,800 slightly: a short Red pulse lifts the load for 1.4 s, then Blue for the jolt.
 - The mastery cog c11 is at y -1060: out of reach of a plain jump (proved in `level3-areas.cjs`), reachable with a Red kick off the copper island v3.
 - The ride is about 12.5 s. The bot in the tests rides it with no falls.
 
+## Art (version 2: Krea 2 in a local ComfyUI)
+The Level 3 pictures were redone in the painted Level 1/2 style with **Krea 2 Turbo** (open weights, run locally in ComfyUI; the Level 1/2 art is the style
+reference). Every picture starts from a flat front-elevation outline at the proportions the game draws it, so the camera matches the side-on game.
+- `design/comfy_l3.py make NAME --krea`: generate candidates (needs ComfyUI running at 127.0.0.1:8188 with krea2_turbo_fp8_scaled, qwen3vl_4b_fp8_scaled,
+  qwen_image_vae and the krea2_style_reference LoRA). `all` makes every picture.
+- Pick a candidate per name in `design/level3-art-v3-krea/choices.json` ({name: seed}); the first file is used otherwise.
+- `design/build_l3_from_comfy.py`: keys the magenta, scales, packs the atlases (dist/assets/l3-*-v2.webp) and writes dist/level3-art.js.
+The candidate folders are large and stay out of git.
+
 ## Art hook (for replacing pictures)
 Nothing in the game logic depends on the pictures. The engine draws named sprites through `blit(name, ...)` and falls back to plain shapes when a
-name is missing. Level 3 uses Bix, Pack and the crawler/spitter from Levels 1 and 2. The Level 3 sprite names are:
-`iron copper steel copper-crack copper-broken girder strip pad pad-fire net crate core-blue core-red socket press-head press-rod beacon locker
-terminal terminal-on pedestal hopper hazard-door lens flatcar buffer track gantry ore grab island0..island4 vault-door door drone-b0..3 drone-r0..3`
-and one background per area: `yard crusher shaft lab rail vault` (`l3-bg-<area>-v1.jpg`).
-To swap one picture, replace its cell in the atlas and its row in `dist/level3-art.js`; to add a new one, add a name to `SPECS` in
-`design/process_level3_assets.py` and call `blit('name', x, y, w, h)` in `level3.js`.
+name is missing. Sprite names: `iron copper steel copper-crack copper-broken girder strip hull steel-thin pad pad-fire net crate core-blue core-red socket
+beacon press-head press-rod block emitter locker terminal terminal-on hopper hazard-door flatcar buffer track gantry ore grab island0..island4 vault-door door
+drone-b0..3 drone-r0..3` and one backdrop per area: `yard crusher shaft lab rail vault`.
+
+## Rules found by review and fixed
+The lab gate is 460 px (a 300 px gate could be jumped over); stepping off the running train loses the ride; a raised shield absorbs scrap blocks, rocks and
+swing-loads; the shield tier follows the banked cogs; `?banked` and `?at` only work on localhost; the transit-door line exists and the fall line is VELA's.
+Tests: `tests/level3-rules.cjs`.
+
+## Physics found by review and fixed
+A gate is never a ledge; Kinetic Recoil never slows a jump; a pad launch cannot be cancelled by coyote time; a jump press during a climb, tether or flight is
+dropped; Up/W climb the wall strip; hanging on an island or the train follows it; dropping through a ledge does not re-grab it; a respawn lets Pack go.
+Tests: `tests/level3-physics.cjs` (with a 16-run random-input fuzz at 30 to 240 fps).

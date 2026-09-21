@@ -152,6 +152,7 @@ triggers: [
   { x: 6700, y0: -20, y1: 120, s: 'PACK', t: 'Fun fact: iron holds. Copper lies. Climb accordingly.' },
   { x: 7850, s: 'PACK', t: 'Two terminals, two cores, one Pack. I will hold. You route.' },
   { x: 16820, s: 'BIX',  t: 'Gravity is optional in here. Good.' },
+  { x: 20180, s: 'BIX',  t: 'Overcharge it. All of it.' },
 ],
 
 /* ---- Area 4: the Polarity Lab ------------------------------------------------------------------------------------------
@@ -170,7 +171,7 @@ sockets: [
   { id: 'SA', x: 9240,  y: -380, seat: 40 },
   { id: 'SB', x: 10860, y: -380, seat: 40 },
 ],
-gates: [ { id: 'GT', x: 11200, y: -380, w: 26, h: 300, needs: ['SA', 'SB'] } ],
+gates: [ { id: 'GT', x: 11200, y: -380, w: 26, h: 460, needs: ['SA', 'SB'] } ],      /* 460 px: taller than a jump plus a ledge grab (300 px, and about 360 with the 8-cog recoil), so the puzzle cannot be jumped over */
 lasers: [    /* 3.0 s cycle: safe 1.1 s, amber lamp 0.5 s, beam on 1.4 s. The beam is deck height and 320 px tall: it cannot be jumped */
   { id: 'LZ0', x: 9990,  y: -380, h: 320, period: 3.0, tell: 0.5, on: 1.4, phase: 0 },
   { id: 'LZ1', x: 10460, y: -380, h: 320, period: 3.0, tell: 0.5, on: 1.4, phase: 1.5 },

@@ -15,7 +15,7 @@ function boot(opts = {}) {
     addEventListener: noop, setPointerCapture: noop, getBoundingClientRect: () => ({ width: 1280, height: 720, left: 0, top: 0 }), getContext: () => ctx, focus: noop, textContent: '' });
   const els = {}, listeners = {};
   const sb = { console, Math, JSON, URLSearchParams, performance: { now: () => S.clock * 1000 },
-    location: { search: opts.search || '' },
+    location: { search: opts.search || '', hostname: opts.host },
     document: { getElementById: id => els[id] ??= el(id), querySelectorAll: () => [], addEventListener: noop, hidden: false },
     Image: class { set src(v) { this.p = v; this.complete = true; this.naturalWidth = 100; this.naturalHeight = 100 } get src() { return this.p } },
     addEventListener: (t, fn) => { (listeners[t] ??= []).push(fn) }, devicePixelRatio: 1, requestAnimationFrame: noop, setTimeout: noop, ResizeObserver: null };
@@ -25,7 +25,7 @@ function boot(opts = {}) {
     vm.runInContext(fs.readFileSync(path.isAbsolute(f) ? f : path.join(ROOT, f), 'utf8'), sb, { filename: f });
   let src = fs.readFileSync(path.join(ROOT, 'dist/level3.js'), 'utf8');
   if (!src.includes(HOOK)) throw new Error('boot hook string not found in dist/level3.js');
-  src = src.replace(HOOK, `resize();reset(1);globalThis.qa={P,K,D,GL,update,reset,start,solids,seen,pressState,hurt,
+  src = src.replace(HOOK, `resize();reset(1);globalThis.qa={P,K,D,GL,update,draw,reset,start,solids,seen,pressState,hurt,packUntil:()=>packUntil,
     G:()=>G,crates:()=>crates,plates:()=>plates,tether:()=>tether,enemies:()=>enemies,reflected:()=>reflected,
     state:()=>({done,cogs,charge,gloveOn,padCD,tetherUsed,camX,camY,checkpoint,running,inArchive,doorT,recoil}),
     train:()=>train,terms:()=>terms,cores:()=>cores,seated:()=>seated,drones:()=>drones,blocks:()=>blocks,isl:()=>isl,flight:()=>flight,medalFor,laserState,islandAt,archiveRead:()=>archiveRead,gateBlocking,setDrones:v=>{drones=v},

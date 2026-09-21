@@ -241,7 +241,11 @@ const deckTop = (q, i) => q.D.platforms[i][1];
   for (const f of scripts) ok(fs.existsSync(path.join(ROOT, 'dist', f)), `dist/${f} does not exist`);
   for (const l of [...html.matchAll(/<link rel="stylesheet" href="\.\/([^"?]+)/g)].map(m => m[1])) ok(fs.existsSync(path.join(ROOT, 'dist', l)), `dist/${l} does not exist`);
   ok(/pointer-events:none/.test(fs.readFileSync(path.join(ROOT, 'dist/level3.css'), 'utf8')), 'the glove HUD does not block touches');
-  ok(/data-key="blue"[^>]*>BLUE/.test(html) && /data-key="red"[^>]*>RED/.test(html), 'the touch buttons are labelled');
+  ok(/data-key="blue"[\s\S]*?<span class="lbl">BLUE<\/span>/.test(html) && /data-key="red"[\s\S]*?<span class="lbl">RED<\/span>/.test(html) && /data-key="shield"[\s\S]*?<span class="lbl">SHIELD<\/span>/.test(html), 'the touch buttons are labelled');
+  ok(/aria-label="Blue field[^"]*"/.test(html) && /aria-label="Red field[^"]*"/.test(html) && (html.match(/<svg/g) || []).length >= 3, 'each glove button has an accessible name and an icon');
+  // Blue's icon points inward, Red's outward (the accessibility rule: shape, not just colour)
+  const iconOf = k => { const at = html.indexOf('data-key="' + k + '"'); return html.slice(at, html.indexOf('</svg>', at)) };
+  ok(/M8 17 L23 32 L8 47/.test(iconOf('blue')) && /M24 17 L9 32 L24 47/.test(iconOf('red')), 'Blue draws inward chevrons and Red outward chevrons');
 }
 
 // ---- 11b. the first cog is on the walking line: running from the crash site to the locker collects it ------------------------------
@@ -259,6 +263,15 @@ const deckTop = (q, i) => q.D.platforms[i][1];
   q = mk(0, 0); ok(q.els.startButton.disabled === true, 'a brand-new player finds it locked');
   q = mk(12, 14); ok(q.els.startButton.disabled === false, 'a full clear of Levels 1 and 2 opens it');
   q = boot({ search: '?banked=20' }); ok(q.els.startButton.disabled === false, 'the ?banked test switch counts too');
+}
+
+// ---- 13. drawing never throws, in any glove state (a crash in the effects once left the canvas in additive blending) ----------------------------------
+{
+  const q = boot(); q.setGlove(1);
+  const states = [['idle', () => {}], ['blue', () => { q.K.blue = 1 }], ['red', () => { q.K.blue = 0; q.K.red = 1 }], ['hot', () => { q.K.red = 0; q.G().heat = 70 }],
+    ['warning', () => { q.G().heat = 90 }], ['overload', () => { q.G().overloaded = true; q.G().lock = 2 }], ['shield', () => { q.G().overloaded = false; q.G().shieldT = 0.3 }]];
+  for (const [name, set] of states) { set(); q.tick(2, 1 / 60); let err = null; try { q.draw() } catch (e) { err = e } ok(!err, `draw() works with the glove ${name}: ${err && err.message}`) }
+  for (const cp of q.D.checkpoints) { q.place(cp.x, cp.y); q.tick(2, 1 / 60); let err = null; try { q.draw() } catch (e) { err = e } ok(!err, `draw() works at ${cp.name}: ${err && err.message}`) }
 }
 
 console.log(JSON.stringify({ checks }));
