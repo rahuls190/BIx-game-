@@ -4,8 +4,9 @@
 
    PUBLIC CONTRACT
      L3GLOVE.polarity(blue,red)      -> 1 (Blue, attract) | -1 (Red, repel) | 0. Holding both cancels the field.
-     L3GLOVE.tierFor(banked)         -> {name,charges,window,parry,emp}, banked = best cogs of Level 1 + Level 2 (0..26)
-     L3GLOVE.make(banked)            -> a glove {heat,overloaded,lock,tier,charges,shieldT,...}
+     L3GLOVE.tierFor(banked,max)     -> {name,charges,window,parry,emp}, banked = cogs carried into the level (0..max), max defaults to 26 (Levels 1+2);
+                                        Level 4 passes 38 (Levels 1 to 3) and the tier cut-offs scale with it (12 and 20 of 26 become 18 and 29 of 38)
+     L3GLOVE.make(banked,max)        -> a glove {heat,overloaded,lock,tier,charges,shieldT,...}
      L3GLOVE.update(g,dt,inp)        -> advances heat and the shield; inp = {blue,red,engaged,shield}
                                         returns {pol,overloaded,warn,shieldStarted,shieldEmpty}
      L3GLOVE.shieldActive(g)         -> true while the shield window is open
@@ -34,16 +35,16 @@
 
   function polarity(blue, red) { return blue && !red ? 1 : red && !blue ? -1 : 0; }
 
-  function tierFor(banked) {
-    const b = Math.max(0, Math.min(C.MAX_BANKED, Math.floor(num(banked, 0))));
+  function tierFor(banked, max) {
+    const m = Math.max(1, Math.floor(num(max, C.MAX_BANKED))), b = Math.max(0, Math.min(m, Math.floor(num(banked, 0))));
     let t = TIERS[0];
-    for (const q of TIERS) if (b >= q.min) t = q;
+    for (const q of TIERS) if (b >= Math.round(q.min * m / C.MAX_BANKED)) t = q;
     return t;
   }
 
-  function make(banked) {
-    const tier = tierFor(banked);
-    return { tier, banked: Math.max(0, Math.min(C.MAX_BANKED, Math.floor(num(banked, 0)))), heat: 0, overloaded: false, lock: 0,
+  function make(banked, max) {
+    const tier = tierFor(banked, max), m = Math.max(1, Math.floor(num(max, C.MAX_BANKED)));
+    return { tier, banked: Math.max(0, Math.min(m, Math.floor(num(banked, 0)))), heat: 0, overloaded: false, lock: 0,
       charges: tier.charges, shieldT: 0, pol: 0 };
   }
 

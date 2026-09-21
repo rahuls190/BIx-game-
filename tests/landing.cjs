@@ -32,11 +32,12 @@ for(const tag of imgs){
 }
 
 // --- the buttons lead to the games ---
-const hrefs=[...html.matchAll(/href="\.\/(level[123]\.html)"/g)].map(m=>m[1]);
-ok(hrefs.includes('level1.html')&&hrefs.includes('level2.html')&&hrefs.includes('level3.html'),'the page does not link to all three levels');
+const hrefs=[...html.matchAll(/href="\.\/(level[1234]\.html)"/g)].map(m=>m[1]);
+ok(hrefs.includes('level1.html')&&hrefs.includes('level2.html')&&hrefs.includes('level3.html')&&hrefs.includes('level4.html'),'the page does not link to all four levels');
 ok(/<canvas id="game"/.test(read('level1.html'))&&/game\.js/.test(read('level1.html')),'level1.html is not the Level 1 game');
 ok(/<canvas id="game"/.test(read('level2.html'))&&/level2\.js/.test(read('level2.html')),'level2.html is not the Level 2 game');
 ok(/<canvas id="game"/.test(read('level3.html'))&&/level3\.js/.test(read('level3.html')),'level3.html is not the Level 3 game');
+ok(/<canvas id="game"/.test(read('level4.html'))&&/level4\.js/.test(read('level4.html')),'level4.html is not the Level 4 game');
 ok(/href="\.\/level2\.html"/.test(read('level1.html')),'Level 1 no longer offers the way down to Level 2');
 
 // --- the stylesheet ---
@@ -100,6 +101,24 @@ ok(/<a href="\.\/">/.test(fs.readFileSync(D404,'utf8')),'the 404 page must offer
   }
   let r=run(6,6);ok(r.btn.getAttribute('href')===null&&r.btn.getAttribute('aria-disabled')==='true'&&r.note.hidden===false&&/12 so far/.test(r.note.textContent),'with 12 banked cogs the Level 3 button has no link and the note says why');
   r=run(6,7);ok(r.btn.getAttribute('href')==='./level3.html'&&r.btn.getAttribute('aria-disabled')===null&&r.note.hidden===true,'with 13 banked cogs the Level 3 button links to the level');
+}
+
+// --- Level 4 stays locked until Levels 1 to 3 have carried 19 of their 38 cogs ---
+{
+  const vm=require('vm'),P=require('../dist/progress.js');
+  ok(/data-lock="level4"/.test(html)&&/data-lock-note="level4"/.test(html),'the Level 4 buttons and the lock note are marked for the lock script');
+  const mkEl=(href)=>{const at={href};return{hidden:false,textContent:'',className:'',classList:{toggle(c,on){this.on=on?c:''}},getAttribute:k=>at[k]===undefined?null:at[k],setAttribute:(k,v)=>{at[k]=v},removeAttribute:k=>{delete at[k]},hasAttribute:k=>k in at,at}};
+  function run(c1,c2,c3){
+    const btn=mkEl('./level4.html'),note=mkEl(),b3=mkEl('./level3.html'),els={'[data-lock="level4"]':[btn],'[data-lock-note="level4"]':[note],'[data-lock="level3"]':[b3]};
+    const progress=P.sanitize({levels:{level1:{bestCogs:c1},level2:{bestCogs:c2},level3:{bestCogs:c3}}});
+    const sb={window:{Mayhem:{subscribe(fn){fn({user:null,progress,configured:false,busy:false,message:''})}},MayhemProgress:P},document:{getElementById:()=>null,querySelector:()=>null,querySelectorAll:sel=>els[sel]||[]}};
+    vm.createContext(sb);vm.runInContext(fs.readFileSync('dist/account-ui.js','utf8'),sb);
+    return {btn,note,b3};
+  }
+  let r=run(12,6,0);ok(r.btn.getAttribute('href')===null&&r.btn.getAttribute('aria-disabled')==='true'&&r.note.hidden===false&&/18 so far/.test(r.note.textContent)&&/19 of the 38/.test(r.note.textContent),'with 18 carried cogs the Level 4 button has no link and the note says why');
+  r=run(12,7,0);ok(r.btn.getAttribute('href')==='./level4.html'&&r.btn.getAttribute('aria-disabled')===null&&r.note.hidden===true,'with 19 carried cogs the Level 4 button links to the level');
+  r=run(5,8,6);ok(r.btn.getAttribute('href')==='./level4.html','the cogs of Level 3 carry into Level 4');
+  r=run(6,6,0);ok(r.b3.getAttribute('href')===null,'the Level 3 lock still works next to it');
 }
 
 console.log(JSON.stringify({checks,localRefs:refs.length,images:imgs.length}));

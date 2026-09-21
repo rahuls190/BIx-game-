@@ -19,7 +19,7 @@ let charge=1,gloveOn=0,prevShield=0,padCD=0,tether=null,tetherUsed=0,parryFx=0,p
 let G=GL.make(0),crates=[],plates=[],reflected=[];
 const TR=D.train,STEER=D.steer,CORE_V=240;        // cores move at 240 px/s: the longest push (core B, 820 px) is 3.4 s, 68% heat, well under the 85% warning
 let terms=[],cores=[],seated=new Set(),blocks=[],chuteN={},drones=[],train=null,isl=[],flight=null;
-let doorHold=0,doorNear=0,doorT=0,gflash=0,recoil=0,prevRed=0,inArchive=0,archiveRead=[0,0,0],archiveT=0,gateAnim=0,coreFx=-9;
+let labHintT=0,doorHold=0,doorNear=0,doorT=0,gflash=0,recoil=0,prevRed=0,inArchive=0,archiveRead=[0,0,0],archiveT=0,gateAnim=0,coreFx=-9;
 
 const img=s=>{const a=new Image;a.src='./assets/'+s;return a};
 const IMG={};for(const k of Object.keys(ART))IMG[k]=img(k);
@@ -352,10 +352,10 @@ function laserState(l,now){const t=(((now+l.phase)%l.period)+l.period)%l.period,
 function startTerm(i,now){
   const t=D.terminals[i];terms.forEach((q,j)=>{if(j!==i&&q.t>0){q.t=0;const c=D.cores.find(k=>k.id===D.terminals[j].core),m=cores.find(k=>k.id===c.id);if(m&&!seated.has(c.socket))m.x=c.start}});
   terms[i].t=t.hold;setPackAction(1,t.hold,now,{x:t.x,y:t.y-20});
-  toast('PACK','Holding the terminal! My sensors are tingly! Route the cores, Bix!',2.8,1);
+  toast('PACK',t.hint||'Holding the terminal! My sensors are tingly! Route the cores, Bix!',3.4,1);
 }
 function updateLab(dt,now,pol){
-  const cx=P.x+P.w/2;
+  const cx=P.x+P.w/2;labHintT=Math.max(0,labHintT-dt);
   terms.forEach((tm,i)=>{if(tm.t>0){tm.t-=dt;if(tm.t<=0){tm.t=0;const t=D.terminals[i],c=D.cores.find(k=>k.id===t.core),m=cores.find(k=>k.id===c.id);
     if(m&&!seated.has(c.socket))m.x=c.start;packUntil=0;toast('PACK','Terminal released. The core dropped back. I did nothing wrong.',2.4,0)}}});
   cores.forEach((k,i)=>{
@@ -364,7 +364,8 @@ function updateLab(dt,now,pol){
     const ti=D.terminals.findIndex(t=>t.core===cfg.id);
     if(ti<0||terms[ti].t<=0||!gloveOn||!pol)return;
     const v=CORE_V*(cogs>=4?1.3:1);
-    if(pol===1){const d=clamp(cx,cfg.x0,cfg.x1)-k.x;k.x+=Math.sign(d)*Math.min(Math.abs(d),v*dt)}       // Blue pulls the core toward Bix
+    if(pol===1){const d=clamp(cx,cfg.x0,cfg.x1)-k.x;k.x+=Math.sign(d)*Math.min(Math.abs(d),v*dt);
+      if(Math.abs(d)<2&&(cx<cfg.x0||cx>cfg.x1)&&labHintT<=0){labHintT=4;toast('PACK','Blue pulls it toward you and you are at its end. Hold X (Red) to push it away.',3,1)}}       // Blue pulls the core toward Bix
     else k.x=clamp(k.x+(k.x>=cx?1:-1)*v*dt,cfg.x0,cfg.x1);                                            // Red pushes it away
     engaged=true;
     if(Math.abs(k.x-sock.x)<=sock.seat){
@@ -444,6 +445,9 @@ function updateTrain(dt,now,pol){
   for(const o of train.obs){
     if(o.st===0&&front>=o.at-Math.max(80,train.v*TR.tell)){
       o.st=1;
+      if(o.k==='J'&&!train.hJ){train.hJ=1;toast('PACK',`Jolt! Hold Blue${keyHint('Z')} until it passes!`,2.6,1)}
+      if(o.k==='R'&&!train.hR){train.hR=1;toast('PACK',`Rock! Jump it, or hold Red${keyHint('X')} to throw it clear.`,2.6,1)}
+      if(o.k==='G'&&!train.hG){train.hG=1;toast('PACK',`Swing-load! Hold Red${keyHint('X')} to push it up and away.`,2.6,1)}
       if(o.k==='R')train.things.push({k:'R',bx:300,y:-1000,vy:0,vx:0,ph:'tell',t:0});
       if(o.k==='G')train.things.push({k:'G',bx:210,t:0,up:0,off:0,x:0,y:-500});
       if(o.k==='D'){train.things.push({k:'D',bx:520,t:0,y:TR.y-68});if(!train.vela){train.vela=1;toast('VELA','Maintenance drones dispatched. You are, technically, the maintenance.',2.8,1)}}
@@ -627,6 +631,16 @@ function hud(){
 }
 
 // ---- interaction (one ACT button, context label) ---------------------------
+const keyHint=k=>{try{return matchMedia('(pointer:coarse)').matches?'':` (${k})`}catch(e){return ` (${k})`}};
+// While the ore train needs an answer, the prompt box says which button (the ride has no Pack catch: a missed jolt or a rock ends it)
+function trainPrompt(){
+  if(!train||!train.run||train.done)return '';
+  const j=train.obs.find(o=>o.k==='J'&&(o.st===1||o.st===2)&&!o.ok);
+  if(j)return j.st===2?`HOLD BLUE${keyHint('Z')} NOW`:`JOLT AHEAD · GET READY TO HOLD BLUE${keyHint('Z')}`;
+  if(train.things.some(k=>k.k==='R'&&(k.ph==='tell'||k.ph==='fall'||k.ph==='roll')))return `ROCK · JUMP IT OR HOLD RED${keyHint('X')}`;
+  if(train.things.some(k=>k.k==='G'&&!k.gone))return `SWING-LOAD · HOLD RED${keyHint('X')} TO LIFT IT`;
+  return '';
+}
 function nearest(list,r){let best=null,bd=r;for(const q of (list||[])){const d=Math.hypot(P.x+21-q.x,P.y+48-q.y);if(d<bd){bd=d;best=q}}return best}
 function interact(now){
   const A=D.archive,cx=P.x+P.w/2,doorA=D.doors.find(q=>q.id==='archive');
@@ -643,6 +657,7 @@ function interact(now){
     if(k>=0){label='ACT · READ';act=()=>{archiveRead[k]=1;toast(A.terminals[k].s,A.terminals[k].t,7,1);if(archiveRead.every(Boolean)&&!archiveT&&!archiveRead.done){archiveRead.done=1;archiveT=7.2}}}
     else if(Math.abs(cx-A.exit.x)<90){label='ACT · LEAVE THE ARCHIVE';act=()=>{inArchive=0;P.x=A.back.x;P.y=A.back.y-P.h;P.vx=P.vy=0;camX=Math.max(0,P.x-viewW*camLead());camY=areaAt(P.x).camY??camY;letGo()}}
   }
+  if(!label)label=trainPrompt();
   ui.prompt.textContent=label;ui.prompt.classList.toggle('hidden',!label);
   if(!K.interact)return;
   K.interact=0;

@@ -65,6 +65,10 @@ run(g, .1, {}); ok(!GL.shieldActive(g), 'and closed by 0.4 s');
 g = GL.make(12); GL.update(g, 1 / 120, { shield: true }); const before = g.charges; GL.update(g, 1 / 120, { shield: true }); ok(g.charges === before, 'holding the button does not burn a second charge while the shield is up');
 // the shield is a separate capacitor: it works while the field is locked out
 g = GL.make(12); g.overloaded = true; g.lock = 2; ok(GL.update(g, 1 / 60, { shield: true }).shieldStarted, 'the shield still works during a field lock-out');
+// Level 4 carries up to 38 cogs: the cut-offs scale with the total (12 and 20 of 26 become 18 and 29 of 38); the default is unchanged
+for (const [n, name] of [[0, 'Brittle Coil'], [17, 'Brittle Coil'], [18, 'Tempered Induction'], [28, 'Tempered Induction'], [29, 'Superconducting Aegis'], [38, 'Superconducting Aegis'], [99, 'Superconducting Aegis']])
+  ok(GL.tierFor(n, 38).name === name, `${n} of 38 carried cogs -> ${name}`);
+ok(GL.make(30, 38).banked === 30 && GL.make(99, 38).banked === 38 && GL.make(30, 38).tier.charges === 3 && GL.tierFor(12).name === 'Tempered Induction' && GL.tierFor(11).name === 'Brittle Coil', 'make() takes the scale; the Level 3 cut-offs are unchanged');
 ok(GL.consts.EMP_RANGE === 180, 'the EMP reaches 180 px');
 assert.throws(() => { GL.consts.WARN = 1 }, undefined, 'consts are read-only'); checks++;
 console.log(JSON.stringify({ checks }));

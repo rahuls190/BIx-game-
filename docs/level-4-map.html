@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Level 4 Map</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0d1218;--panel:#151d26;--line:#2a3745;--ink:#e8edf2;--dim:#93a3b3;--cyan:#5fd4ff;--orange:#f08a2e;--gold:#f2c94c;--red:#e5533d;--heavy:#c9822f;--buoy:#9fd0e6;--charge:#b58cff;--green:#63d48a;--pink:#e58fd0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+.page{max-width:1500px;margin:0 auto;padding:20px 22px 24px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;border-bottom:2px solid var(--orange);padding-bottom:10px;margin-bottom:12px}
+h1{margin:0;font-size:30px;letter-spacing:.5px}h1 small{display:block;font-size:13px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.tag{color:var(--dim);max-width:600px;text-align:right}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.card h3,h2.t{margin:0 0 4px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
+.card p{margin:0;color:#c9d4de}
+.stats{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center}
+.stat b{display:block;font-size:24px;line-height:1.1}.stat span{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--dim)}
+.map{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 10px 6px;margin-bottom:12px}
+.bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:0 4px 8px}
+.bar label{display:flex;align-items:center;gap:5px;font-size:12px;color:#c9d4de;cursor:pointer;user-select:none}
+.bar .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.bar button{background:var(--orange);color:#0d1218;border:0;border-radius:6px;padding:5px 14px;font-weight:700;cursor:pointer}
+.bar input[type=range]{flex:1;min-width:160px;accent-color:var(--orange)}
+svg{width:100%;height:auto;display:block}
+.mk{cursor:pointer}.mk:hover .ic{filter:brightness(1.4)}
+.band{cursor:pointer}.band:hover{filter:brightness(1.2)}
+.hidden{display:none}
+.cap{min-height:44px;margin:6px 4px 2px;padding:8px 12px;background:#101820;border-left:4px solid var(--orange);border-radius:4px;color:#dfe8ef}
+.cap small{color:var(--dim);display:block}
+.row{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:4px 7px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+th{color:var(--dim);font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:700;color:#0d1218}
+ul{margin:4px 0 0;padding-left:18px}li{margin:2px 0;color:#c9d4de}
+.decide{background:#1b1a12;border:1px solid #5a4a1a}.decide h3{color:var(--gold)}
+footer{color:var(--dim);font-size:12px;margin-top:8px}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:1fr 1fr}header{flex-direction:column;align-items:flex-start}.tag{text-align:left}}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}}
+</style></head><body><div class="page">
+
+<header>
+ <h1><small>Project Mayhem · Level 4 · plan v0.2 · not built</small>Delivery Attempt</h1>
+ <div class="tag">Bix carries a power core up to the surface lift. The core changes in every zone, and every zone has its own set piece, secrets and a gag. Click an area or a marker, or press Play.</div>
+</header>
+
+<section class="stats">
+ <div class="stat"><b>6</b><span>areas</span></div>
+ <div class="stat"><b>12</b><span>cogs</span></div>
+ <div class="stat"><b>12</b><span>checkpoints</span></div>
+ <div class="stat"><b>8</b><span>set pieces</span></div>
+ <div class="stat"><b>3</b><span>secret rooms</span></div>
+ <div class="stat"><b>6</b><span>delivery slips</span></div>
+ <div class="stat"><b>3</b><span>optional branches</span></div>
+ <div class="stat"><b>2</b><span>boss moments</span></div>
+</section>
+
+<section class="map">
+ <div class="bar" id="layers"></div>
+ <svg id="svg" viewBox="0 0 1440 470" role="img" aria-label="Side-view map of Level 4">
+  <defs>
+   <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26323f"/><stop offset="1" stop-color="#151d26"/></linearGradient>
+   <linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#c9822f"/><stop offset=".5" stop-color="#9fd0e6"/><stop offset="1" stop-color="#b58cff"/></linearGradient>
+   <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g id="bands"></g>
+  <path id="terrain" d="M0 400 L120 400 L157 394 L300 394 L330 379 L443 379 L470 379 L640 379 L660 363 L700 347 L740 324 L790 307 L840 275 L900 258 L914 258 L1000 258 L1060 245 L1120 245 L1200 245 L1215 231 L1250 210 L1290 194 L1330 181 L1380 175 L1440 170 L1440 470 L0 470 Z" fill="url(#fade)" stroke="#5c7186" stroke-width="2"/>
+  <g id="platforms" fill="#6f8496"></g>
+  <g id="layer-cp"></g><g id="layer-cog"></g><g id="layer-marks"></g>
+  <text x="6" y="452" font-size="11" fill="var(--dim)">PRESSURE</text>
+  <polyline id="pressure" fill="none" stroke="var(--red)" stroke-width="3" points="0,462 157,460 250,448 443,440 470,462 640,462 700,452 800,440 914,430 1000,420 1100,412 1200,405 1300,398 1440,392"/>
+  <g id="runner" class="hidden"><circle r="24" fill="url(#glow)" id="rglow"/><circle r="9" id="rcore" stroke="#fff" stroke-width="2"/></g>
+  <text x="8" y="420" font-size="12" font-weight="700" fill="#fff">START</text>
+  <text id="lift" x="1434" y="0" text-anchor="end" font-size="12" font-weight="700" fill="#f2c94c">SURFACE LIFT</text>
+ </svg>
+ <div class="bar" style="margin-top:6px"><button id="play">Play the run</button><input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Scrub through the level"><span id="modechip" class="chip" style="background:#8fa3b5">CARRY</span></div>
+ <div class="cap" id="cap"><b>Click an area, a marker, or press Play.</b><small>Every icon is one element of the level; the switches above show or hide each kind.</small></div>
+</section>
+
+<section class="row">
+ <div class="card">
+  <h2 class="t">What is new in each area</h2>
+  <table>
+   <tr><th>#</th><th>Area</th><th>Set piece</th></tr>
+   <tr><td>1</td><td>Transit Deck</td><td>First Handshake: Pack introduces the core and its weight gauge</td></tr>
+   <tr><td>2</td><td>Freight Concourse</td><td>Sorting Gates weigh the core; conveyors reverse on plates; swinging cargo crane</td></tr>
+   <tr><td>3</td><td>Depot Market</td><td>Customs Desk: three stamps from three stalls; busker bot band</td></tr>
+   <tr><td>4</td><td>Signal Spine</td><td>Courier Chase: a bot grabs the core and runs up the antennas; storm and updrafts</td></tr>
+   <tr><td>5</td><td>Relay Bay</td><td>Core Pinball: throw the core through three relay nodes; a blackout with Pack's lens as the only light</td></tr>
+   <tr><td>6</td><td>Lift Shaft</td><td>Courier Prime mini-boss, then the three-mode climb and the delivery</td></tr>
+  </table>
+ </div>
+ <div class="card">
+  <h2 class="t">The core, by mode</h2>
+  <table>
+   <tr><th>Mode</th><th>Bix</th></tr>
+   <tr><td><span class="chip" style="background:var(--heavy)">HEAVY</span></td><td>Slower run, lower jump, presses plates, cracks weak floors</td></tr>
+   <tr><td><span class="chip" style="background:var(--buoy)">BUOYANT</span></td><td>Floats on long jumps; vents push; a thrown core drifts</td></tr>
+   <tr><td><span class="chip" style="background:var(--charge)">CHARGED</span></td><td>Sticks to iron; Blue pulls it, Red throws it; arcs to rails</td></tr>
+  </table>
+  <ul><li>Never lost: a dropped core respawns with Bix</li><li>Pack's amber tell comes before every mode change</li><li>Mode is colour plus a HUD chip, never colour alone</li></ul>
+ </div>
+ <div class="card">
+  <h2 class="t">Extras that keep it fresh</h2>
+  <ul>
+   <li><b>Nib's incident reports:</b> every death is filed; a funny tally shows at the end</li>
+   <li><b>Delivery slips</b> (6): lore pickups that add up to the BX-7 story</li>
+   <li><b>Skill branch:</b> Zero Margin cog run with a ghost of your best time</li>
+   <li><b>Gadget branch:</b> Pack's Lens Beam reveals hidden platforms</li>
+   <li><b>Medals:</b> Careful Courier (never drop the core), Speed, All Slips</li>
+   <li><b>Cogs carry forward:</b> earlier cogs set the shield tier and the unlock; new ones carry on to Level 5</li>
+  </ul>
+ </div>
+</section>
+
+<section class="card decide">
+ <h3>Six decisions still needed</h3>
+ <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px 18px;color:#e6dcae">
+  <div>1 · Carried Core, or another idea?</div><div>2 · How many carried cogs unlock Level 4?</div><div>3 · Shield tier cut-offs for the bigger total</div>
+  <div>4 · Comms: VELA back, silence, or a new voice?</div><div>5 · Socket flash: BX-7, Bix's ID, or nothing?</div><div>6 · An all-12-cogs archive room?</div>
+ </div>
+</section>
+<footer>Source: docs/level-4-plan.md · positions and numbers are placeholders until the boxes-first stage.</footer>
+
+<script>
+const NS='http://www.w3.org/2000/svg', $=id=>document.getElementById(id), el=(n,a={},p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const terrain=$('terrain'), TL=terrain.getTotalLength();
+// terrain height at an x (the top edge is monotonic in x, so a binary search on path length works)
+const yAt=x=>{let lo=0,hi=TL*0.96;for(let i=0;i<30;i++){const m=(lo+hi)/2;terrain.getPointAtLength(m).x<x?lo=m:hi=m}return terrain.getPointAtLength(hi).y};
+const MODES={carry:['CARRY','#8fa3b5'],heavy:['HEAVY','#c9822f'],rest:['SET DOWN','#8fa3b5'],buoy:['BUOYANT','#9fd0e6'],charge:['CHARGED','#b58cff'],all:['ALL THREE','url(#g3)']};
+const AREAS=[
+ {n:'1 TRANSIT DECK',x0:0,x1:157,c:'#3a5266',m:'carry',t:'Pick the core up, carry it, set it down. Nothing can hurt you; a pit shows the respawn rule.'},
+ {n:'2 FREIGHT CONCOURSE',x0:157,x1:443,c:'#8a5a22',m:'heavy',t:'Heavy core: slower and lower, but it presses plates and cracks weak floors.'},
+ {n:'3 DEPOT MARKET',x0:443,x1:643,c:'#4f7a55',m:'rest',t:'The breather. No hazards, market comedy, a customs puzzle and the first BX-7 clue.'},
+ {n:'4 SIGNAL SPINE',x0:643,x1:914,c:'#4d7f96',m:'buoy',t:'Buoyant core on a vertical climb: vents, dishes, a storm, and a thief.'},
+ {n:'5 RELAY BAY',x0:914,x1:1200,c:'#6b4fa3',m:'charge',t:'Charged core plus the Magnet Glove: rails, pinball throws and a blackout.'},
+ {n:'6 LIFT SHAFT',x0:1200,x1:1440,c:'#a23f33',m:'all',t:'A mini-boss, then all three modes in one climb, then the delivery.'}];
+const TYPES={set:['★','#f2c94c','Set piece'],hz:['▲','#e5533d','Hazard'],sec:['?','#e58fd0','Secret room'],slip:['✉','#dfe8ef','Delivery slip'],skill:['⏱','#63d48a','Skill branch'],gadget:['◆','#5fd4ff','Gadget branch'],boss:['☠','#ff6a4d','Mini-boss / chase'],npc:['☺','#f0b35a','Character / gag']};
+const M=[ // x, type, lane, title, text
+ [40,'set',0,'First Handshake','Pack introduces the core and shows its weight gauge on the HUD. A safe pit teaches: drop it and it comes back with you.'],
+ [95,'npc',1,'Pack names the core','Running gag: Pack gives the core a name and files it as "cargo, fragile, emotional".'],
+ [135,'slip',2,'Delivery slip 1','Order form for one power core, signed with a smudged initial.'],
+ [200,'hz',0,'Reversing conveyors','Belts run the wrong way until the heavy core is set on a plate.'],
+ [290,'hz',1,'Cargo crane','A container swings across the route on a beat; time it or shield through.'],
+ [340,'set',0,'Sorting Gates','Gates weigh what passes. The heavy core opens them; a fake does not.'],
+ [385,'hz',1,'Crawlers','Light pressure from the existing enemies, no new rules.'],
+ [420,'skill',2,'Zero Margin','Optional side room: a cog run against a ghost of your best time.'],
+ [320,'slip',3,'Delivery slip 2','A customs form, stamped twice, once upside down.'],
+ [470,'npc',0,'Nib, market manager','Small four-armed operations lead. Files an incident report for every death; the tally is shown at the end.'],
+ [510,'set',1,'Busker bot band','A robot band that plays real, action-matched sounds. Bix can tap along; nothing else.'],
+ [548,'set',0,'Customs Desk','Collect three stamps from three stalls to pass the core through customs. A gentle puzzle.'],
+ [585,'sec',1,'Lost & Found','A locker with a hidden cog and a delivery slip.'],
+ [615,'slip',2,'Delivery slip 3','The customs log lists BX-7 as the last signer for the lift.'],
+ [700,'hz',0,'Updraft vents','Wind lifts the buoyant core; Pack\'s amber tell shows the next gust.'],
+ [742,'gadget',2,'Pack Lens Beam','Optional alcove: Pack\'s lens becomes a beam that reveals hidden platforms.'],
+ [790,'sec',1,'Antenna nest','A hidden room reached with the Lens Beam. A bird-like drone, a cog.'],
+ [815,'set',0,'Rotating dishes','Dish platforms turn like clock hands; float from one to the next.'],
+ [852,'hz',1,'Storm','Lightning flashes before each strike; it never hits the core while it is buoyant.'],
+ [890,'boss',2,'Courier Chase','A courier bot grabs the core mid-climb and runs up the antennas. Chase it and win it back.'],
+ [670,'slip',3,'Delivery slip 4','A courier route sheet: the last delivery on it is eleven years old.'],
+ [960,'hz',0,'Arcing rails','Cables arc in a rhythm. Charged core plus rails is the new danger.'],
+ [1040,'set',0,'Core Pinball','Red-throw the core through three relay nodes to power the gate; Blue calls it back.'],
+ [1110,'hz',1,'Blackout','The lights die. Pack\'s lens is the only light, and it shows the safe path.'],
+ [1150,'skill',2,'No-drop cog run','A precision line: never let the core touch the floor.'],
+ [1000,'slip',3,'Delivery slip 5','A relay maintenance note: "leave the lift alone".'],
+ [1180,'sec',1,'BX-7 crawlspace','A hidden plaque and a cog. Says a little, explains nothing.'],
+ [1262,'boss',0,'Courier Prime','Mini-boss with three identical cores. Only the real one obeys the modes; Pack scans, the glove picks. Solved with the environment, not with a fight.'],
+ [1330,'set',1,'Three-mode climb','Heavy plate, buoyant hop, charged throw, in one run.'],
+ [1400,'slip',2,'Delivery slip 6','The last one is the work order for BX-7, signed by Bix.'],
+ [1425,'set',0,'The delivery','The core seats in the lift socket and the shaft rises to the first daylight in the game.']];
+const CP=[100,250,380,500,620,760,900,1040,1150,1240,1340,1420];
+const COGS=[60,215,380,560,610,720,860,990,1080,1160,1270,1400];
+const cap=(h,s)=>{$('cap').innerHTML='<b>'+h+'</b><small>'+s+'</small>'};
+const bands=$('bands');
+AREAS.forEach(a=>{const g=el('g',{class:'band'},bands);g.onclick=()=>{cap(a.n+' · core: '+MODES[a.m][0],a.t)};
+ el('rect',{x:a.x0,y:4,width:a.x1-a.x0,height:22,fill:a.c},g);const t=el('text',{x:a.x0+8,y:19,'font-size':12,'font-weight':600,fill:'#fff'},g);t.textContent=a.n;
+ el('rect',{x:a.x0,y:30,width:a.x1-a.x0,height:16,fill:MODES[a.m][1]},g);const u=el('text',{x:a.x0+8,y:42,'font-size':11,'font-weight':700,fill:'#0d1218'},g);u.textContent='CORE: '+MODES[a.m][0]});
+const pf=$('platforms');[[20,70],[170,80],[255,60],[470,120],[700,40],[800,50],[930,80],[1030,70],[1230,50],[1330,60]].forEach(([x,w])=>el('rect',{x,y:yAt(x)-4,width:w,height:4},pf));
+$('lift').setAttribute('y',yAt(1436)+26);
+const lcp=$('layer-cp'),lcog=$('layer-cog');
+CP.forEach(x=>{const y=yAt(x);const g=el('g',{transform:`translate(${x},${y})`},lcp);el('line',{x1:0,y1:0,x2:0,y2:-16,stroke:'#63d48a','stroke-width':2},g);el('path',{d:'M0 -16 L9 -12 L0 -8Z',fill:'#63d48a'},g)});
+COGS.forEach((x,i)=>{const y=yAt(x)-18;el('circle',{cx:x,cy:y,r:i==11?7:5,fill:'#f2c94c',stroke:i==11?'#fff':'#8a6a12','stroke-width':i==11?2:1},lcog)});
+const lm=$('layer-marks');
+M.forEach(([x,ty,lane,title,text])=>{const [ch,col,label]=TYPES[ty];const y=yAt(x)-48-lane*22;const g=el('g',{class:'mk','data-type':ty,transform:`translate(${x},${y})`},lm);
+ el('line',{x1:0,y1:10,x2:0,y2:yAt(x)-y-2,stroke:col,'stroke-width':1,opacity:.4},g);
+ el('circle',{r:10,fill:'#0d1218',stroke:col,'stroke-width':2,class:'ic'},g);const t=el('text',{y:5,'text-anchor':'middle','font-size':12,'font-weight':800,fill:col},g);t.textContent=ch;
+ const tt=el('title',{},g);tt.textContent=title;g.onclick=()=>cap(title+' <span class="chip" style="background:'+col+'">'+label+'</span>',text);
+ g._x=x;g._t=title;g._d=text});
+const L=[['cp','Checkpoints','#63d48a'],['cog','Cogs','#f2c94c'],...Object.entries(TYPES).map(([k,v])=>[k,v[2],v[1]])];
+const lay=$('layers');const hd=document.createElement('b');hd.textContent='Show:';hd.style.cssText='font-size:12px;color:var(--cyan);letter-spacing:1px';lay.appendChild(hd);
+L.forEach(([k,n,c])=>{const lb=document.createElement('label');lb.innerHTML='<input type="checkbox" checked><span class="sw" style="background:'+c+'"></span>'+n;lb.firstChild.onchange=e=>{
+  if(k=='cp')$('layer-cp').classList.toggle('hidden',!e.target.checked);else if(k=='cog')$('layer-cog').classList.toggle('hidden',!e.target.checked);else document.querySelectorAll('.mk[data-type="'+k+'"]').forEach(m=>m.classList.toggle('hidden',!e.target.checked))};lay.appendChild(lb)});
+// the run: a core rolls along the terrain; its colour and the caption change with the area and the elements it passes
+const runner=$('runner'),rcore=$('rcore'),scrub=$('scrub'),chip=$('modechip');let playing=false,pos=0,shown=null,last=0;
+const marks=[...document.querySelectorAll('.mk')].sort((a,b)=>a._x-b._x);
+function place(p){const x=p*1440;const y=yAt(x)-12;runner.setAttribute('transform',`translate(${x},${y})`);runner.classList.remove('hidden');
+ const a=AREAS.find(a=>x>=a.x0&&x<a.x1)||AREAS[5];const col=a.m=='all'?(x<1290?'#c9822f':x<1360?'#9fd0e6':'#b58cff'):MODES[a.m][1];rcore.setAttribute('fill',col);chip.textContent=a.m=='all'?(x<1290?'HEAVY':x<1360?'BUOYANT':'CHARGED'):MODES[a.m][0];chip.style.background=col;
+ let near=null;marks.forEach(m=>{if(m._x<=x+4)near=m});if(near&&near!==shown){shown=near;cap(near._t,near._d)}}
+function tick(t){if(!playing)return;const dt=(t-last)/1000;last=t;pos=Math.min(1,pos+dt/22);scrub.value=pos*1000;place(pos);if(pos>=1){playing=false;$('play').textContent='Play again';pos=0;return}requestAnimationFrame(tick)}
+$('play').onclick=()=>{if(playing){playing=false;$('play').textContent='Play the run';return}playing=true;shown=null;$('play').textContent='Pause';last=performance.now();requestAnimationFrame(tick)};
+scrub.oninput=()=>{pos=scrub.value/1000;shown=null;place(pos)};
+</script>
+</div></body></html>

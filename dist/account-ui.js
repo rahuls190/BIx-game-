@@ -31,17 +31,23 @@
         el.hidden = false;
       } else el.hidden = true;
     }
-    // Level 3 opens once Levels 1 and 2 have banked more than 12 cogs. A locked button has no link to follow.
-    const banked = P.bankedCogs(s.progress), open = P.level3Unlocked(s.progress);
-    for (const a of document.querySelectorAll('[data-lock="level3"]')) {
-      if (!a.hasAttribute('data-href')) a.setAttribute('data-href', a.getAttribute('href') || '');
-      if (open) { a.setAttribute('href', a.getAttribute('data-href')); a.removeAttribute('aria-disabled') }
-      else { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true') }
-      a.classList.toggle('locked', !open);
-    }
-    for (const n of document.querySelectorAll('[data-lock-note="level3"]')) {
-      n.textContent = open ? '' : 'Locked. Bank more than 12 cogs in Levels 1 and 2 to open it (' + banked + ' so far).';
-      n.hidden = open;
+    // Level 3 opens once Levels 1 and 2 have banked more than 12 cogs; Level 4 once Levels 1 to 3 have carried 19 of their 38. A locked button has no link to follow.
+    const LOCKS = {
+      level3: { have: P.bankedCogs(s.progress), open: P.level3Unlocked(s.progress), note: n => 'Locked. Bank more than 12 cogs in Levels 1 and 2 to open it (' + n + ' so far).' },
+      level4: { have: P.carriedCogs ? P.carriedCogs(s.progress, 'level4') : 0, open: P.level4Unlocked ? P.level4Unlocked(s.progress) : false, note: n => 'Locked. Carry ' + P.LEVEL4_UNLOCK_COGS + ' of the 38 cogs from Levels 1 to 3 to open it (' + n + ' so far).' },
+    };
+    for (const id of Object.keys(LOCKS)) {
+      const lk = LOCKS[id];
+      for (const a of document.querySelectorAll('[data-lock="' + id + '"]')) {
+        if (!a.hasAttribute('data-href')) a.setAttribute('data-href', a.getAttribute('href') || '');
+        if (lk.open) { a.setAttribute('href', a.getAttribute('data-href')); a.removeAttribute('aria-disabled') }
+        else { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true') }
+        a.classList.toggle('locked', !lk.open);
+      }
+      for (const n of document.querySelectorAll('[data-lock-note="' + id + '"]')) {
+        n.textContent = lk.open ? '' : lk.note(lk.have);
+        n.hidden = lk.open;
+      }
     }
   }
   M.subscribe(render);

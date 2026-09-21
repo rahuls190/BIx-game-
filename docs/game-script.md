@@ -1,6 +1,6 @@
 # Project Mayhem — Game Script
 
-Dialogue and story script for Bix, Pack and the facility.
+Dialogue and story script for Bix, Pack and the facility. The Level 4 script (draft) is in `level-4-script.md`.
 Level 1 lines are copied from the shipped game (`dist/game.js`). Level 2 is implemented; this document remains the full narrative source, while the game uses the compact subset needed during play.
 
 ## Cast and voice

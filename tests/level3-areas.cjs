@@ -54,6 +54,41 @@ const at = name => boot().D.checkpoints.find(c => c.name === name);
   // Core A can also be pushed from the terminal side (either colour works, as the design allows)
   const q5 = boot(); q5.setEnemies([]); q5.setDrones([]); q5.place(T0.x - 21, T0.y); q5.K.interact = 1; q5.tick(2, dt); q5.K.interact = 0; q5.K.red = 1; q5.tick(Math.round(6 / dt), dt);
   ok(q5.seated().has('SA'), 'core A can be pushed home with Red from the terminal too');
+  // the whole puzzle fits in the 24 s hold: core A walked from its terminal to its socket, core B pushed from its terminal, both without teleporting
+  for (const cogs of [0, 4]) {
+    const w = boot(); w.setEnemies([]); w.setDrones([]); w.D.lasers = []; w.D.chutes = []; w.setCogs(cogs);
+    w.place(T0.x - 21, T0.y); w.K.interact = 1; w.tick(2, dt); w.K.interact = 0; w.K.right = 1; w.K.blue = 1; let ta = 0;
+    while (ta < 10 && !w.seated().has('SA')) { w.tick(1, dt); ta += dt; if (w.P.x + 21 >= SA.x - 30) w.K.right = 0 }
+    ok(w.seated().has('SA') && ta < 8, `with ${cogs} cogs core A is walked home from its terminal in ${ta.toFixed(1)} s, inside the 24 s hold`);
+    w.clear(); w.G().heat = 0; w.place(T1.x - 21, T1.y); w.K.interact = 1; w.tick(2, dt); w.K.interact = 0; w.K.red = 1; let tb = 0;
+    while (tb < 10 && !w.seated().has('SB')) { w.tick(1, dt); tb += dt }
+    ok(w.seated().has('SB') && tb < 5, `with ${cogs} cogs core B is pushed home in ${tb.toFixed(1)} s, inside the 24 s hold`);
+  }
+  // Pack says which button each terminal wants, and speaks up when Blue is held where it cannot pull
+  { const h = boot(); h.setEnemies([]); h.setDrones([]); h.D.lasers = []; h.D.chutes = [];
+    h.place(T1.x - 21, T1.y); h.K.interact = 1; h.tick(2, dt); h.K.interact = 0;
+    ok(/Holding the terminal/.test(h.line()) && /Red pushes/.test(h.line()) && /hold X/.test(h.line()), 'terminal 1 tells the player to hold X (Red)');
+    h.K.blue = 1; h.tick(Math.round(1.5 / dt), dt);
+    ok(!h.seated().has('SB') && /Hold X \(Red\)/.test(h.line()), 'holding Blue at terminal 1 gets a hint instead of silence'); h.K.blue = 0;
+    const g = boot(); g.setEnemies([]); g.setDrones([]); g.D.lasers = []; g.D.chutes = []; g.place(T0.x - 21, T0.y); g.K.interact = 1; g.tick(2, dt);
+    ok(/Blue pulls/.test(g.line()) && /hold Z/.test(g.line()), 'terminal 0 tells the player to hold Z (Blue) at the socket');
+    ok(g.D.terminals.every(t => t.hint && t.hint.length <= 70), 'both hints fit the HUD box'); }
+  // the ride says what to press: a Pack hint the first time each obstacle appears, and a prompt while it needs an answer
+  { const r = boot(); r.setEnemies([]); r.setDrones([]); r.D.triggers.forEach(t => { t.used = 1 });
+    r.setCP(r.D.checkpoints.find(c => c.name === 'RAIL HEAD')); r.reset(0); r.tick(3, dt); r.P.falls = 0; r.P.inv = 0; r.setGlove(1);
+    r.place(r.train().x + 40, r.D.train.y); r.tick(5, dt);
+    let sawJoltHint = false, sawJoltPrompt = false, sawRock = false, sawRockPrompt = false, blue = 0;
+    for (let i = 0; i < 60 * 14 && !r.train().done && r.P.falls === 0; i++) {
+      const T = r.train(), jolt = T.obs.find(o => o.k === 'J' && o.st === 2); r.K.blue = jolt ? 1 : 0;
+      r.tick(1, dt);
+      if (/Jolt! Hold Blue/.test(r.line())) sawJoltHint = true;
+      if (/HOLD BLUE/.test(r.els.prompt.textContent)) sawJoltPrompt = true;
+      if (/Rock! Jump it/.test(r.line())) sawRock = true;
+      if (/ROCK · JUMP IT OR HOLD RED/.test(r.els.prompt.textContent)) sawRockPrompt = true;
+    }
+    ok(sawJoltHint && sawJoltPrompt, 'the first jolt gets a Pack hint and a HOLD BLUE prompt');
+    ok(sawRock && sawRockPrompt, 'the first rock gets a Pack hint and a JUMP OR HOLD RED prompt');
+    ok(r.train().done || r.P.falls === 0, 'a player who answers the jolts and rocks as told reaches the buffer'); }
   // Field Boost (4 cogs) makes cores 30% faster
   const q6 = boot(); q6.setEnemies([]); q6.setDrones([]); q6.setCogs(4); q6.place(T0.x - 21, T0.y); q6.K.interact = 1; q6.tick(2, dt); q6.K.interact = 0; q6.K.red = 1;
   const x0 = q6.cores()[0].x; q6.tick(60, dt); near(q6.cores()[0].x - x0, 240 * 1.3, 10, 'from 4 cogs a core moves 30% faster');

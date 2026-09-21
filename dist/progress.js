@@ -17,9 +17,11 @@
   'use strict';
 
   const KEY = 'mayhem.progress.v1';
-  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 } };
+  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 } };
+  const ORDER = ['level1', 'level2', 'level3', 'level4'];       // play order: cogs banked in every earlier level carry forward into the next
   const MAX_TIME = 86399, MAX_FALLS = 9999, MAX_PLAYS = 1000000;
   const LEVEL3_UNLOCK_COGS = 13;      // Level 3 opens once Levels 1 and 2 have banked MORE than 12 cogs between them
+  const LEVEL4_UNLOCK_COGS = 19;      // Level 4 opens once Levels 1 to 3 have banked 19 of their 38 cogs (half, as Level 3 asks 13 of 26)
 
   const int = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && Number.isInteger(v) && v >= lo && v <= hi) ? v : null;
 
@@ -92,6 +94,16 @@
   function bankedCogs(progress) { const p = sanitize(progress); return p.levels.level1.bestCogs + p.levels.level2.bestCogs; }
   const level3Unlocked = progress => bankedCogs(progress) >= LEVEL3_UNLOCK_COGS;
 
+  // Cogs carry forward: everything banked in the levels BEFORE `levelId` (the sum of each level's best, so replaying can never lower it).
+  // Level 2 -> 0..12, Level 3 -> 0..26 (same as bankedCogs), Level 4 -> 0..38.
+  function carriedCogs(progress, levelId) {
+    const p = sanitize(progress), at = ORDER.indexOf(levelId);
+    if (at < 0) return 0;
+    return ORDER.slice(0, at).reduce((n, id) => n + p.levels[id].bestCogs, 0);
+  }
+  const carriedMax = levelId => ORDER.slice(0, Math.max(0, ORDER.indexOf(levelId))).reduce((n, id) => n + LEVELS[id].cogs, 0);
+  const level4Unlocked = progress => carriedCogs(progress, 'level4') >= LEVEL4_UNLOCK_COGS;
+
   const same = (a, b) => JSON.stringify(sanitize(a)) === JSON.stringify(sanitize(b));
 
   // A Firebase web config is public by design, but a placeholder or empty one must never switch sign-in on.
@@ -142,5 +154,5 @@
     return M;
   }
 
-  return { KEY, LEVELS, LEVEL3_UNLOCK_COGS, bankedCogs, level3Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
+  return { KEY, LEVELS, ORDER, LEVEL3_UNLOCK_COGS, LEVEL4_UNLOCK_COGS, bankedCogs, level3Unlocked, carriedCogs, carriedMax, level4Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
 });

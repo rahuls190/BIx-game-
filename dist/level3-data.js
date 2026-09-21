@@ -160,8 +160,8 @@ triggers: [
    Blue pulls a core toward Bix, Red pushes it away. Speed 240 px/s (x1.3 from 4 cogs). A core within `seat` px of its socket locks in for good.
    Only one terminal can be held at a time (Pack is one robot). When the time runs out an unseated core drops back to its start. */
 terminals: [
-  { id: 'T0', x: 8330, y: -380, range: 110, hold: 24, core: 'A' },
-  { id: 'T1', x: 9930, y: -380, range: 110, hold: 24, core: 'B' },
+  { id: 'T0', x: 8330, y: -380, range: 110, hold: 24, core: 'A', hint: 'Holding the terminal! Blue pulls the core: hold Z at its socket.' },
+  { id: 'T1', x: 9930, y: -380, range: 110, hold: 24, core: 'B', hint: 'Holding the terminal! Red pushes the core: hold X right here.' },
 ],
 cores: [
   { id: 'A', pol: 1,  x0: 8600,  x1: 9240,  start: 8680,  y: -470, socket: 'SA' },   /* Blue: stand at the socket on the pedestal and pull it in */

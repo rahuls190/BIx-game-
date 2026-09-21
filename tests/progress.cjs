@@ -24,6 +24,24 @@ ok(P.applyResult(P.sanitize(null),'level3',{timeSec:900,cogs:12,falls:3},1).leve
   ok(P.level3Unlocked(rec(5,8))&&P.level3Unlocked(rec(12,14))&&!P.level3Unlocked(null)&&!P.level3Unlocked({}),'13 or more do; junk records never do');
   ok(P.bankedCogs(rec(99,99))===0&&P.bankedCogs(rec(12,14))===26,'banked cogs are read through sanitize(), so nothing out of range counts');
 }
+ok(P.sanitize({levels:{level4:{bestCogs:12}}}).levels.level4.bestCogs===12&&P.sanitize({levels:{level4:{bestCogs:13}}}).levels.level4.bestCogs===0,'level 4 has 12 cogs');
+ok(P.applyResult(P.sanitize(null),'level4',{timeSec:1000,cogs:12,falls:9},1).levels.level4.completed===true,'a Level 4 result is recorded');
+{
+  // cogs carry forward: everything banked in the levels before a level counts in it, as the sum of each level's best
+  const rec=(a,b,c,d)=>({levels:{level1:{bestCogs:a},level2:{bestCogs:b},level3:{bestCogs:c},level4:{bestCogs:d}}});
+  ok(P.carriedCogs(rec(5,6,7,8),'level1')===0&&P.carriedCogs(rec(5,6,7,8),'level2')===5&&P.carriedCogs(rec(5,6,7,8),'level3')===11&&P.carriedCogs(rec(5,6,7,8),'level4')===18,'a level counts the cogs of the levels before it, never its own');
+  ok(P.carriedCogs(rec(5,8,0,0),'level3')===P.bankedCogs(rec(5,8,0,0)),'Level 3 carried cogs equal the banked cogs it already used');
+  ok(P.carriedMax('level2')===12&&P.carriedMax('level3')===26&&P.carriedMax('level4')===38,'the carried totals top out at 12, 26 and 38');
+  ok(P.LEVEL4_UNLOCK_COGS===19&&P.carriedCogs(rec(12,6,0,0),'level4')===18&&!P.level4Unlocked(rec(12,6,0,0)),'18 carried cogs do not unlock Level 4');
+  ok(P.level4Unlocked(rec(12,7,0,0))&&P.level4Unlocked(rec(5,8,6,0))&&P.level4Unlocked(rec(12,14,12,12))&&!P.level4Unlocked(null)&&!P.level4Unlocked({}),'19 or more do; junk records never do');
+  ok(P.carriedCogs(rec(99,99,99,99),'level4')===0&&P.carriedCogs(rec(1,1,1,1),'nope')===0,'carried cogs are read through sanitize(); an unknown level carries nothing');
+  // replaying can only raise the total
+  let q=P.applyResult(P.sanitize(null),'level1',{timeSec:100,cogs:9,falls:1},1);q=P.applyResult(q,'level1',{timeSec:100,cogs:4,falls:1},2);
+  ok(P.carriedCogs(q,'level2')===9,'a worse replay never lowers the carried total');
+  q=P.applyResult(q,'level1',{timeSec:100,cogs:11,falls:1},3);ok(P.carriedCogs(q,'level2')===11,'a better replay raises it');
+  // the cloud copy and the device copy merge to the larger of each level, so the total is the same on both
+  const m=P.merge(rec(3,0,0,0),rec(0,5,0,0));ok(P.carriedCogs(m,'level4')===8,'merging two devices keeps the best of each level');
+}
 
 // ---------- applyResult ----------
 let p=P.applyResult(E,'level1',{timeSec:300,cogs:8,falls:5},1000);
@@ -135,7 +153,7 @@ ok(P.isConfigured(CFG),'a complete config switches accounts on');
 // ---------- pages load things in a safe order, and the widget is hidden until accounts are on ----------
 {
   const idx=(h,s)=>h.indexOf(s);
-  for(const page of ['index.html','level1.html','level2.html','level3.html']){
+  for(const page of ['index.html','level1.html','level2.html','level3.html','level4.html']){
     const h=fs.readFileSync('dist/'+page,'utf8');
     const cfg=idx(h,'firebase-config.js'),prog=idx(h,'progress.js'),auth=idx(h,'auth.js');
     ok(cfg>0&&prog>cfg&&auth>prog,page+': scripts must load config, then progress, then auth');
