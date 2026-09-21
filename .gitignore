@@ -21,3 +21,9 @@ dist/assets/casting-mold-v1.png
 dist/assets/coolant-mist-v1.png
 dist/assets/conveyor-belt-v1.png
 dist/assets/lava-channel-v1.png
+
+# Level 3 scratch and the large image masters (kept locally; dist/assets holds what ships)
+design/l3tmp/
+design/level3-art-masters-v2-real/
+design/level3-art-masters-v1/
+dist/sound-demo.html

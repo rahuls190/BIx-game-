@@ -17,8 +17,9 @@
   'use strict';
 
   const KEY = 'mayhem.progress.v1';
-  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 } };
+  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 } };
   const MAX_TIME = 86399, MAX_FALLS = 9999, MAX_PLAYS = 1000000;
+  const LEVEL3_UNLOCK_COGS = 13;      // Level 3 opens once Levels 1 and 2 have banked MORE than 12 cogs between them
 
   const int = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && Number.isInteger(v) && v >= lo && v <= hi) ? v : null;
 
@@ -87,6 +88,10 @@
     return base;
   }
 
+  // Banked cogs = the best cog count recorded in Level 1 plus Level 2 (0..26). It sets the Level 3 shield tier and unlocks Level 3.
+  function bankedCogs(progress) { const p = sanitize(progress); return p.levels.level1.bestCogs + p.levels.level2.bestCogs; }
+  const level3Unlocked = progress => bankedCogs(progress) >= LEVEL3_UNLOCK_COGS;
+
   const same = (a, b) => JSON.stringify(sanitize(a)) === JSON.stringify(sanitize(b));
 
   // A Firebase web config is public by design, but a placeholder or empty one must never switch sign-in on.
@@ -137,5 +142,5 @@
     return M;
   }
 
-  return { KEY, LEVELS, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
+  return { KEY, LEVELS, LEVEL3_UNLOCK_COGS, bankedCogs, level3Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
 });

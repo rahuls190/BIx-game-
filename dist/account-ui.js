@@ -31,6 +31,18 @@
         el.hidden = false;
       } else el.hidden = true;
     }
+    // Level 3 opens once Levels 1 and 2 have banked more than 12 cogs. A locked button has no link to follow.
+    const banked = P.bankedCogs(s.progress), open = P.level3Unlocked(s.progress);
+    for (const a of document.querySelectorAll('[data-lock="level3"]')) {
+      if (!a.hasAttribute('data-href')) a.setAttribute('data-href', a.getAttribute('href') || '');
+      if (open) { a.setAttribute('href', a.getAttribute('data-href')); a.removeAttribute('aria-disabled') }
+      else { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true') }
+      a.classList.toggle('locked', !open);
+    }
+    for (const n of document.querySelectorAll('[data-lock-note="level3"]')) {
+      n.textContent = open ? '' : 'Locked. Bank more than 12 cogs in Levels 1 and 2 to open it (' + banked + ' so far).';
+      n.hidden = open;
+    }
   }
   M.subscribe(render);
 })();

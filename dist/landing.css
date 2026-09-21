@@ -181,3 +181,8 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:40px
   .acct-btn .short{display:none}.acct-btn .long{display:inline}
   .privacy{max-width:none}
 }
+
+.lock-note{margin:0 0 4px;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--orange)}
+.lock-note[hidden]{display:none}
+.btn.locked,.btn[aria-disabled="true"]{opacity:.42;filter:grayscale(.6);cursor:not-allowed;box-shadow:none}
+.btn.locked:hover{transform:none}

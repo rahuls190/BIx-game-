@@ -3,6 +3,8 @@
 // enemy behaviour from level2-enemies.js. Physics constants match Level 1.
 (()=>{
 'use strict';
+const SFX=(n,o)=>{try{window.MayhemAudio&&window.MayhemAudio.play(n,o)}catch(e){}},SCENE=n=>{try{window.MayhemAudio&&window.MayhemAudio.scene(n)}catch(e){}};   // sound is optional: audio.js may be absent
+let lastStep=0;
 const c=document.getElementById('game'),x=c.getContext('2d'),$=id=>document.getElementById(id);
 const ui=Object.fromEntries(['start','complete','dialogue','speaker','line','prompt','zone','objective','cogCount','finalCogs','finalTime','finalFalls','resultLine','saveNote','touchControls','packCharge','packChargeLabel'].map(id=>[id,$(id)]));
 const D=window.L2DATA,ART=window.L2ART,EN=window.L2ENEMIES;
@@ -88,9 +90,9 @@ function areaAt(px,py){
 const isVertical=a=>!!(a&&(a.vertical??(a===D.areas[D.areas.length-1])));
 
 // ---- messages and checkpoints ---------------------------------------------
-function toast(s,t,n=2.4,force=0){if(msgLock&&!force)return;ui.speaker.textContent=s;ui.line.textContent=t;ui.dialogue.classList.toggle('system',s==='SYSTEM');ui.dialogue.classList.remove('hidden');msgTime=n;msgLock=.45}
+function toast(s,t,n=2.4,force=0){if(msgLock&&!force)return;SFX(s==='PACK'?'pack':s==='BIX'?'bix':s==='VELA'||s==='SUPERVISOR'?'vela':'sys');ui.speaker.textContent=s;ui.line.textContent=t;ui.dialogue.classList.toggle('system',s==='SYSTEM');ui.dialogue.classList.remove('hidden');msgTime=n;msgLock=.45}
 function setCharge(v){charge=v;ui.packCharge.classList.toggle('spent',!v);ui.packChargeLabel.textContent=v?'PACK READY':'PACK SPENT'}
-function setCP(cp){checkpoint=cp;setCharge(1);toast('SYSTEM',`Checkpoint · ${cp.name}`,1.2,1)}
+function setCP(cp){checkpoint=cp;SFX('checkpoint');setCharge(1);toast('SYSTEM',`Checkpoint · ${cp.name}`,1.2,1)}
 function setPackAction(cell,seconds,now,target=null){packMode=cell;packUntil=now+seconds;packTarget=target}
 
 // Enemies from the level data. Two data conventions need translating for the enemy module:
@@ -133,10 +135,10 @@ function reset(full=1){
 }
 const heatBase=()=>(D.world.yMax??900)+40;
 
-function start(){clearInput();ui.start.classList.add('hidden');ui.touchControls.classList.add('playing');running=1;startTime=performance.now();c.focus();
+function start(){SCENE('furnace');clearInput();ui.start.classList.add('hidden');ui.touchControls.classList.add('playing');running=1;startTime=performance.now();c.focus();
   toast('VELA','Cooling fault below the floor plan. Naturally, below the floor plan.',3,1)}
 $('startButton').onclick=start;
-$('replayButton').onclick=()=>{clearInput();reset(1);running=1;ui.complete.classList.add('hidden');ui.touchControls.classList.add('playing')};
+$('replayButton').onclick=()=>{SCENE('furnace');clearInput();reset(1);running=1;ui.complete.classList.add('hidden');ui.touchControls.classList.add('playing')};
 
 // ---- input (same scheme as Level 1) ---------------------------------------
 function key(code,on){
@@ -179,12 +181,13 @@ function grab(now){
   for(const r of solids(now)){
     if(hand<r.y-18||hand>r.y+32)continue;
     const ok=P.face>0?(P.x+P.w<=r.x+20&&Math.abs(P.x+P.w-r.x)<34):(P.x>=r.x+r.w-20&&Math.abs(P.x-r.x-r.w)<34);
-    if(ok){P.hang=1;P.hangAt=now;P.hangRect=r;P.x=P.face>0?r.x-P.w+5:r.x+r.w-5;P.y=r.y-19;P.vx=P.vy=P.buffer=0;break}
+    if(ok){SFX('grab');P.hang=1;P.hangAt=now;P.hangRect=r;P.x=P.face>0?r.x-P.w+5:r.x+r.w-5;P.y=r.y-19;P.vx=P.vy=P.buffer=0;break}
   }
 }
 // Pack's catch spends the single charge to save a death; otherwise respawn.
 function hurt(t){
   if(P.inv||done)return;
+  SFX(charge?'catch':'hurt');
   if(charge){const now=performance.now()/1000;setCharge(0);setPackAction(6,1.1,now);P.inv=1.2;P.vx=0;P.vy=0;P.x=checkpoint.x;P.y=checkpoint.y-P.h;shake=12;
     P.hang=0;P.climb=0;P.hangRect=null;P.support=null;P.dropTime=0;P.grabCD=.32;
     seen.add(checkpoint);       // the catch lands ON the checkpoint; don't let it refund the charge
@@ -218,11 +221,11 @@ function update(dt){
     if(!input&&Math.abs(P.vx)<.6)P.vx=0;
     if(P.ground&&P.support&&P.support.belt)P.x+=P.support.belt*95*dt;     // conveyors carry you
     P.coyote=P.ground?.13:Math.max(0,P.coyote-dt);P.buffer=Math.max(0,P.buffer-dt);
-    if(P.buffer&&P.coyote){P.vy=-JUMP;P.jumpTime=.18;P.buffer=P.coyote=0;P.ground=0;P.support=null}
+    if(P.buffer&&P.coyote){SFX('jump');P.vy=-JUMP;P.jumpTime=.18;P.buffer=P.coyote=0;P.ground=0;P.support=null}
     if(!K.jump&&!P.jumpTime&&P.vy<0)P.vy+=1500*dt;
     P.vy+=GRAV*dt;P.oldGround=P.ground;move(P,dt,now);grab(now);
   }
-  if(P.ground&&!P.oldGround)P.land=.14;P.land=Math.max(0,P.land-dt);P.anim+=Math.abs(P.vx)*dt/58;
+  if(P.ground&&!P.oldGround){P.land=.14;SFX('land')}P.land=Math.max(0,P.land-dt);P.anim+=Math.abs(P.vx)*dt/58;{const st=Math.floor(P.anim);if(st!==lastStep){lastStep=st;if(P.ground&&Math.abs(P.vx)>30)SFX('step')}}
 
   if(packUntil<=now){packMode=0;packTarget=null}
   const packBusy=packUntil>now&&packTarget,packX=packBusy?packTarget.x:P.x-P.face*58,packY=packBusy?packTarget.y-42:P.y+18;
@@ -234,6 +237,8 @@ function update(dt){
   const world={player:{x:P.x,y:P.y,w:P.w,h:P.h},shutterOpened:now-mistAt<.25,dt};
   for(const e of enemies){
     EN.update(e,dt,now,world);
+    if(!!e.shot!==!!e._sh){e._sh=!!e.shot;if(e.shot)SFX('spit',{d:Math.abs(P.x-e.x)})}
+    if(e.dissolveAt!==undefined&&!e._ds){e._ds=1;SFX('dissolve',{d:Math.abs(P.x-e.x)})}
     if(now-mistAt<.6&&!e.dead&&Math.hypot(e.x-mistX,e.y-mistY)<340&&EN.mist(e))e.dissolveAt=now;
     const hz=EN.hazard(e);
     if(hz&&overlap(P,hz))hurt('Reclassified as scrap. Briefly.');
@@ -241,8 +246,9 @@ function update(dt){
   enemies=enemies.filter(e=>!e.dead||now-(e.dissolveAt??now)<.55);
 
   // hazards from the level data
-  for(const [i,v] of (D.vents||[]).entries()){const h=ventHeight(v,i,now);if(!v.safe&&h>30&&overlap(P,{x:v.x-25,y:v.y-h,w:50,h}))hurt('Molten metal: one. Bix: recast.')}
+  for(const [i,v] of (D.vents||[]).entries()){const h=ventHeight(v,i,now);if((h>30)!==v.s){v.s=h>30;if(v.s&&!v.safe)SFX('blast',{d:Math.abs(P.x-v.x)})}if(!v.safe&&h>30&&overlap(P,{x:v.x-25,y:v.y-h,w:50,h}))hurt('Molten metal: one. Bix: recast.')}
   for(const g of (D.lasers||[])){const z=(now+(g.p||0))%4,on=g.pair?(z>2.4&&z<3.6):(z>1.05&&z<2.35);
+    if(on!==g.s){g.s=on;if(on)SFX('zap',{d:Math.abs(P.x-g.x)})}
     if(on&&overlap(P,{x:g.x-8,y:g.y0,w:16,h:g.y1-g.y0}))hurt('Laser gate: one. Bix: sliced.')}
   for(const L of (D.lava||[]))if(overlap(P,{x:L.x,y:L.y,w:L.w,h:60}))hurt('The channel was clearly marked.')
   if(P.y>(D.world.yMax??900)+160)hurt('Gravity remains fully operational.');
@@ -253,7 +259,7 @@ function update(dt){
   else heat=heatBase();
 
   // pickups, checkpoints, story
-  for(const q of D.cogs)if(!q.got&&Math.hypot(P.x+21-q.x,P.y+40-q.y)<65){q.got=1;cogs++;ui.cogCount.textContent=`${cogs} / ${COG_TOTAL}`;
+  for(const q of D.cogs)if(!q.got&&Math.hypot(P.x+21-q.x,P.y+40-q.y)<65){q.got=1;cogs++;SFX('cog');ui.cogCount.textContent=`${cogs} / ${COG_TOTAL}`;
     toast('PACK',cogs===COG_TOTAL?'All cogs recovered. The supervisor would call that theft.':`Cog ${cogs} secured.`,1.4,1)}
   for(const t of (D.triggers||[]))if(!t.used&&P.x>t.x){t.used=1;toast(t.s,t.t,2.8,1)}
   // walk up to a closed gate and it says what it wants (at most every 6 s, so it never nags)
@@ -305,10 +311,10 @@ function interact(now){
   const label=P.hang?'AUTO CLIMB · DOWN TO DROP':valve?'ACT · TURN VALVE':shut?'ACT · OPEN SHUTTER':sock?'ACT · INSTALL CELL':cell?'ACT · TAKE CELL':term?('ACT · '+(term.label||'OPEN')):foe?'ACT · PING':'';
   ui.prompt.textContent=label;ui.prompt.classList.toggle('hidden',!label);
   if(!K.interact)return;
-  K.interact=0;
-  if(valve){valve.on=1;valves++;setPackAction(1,.9,now,valve);toast('PACK',valves>=2?'Coolant flowing. The pipes seem relieved.':`Valve ${valves} of 2. Pressure is thinking about it.`,2.2,1);
+  K.interact=0;SFX('ui');
+  if(valve){SFX('valve');valve.on=1;valves++;setPackAction(1,.9,now,valve);toast('PACK',valves>=2?'Coolant flowing. The pipes seem relieved.':`Valve ${valves} of 2. Pressure is thinking about it.`,2.2,1);
     if(valves>=2)toast('SUPERVISOR','Unscheduled activity detected. Beginning inspection.',2.6,1);return}
-  if(shut){shut.on=1;shutters++;setPackAction(5,1.15,now,shut);mistAt=now;mistX=shut.x;mistY=shut.y;shake=10;
+  if(shut){SFX('shutter');shut.on=1;shutters++;setPackAction(5,1.15,now,shut);mistAt=now;mistX=shut.x;mistY=shut.y;shake=10;
     toast('PACK',shutters>=3?'All three open. Go, go, go.':`Shutter ${shutters} of 3. Cooling responds. Sulkily.`,2,1);return}
   if(sock){cellDone=1;cellHeld=0;setPackAction(1,.75,now,sock);toast('PACK','Socket charged. It is the little things.',2,1);return}
   if(cell){cellHeld=1;toast('PACK','Cell secured. It is in my chest. Do not think about it.',2,1);return}
@@ -320,6 +326,7 @@ const canStun=e=>!!EN.consts.STUNNABLE[e.type];
 // Hand the finished run to progress.js (device copy, plus the cloud when signed in) and tell the player where it went.
 function saveResult(level,sec,cogs,falls){const M=window.Mayhem;if(!M||!ui.saveNote)return;M.recordResult(level,{timeSec:sec,cogs,falls}).then(t=>{ui.saveNote.textContent=t;ui.saveNote.hidden=!t}).catch(()=>{})}
 function finish(){
+  SFX('win');SCENE(null);
   done=1;running=0;ui.touchControls.classList.remove('playing');
   const sec=Math.floor((performance.now()-startTime)/1000);
   ui.finalCogs.textContent=`${cogs} / ${COG_TOTAL}`;

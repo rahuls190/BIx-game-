@@ -22,6 +22,11 @@ jobs:
         run: |
           node --check dist/game.js
           node --check dist/level2.js
+          node --check dist/level3.js
+          node --check dist/level3-glove.js
+          node --check dist/level3-data.js
+          node --check dist/level3-art.js
+          node --check dist/audio.js
           node tests/gameplay.cjs
           node tests/graphics.cjs
           node tests/level2-engine.cjs
@@ -35,6 +40,13 @@ jobs:
           node tests/level2-softlock.cjs
           node tests/level2-art-clean.cjs
           node tests/touch-select.cjs
+          node tests/level3-glove.cjs
+          node tests/level3-geometry.cjs
+          node tests/level3-engine.cjs
+          node tests/level3-softlock.cjs
+          node tests/level3-route.cjs
+          node tests/level3-areas.cjs
+          node tests/audio.cjs
           node tests/landing.cjs
           node tests/progress.cjs
       - uses: actions/configure-pages@v5

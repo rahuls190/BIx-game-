@@ -16,6 +16,14 @@ eq(dirty.updatedAt,0,'a negative timestamp must be dropped');
 ok(P.sanitize({levels:{level1:{completed:true,bestTimeSec:200,bestCogs:12,fewestFalls:3,plays:2}}}).levels.level1.bestCogs===12,'a valid record must survive');
 ok(P.sanitize({levels:{level1:{bestCogs:13}}}).levels.level1.bestCogs===0,'level 1 has 12 cogs, so 13 is invalid');
 ok(P.sanitize({levels:{level2:{bestCogs:14}}}).levels.level2.bestCogs===14,'level 2 has 14 cogs');
+ok(P.sanitize({levels:{level3:{bestCogs:12}}}).levels.level3.bestCogs===12&&P.sanitize({levels:{level3:{bestCogs:13}}}).levels.level3.bestCogs===0,'level 3 has 12 cogs');
+ok(P.applyResult(P.sanitize(null),'level3',{timeSec:900,cogs:12,falls:3},1).levels.level3.completed===true,'a Level 3 result is recorded');
+{
+  const rec=(c1,c2)=>({levels:{level1:{bestCogs:c1},level2:{bestCogs:c2}}});
+  ok(P.LEVEL3_UNLOCK_COGS===13&&P.bankedCogs(rec(5,7))===12&&!P.level3Unlocked(rec(5,7)),'12 banked cogs do not unlock Level 3');
+  ok(P.level3Unlocked(rec(5,8))&&P.level3Unlocked(rec(12,14))&&!P.level3Unlocked(null)&&!P.level3Unlocked({}),'13 or more do; junk records never do');
+  ok(P.bankedCogs(rec(99,99))===0&&P.bankedCogs(rec(12,14))===26,'banked cogs are read through sanitize(), so nothing out of range counts');
+}
 
 // ---------- applyResult ----------
 let p=P.applyResult(E,'level1',{timeSec:300,cogs:8,falls:5},1000);
@@ -127,7 +135,7 @@ ok(P.isConfigured(CFG),'a complete config switches accounts on');
 // ---------- pages load things in a safe order, and the widget is hidden until accounts are on ----------
 {
   const idx=(h,s)=>h.indexOf(s);
-  for(const page of ['index.html','level1.html','level2.html']){
+  for(const page of ['index.html','level1.html','level2.html','level3.html']){
     const h=fs.readFileSync('dist/'+page,'utf8');
     const cfg=idx(h,'firebase-config.js'),prog=idx(h,'progress.js'),auth=idx(h,'auth.js');
     ok(cfg>0&&prog>cfg&&auth>prog,page+': scripts must load config, then progress, then auth');

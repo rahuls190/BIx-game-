@@ -1,0 +1,22 @@
+/* Level 3 only: the glove HUD and the three glove buttons. Shares style.css, mobile.css, polish.css and level2.css (pack charge). */
+.glove-hud{position:absolute;left:14px;top:74px;display:flex;align-items:center;gap:10px;padding:7px 12px;background:#071217d9;border:1px solid #29424b;border-radius:10px;font-size:.66rem;font-weight:900;letter-spacing:.14em;color:#dff7ee;pointer-events:none;backdrop-filter:blur(8px);z-index:4}
+.glove-hud.off{opacity:.45}
+.glove-hud .heat{width:110px;height:10px;background:#0d1d24;border:1px solid #29424b;border-radius:6px;overflow:hidden}
+.glove-hud .heat i{display:block;height:100%;width:0;background:#5fd4ff;transition:background .15s}
+.glove-hud .heat i.warn{background:#ffb43c}
+.glove-hud .heat i.lock{background:#ff8f6a}
+.glove-hud .pips{color:#59e2c2;letter-spacing:.2em}
+.glove-hud .tier{color:#7f9895;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.tier-line{color:#59e2c2;font-weight:800;letter-spacing:.06em}
+.touch-glove{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:104px;display:flex;flex-direction:column-reverse;gap:10px;align-items:flex-end;pointer-events:none}
+.touch-glove button{pointer-events:auto;min-width:64px;height:58px;padding:0 14px;border-radius:14px;font-size:.78rem;font-weight:950;letter-spacing:.1em;background:#071217c9;color:#dff7ee;border:2px solid #29424b;touch-action:none}
+.touch-glove .blue{border-color:#5fd4ff;color:#5fd4ff;width:92px;height:70px}
+.touch-glove .red{border-color:#ff8f6a;color:#ff8f6a}
+.touch-glove .shield{border-color:#59e2c2;color:#59e2c2;height:50px}
+.touch-glove button:active{filter:brightness(1.4)}
+@media(orientation:landscape) and (pointer:coarse){.touch-glove{flex-direction:row-reverse;bottom:100px;right:max(120px,env(safe-area-inset-right))}}
+@media(orientation:portrait){.glove-hud{top:112px;left:10px;right:10px;justify-content:space-between}}
+.medal{display:inline-block;margin:0 0 14px;padding:6px 16px;border-radius:999px;font-weight:950;letter-spacing:.18em;font-size:.8rem;border:2px solid #b8863a;color:#ffd75a;background:#2a1f0a}
+.medal[data-medal="silver"]{border-color:#aab6bd;color:#e3edf2;background:#1c2429}
+.medal[data-medal="bronze"]{border-color:#a5673c;color:#e0a070;background:#26160c}
+#startButton:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.7)}

@@ -5,7 +5,7 @@ Main project repository for the game, artwork, plans, tests and publishing.
 ## Project layout
 
 - `dist/index.html` + `dist/landing.css`: the landing page, the site's front door.
-- `dist/level1.html`, `dist/level2.html`: the two playable levels, with all shipped graphics in `dist/assets/`.
+- `dist/level1.html`, `dist/level2.html`, `dist/level3.html`: the three playable levels, with all shipped graphics in `dist/assets/`.
 - `dist/progress.js`, `dist/auth.js`, `dist/account-ui.js`, `dist/firebase-config.js`, `firestore.rules`: optional Google sign-in and cloud saves. They stay off until a Firebase config is added; see `docs/login-setup.md`.
 - `dist/blast-demo.html`: earlier blast animation study (legacy reference).
 - `tests/`: gameplay simulation and graphics source-bound checks.
@@ -18,7 +18,7 @@ Main project repository for the game, artwork, plans, tests and publishing.
 
 ## Run locally
 
-From the repository root, run `python3 -m http.server 8000 --directory dist`, then open http://localhost:8000 for the landing page, http://localhost:8000/level1.html for Level 1, or http://localhost:8000/level2.html for Level 2.
+From the repository root, run `python3 -m http.server 8000 --directory dist`, then open http://localhost:8000 for the landing page, http://localhost:8000/level1.html for Level 1, http://localhost:8000/level2.html for Level 2, or http://localhost:8000/level3.html?banked=26 for Level 3 (it opens once Levels 1 and 2 have banked more than 12 cogs; `?banked=N` is a test switch, and `?at=N` starts at checkpoint N).
 
 ## Checks
 
@@ -28,10 +28,12 @@ These are automated simulations and rendering-call checks, not a substitute for 
 ## Publishing
 
 In repository Settings → Pages, choose **GitHub Actions** as the source. Each push to `main` then validates the game and publishes `dist/`. The workflow can also be run manually.
-Expected Pages address after successful deployment: https://rahuls190.github.io/BIx-game-/ (landing page), with the levels at `/level1.html` and `/level2.html`.
+Expected Pages address after successful deployment: https://rahuls190.github.io/BIx-game-/ (landing page), with the levels at `/level1.html`, `/level2.html` and `/level3.html`.
 
 The previous ChatGPT Site stays available as the last published copy. GitHub is now the source of truth; future changes and publishing configuration belong here.
 
 ## Current scope
 
 Level 1 includes Bix movement, ledges, moving platforms, checkpoints, battery and breaker puzzles, robot Pack, gold cogs and animated molten blasts. Level 2 is playable across Broken Lift, Casting Hall, Cooling Works, Scrap Sorter, and Furnace Escape, with Pack assists, five enemy types, and production `v2` art.
+
+Level 3, Magnetic Personality, adds the Magnet Glove (hold Z for Blue, X for Red, C for the shield) across six areas: the Yard, Crusher Bay, the Shaft, the Polarity Lab, the Ore Train and the High Vault, plus an archive room for anyone who collects all 12 cogs. See `design/LEVEL3-BUILD-NOTES.md`.
