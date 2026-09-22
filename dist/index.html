@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@600;700;800&amp;display=swap">
-  <link rel="stylesheet" href="./landing.css?v=4b">
+  <link rel="stylesheet" href="./landing.css?v=5">
 </head>
 <body>
   <header class="nav">
@@ -46,13 +46,19 @@
         <p class="hero-lede">Climb, mantle and dodge your way through a failing factory with Pack, a robot backpack who reports every disaster as a status update.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="./level1.html">Play Level 1 <span aria-hidden="true">→</span></a>
-          <a class="btn btn-ghost" href="./level2.html">Play Level 2</a>
-          <a class="btn btn-ghost" href="./level3.html" data-lock="level3">Play Level 3</a>
-          <a class="btn btn-ghost" href="./level4.html" data-lock="level4">Play Level 4</a>
+          <a class="btn btn-ghost" href="#levels">See all four levels</a>
         </div>
-        <p class="hero-note">Keyboard on desktop · touch controls on phone</p>
+        <p class="hero-note">Keyboard on desktop · touch controls on phone · no install</p>
       </div>
     </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div>
+        <span>Sector 4 breaker offline</span><span>Furnace supervisor awake</span><span>Magnet glove: prototype</span><span>Power core: one left</span><span>Pack status: concerned</span>
+        <span>Sector 4 breaker offline</span><span>Furnace supervisor awake</span><span>Magnet glove: prototype</span><span>Power core: one left</span><span>Pack status: concerned</span>
+      </div>
+    </div>
+
 
     <ul class="glance" aria-label="At a glance">
       <li><b>4</b><span>levels</span></li>
@@ -143,6 +149,17 @@
       <a href="./level1.html">Level 1</a><a href="./level2.html">Level 2</a><a href="./level3.html">Level 3</a><a href="./level4.html">Level 4</a><a href="https://github.com/rahuls190/BIx-game-">GitHub</a>
     </nav>
   </footer>
+  <script>
+  (function(){
+    var nav=document.querySelector('.nav');
+    var onScroll=function(){ nav && nav.classList.toggle('scrolled', window.scrollY>8); };
+    onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
+    var els=document.querySelectorAll('.glance, .levels .eyebrow, .levels h2, .level-grid .card, .play .eyebrow, .play h2, .panels .panel');
+    if(!('IntersectionObserver' in window)) return;
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{rootMargin:'0px 0px -12% 0px'});
+    els.forEach(function(el){el.classList.add('reveal');io.observe(el);});
+  })();
+  </script>
   <script src="./firebase-config.js"></script>
   <script src="./progress.js?v=3"></script>
   <script src="./auth.js" defer></script>
