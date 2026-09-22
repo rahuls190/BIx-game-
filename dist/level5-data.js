@@ -89,7 +89,7 @@ window.L5DATA={
     {x:120,y:410,name:'SKY DOCK'},{x:3440,y:360,name:'CRANE START'},{x:7600,y:390,name:'DUCT ENTRY'},{x:11220,y:390,name:'SECURITY'},{x:15380,y:390,name:'BEACON RUN'},{x:19420,y:330,name:'STORM CORE'}
   ],
   triggers:[
-    {x:280,s:'PACK',t:'Skyline Foundry. Ladders climb automatically with UP. Jump while hanging to pull up; DOWN drops.'},
+    {x:280,s:'PACK',t:'Skyline Foundry. Hold UP on a ladder to climb, LEFT or RIGHT to step off, JUMP to leap away. Jump while hanging to pull up; DOWN drops.'},
     {x:1660,s:'PACK',t:'Wind gusts are on timers. Jump with them, not against them.'},
     {x:3600,s:'BIX',t:'That cargo lift looks angry.'},{x:5740,s:'PACK',t:'Switch opens the gate briefly. Brief is doing heavy work there.'},
     {x:7600,s:'PACK',t:'Duct fans ahead. Your hair has filed a complaint.'},{x:11200,s:'SYSTEM',t:'Security route armed.'},
