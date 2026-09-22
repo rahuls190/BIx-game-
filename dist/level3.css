@@ -40,3 +40,8 @@
 
 /* desktop: the Pack chip moves out from under the zone name */
 @media(min-width:801px) and (pointer:fine){.pack-charge{left:auto;right:14px;top:102px;transform:none}}
+
+/* Level 3: the zone name and objective sit over bright yard art, so give them a solid plate and high-contrast text. */
+.objective{background:linear-gradient(180deg,#040c10f2,#040c10bf);border-top-color:#ffd75a;box-shadow:0 10px 26px #000a}
+.objective span#zone{color:#7ff3d8;text-shadow:0 2px 6px #000,0 0 10px #000}
+.objective strong#objective{color:#fff;text-shadow:0 2px 6px #000,0 0 10px #000}
