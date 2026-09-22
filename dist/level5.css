@@ -1,0 +1,4 @@
+#stormChip{position:absolute;left:50%;top:112px;transform:translateX(-50%);border-color:#ff4d62;color:#ffd1d8;background:rgba(80,8,20,.62)}
+.level5-panel h1 em,.level5-panel h2 em{color:#5fd4ff;text-shadow:0 0 18px rgba(95,212,255,.5)}
+.level5-panel .eyebrow{border-color:#5fd4ff;color:#bff6ff;background:rgba(7,22,34,.66)}
+@media (max-width:700px){#stormChip{top:96px;font-size:11px}.level5-panel p{max-width:34em}}
