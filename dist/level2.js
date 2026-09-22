@@ -492,7 +492,8 @@ function drawBix(){
   let f=P.hang?10:P.climb?11:!P.ground?(P.vy<-120?6:P.vy<120?7:8):P.land?9:Math.abs(P.vx)>30?2+Math.floor(P.anim)%4:0;
   let ay=P.y+P.h;const r=R[f],dh=r[3]*.22,dw=r[2]*.22,ax=SX(P.x+P.w/2);
   if(P.hang||P.climb){const t=P.climb?1-P.climb/.45:0;ay=P.hangRect.y+(dh-4)*(1-t)}
-  x.save();x.translate(ax,0);x.scale(P.face,1);x.shadowColor='#59e2c2';x.shadowBlur=7;
+  if(P.ground){x.save();x.globalAlpha=.32;x.fillStyle='#000';x.beginPath();x.ellipse(ax,SY(ay)-3,dw*.30,6,0,0,7);x.fill();x.restore()}
+  x.save();x.translate(ax,0);x.scale(P.face,1);x.shadowColor='rgba(3,8,11,.85)';x.shadowBlur=12;x.shadowOffsetY=3;
   x.globalAlpha=P.inv&&Math.floor(performance.now()/70)%2?.48:1;
   x.drawImage(bix,r[0],r[1],r[2],r[3],-dw/2,SY(ay)-dh,dw,dh);x.restore();
 }
