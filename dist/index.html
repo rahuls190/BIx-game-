@@ -173,7 +173,8 @@
     onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
     var els=document.querySelectorAll('.glance, .levels .eyebrow, .levels h2, .level-grid .card, .play .eyebrow, .play h2, .panels .panel');
     if(!('IntersectionObserver' in window)) return;
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{rootMargin:'0px 0px -12% 0px'});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -12% 0px'});
     els.forEach(function(el){el.classList.add('reveal');io.observe(el);});
   })();
   </script>
