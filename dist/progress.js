@@ -17,11 +17,12 @@
   'use strict';
 
   const KEY = 'mayhem.progress.v1';
-  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 } };
-  const ORDER = ['level1', 'level2', 'level3', 'level4'];       // play order: cogs banked in every earlier level carry forward into the next
+  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 }, level5: { cogs: 15 } };
+  const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5'];       // play order: cogs banked in every earlier level carry forward into the next
   const MAX_TIME = 86399, MAX_FALLS = 9999, MAX_PLAYS = 1000000;
   const LEVEL3_UNLOCK_COGS = 13;      // Level 3 opens once Levels 1 and 2 have banked MORE than 12 cogs between them
   const LEVEL4_UNLOCK_COGS = 19;      // Level 4 opens once Levels 1 to 3 have banked 19 of their 38 cogs (half, as Level 3 asks 13 of 26)
+  const LEVEL5_UNLOCK_COGS = 25;      // Level 5 opens once Levels 1 to 4 have carried 25 of their 50 cogs
 
   const int = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && Number.isInteger(v) && v >= lo && v <= hi) ? v : null;
 
@@ -95,7 +96,7 @@
   const level3Unlocked = progress => bankedCogs(progress) >= LEVEL3_UNLOCK_COGS;
 
   // Cogs carry forward: everything banked in the levels BEFORE `levelId` (the sum of each level's best, so replaying can never lower it).
-  // Level 2 -> 0..12, Level 3 -> 0..26 (same as bankedCogs), Level 4 -> 0..38.
+  // Level 2 -> 0..12, Level 3 -> 0..26 (same as bankedCogs), Level 4 -> 0..38, Level 5 -> 0..50.
   function carriedCogs(progress, levelId) {
     const p = sanitize(progress), at = ORDER.indexOf(levelId);
     if (at < 0) return 0;
@@ -103,6 +104,7 @@
   }
   const carriedMax = levelId => ORDER.slice(0, Math.max(0, ORDER.indexOf(levelId))).reduce((n, id) => n + LEVELS[id].cogs, 0);
   const level4Unlocked = progress => carriedCogs(progress, 'level4') >= LEVEL4_UNLOCK_COGS;
+  const level5Unlocked = progress => carriedCogs(progress, 'level5') >= LEVEL5_UNLOCK_COGS;
 
   const same = (a, b) => JSON.stringify(sanitize(a)) === JSON.stringify(sanitize(b));
 
@@ -154,5 +156,5 @@
     return M;
   }
 
-  return { KEY, LEVELS, ORDER, LEVEL3_UNLOCK_COGS, LEVEL4_UNLOCK_COGS, bankedCogs, level3Unlocked, carriedCogs, carriedMax, level4Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
+  return { KEY, LEVELS, ORDER, LEVEL3_UNLOCK_COGS, LEVEL4_UNLOCK_COGS, LEVEL5_UNLOCK_COGS, bankedCogs, level3Unlocked, carriedCogs, carriedMax, level4Unlocked, level5Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
 });
