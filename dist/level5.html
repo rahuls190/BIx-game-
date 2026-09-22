@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#071217">
+  <title>Project Mayhem — Level 05: Skyline Foundry</title>
+  <meta name="description" content="Bix and Pack climb the stormy Skyline Foundry: wind ducts, electric pulse panels, timed cargo gates and a final shutdown run.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23071117'/%3E%3Cpath d='M8 23V9h8c6 0 9 2 9 6 0 2-1 3-3 4 2 1 3 2 3 4H8zm6-9h3c2 0 2-2 0-2h-3v2zm0 6h4c2 0 2-3 0-3h-4v3z' fill='%23ffd75a'/%3E%3Ccircle cx='25' cy='8' r='3' fill='%235fd4ff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css?v=26">
+  <link rel="stylesheet" href="./mobile.css?v=26">
+  <link rel="stylesheet" href="./polish.css?v=29">
+  <link rel="stylesheet" href="./level2.css?v=2">
+  <link rel="stylesheet" href="./level5.css?v=1">
+</head>
+<body>
+  <main id="shell" aria-label="Project Mayhem Level 5 playable prototype">
+    <canvas id="game" width="1280" height="720" tabindex="0" aria-label="Side-scrolling platform game. Use arrow keys or A and D to move, Space to jump, S to drop, E to use switches or send Pack, and R to restart."></canvas>
+
+    <section id="hud" aria-live="polite">
+      <div class="brand"><span class="brand-mark">PM</span><span>LEVEL 05 · SKYLINE FOUNDRY</span></div>
+      <div class="objective"><span id="zone">ROOFTOP ENTRY</span><strong id="objective">Cross the rain decks and read the wind</strong></div>
+      <div class="cogs" aria-label="Cog collection progress"><span class="cog-icon">⚙</span><strong id="cogCount">0 / 15</strong></div>
+    </section>
+
+    <div id="packCharge" class="pack-charge" aria-live="polite"><span class="dot"></span><span id="packChargeLabel">PACK READY</span></div>
+    <div id="stormChip" class="mode-chip hidden" aria-live="polite">SHUTDOWN WALL</div>
+    <div id="dialogue" class="dialogue hidden"><span id="speaker">PACK</span><p id="line"></p></div>
+    <div id="prompt" class="prompt hidden">E · INTERACT</div>
+
+    <section id="start" class="panel level5-panel">
+      <div class="eyebrow">LEVEL 05 · SKYLINE FOUNDRY</div>
+      <h1>SKYLINE<br><em>FOUNDRY</em></h1>
+      <p>Storm rooftops, crane lifts, wind ducts, electric pulse rails and timed security doors. It is harder, faster and higher than anything below.</p>
+      <p id="lockNote" class="lock-note" hidden></p>
+      <button id="startButton">CLIMB <span>→</span></button>
+      <div class="controls"><span><b>A D</b> Move</span><span><b>SPACE</b> Jump / climb</span><span><b>S</b> Drop from ledge</span><span><b>E</b> Switch / send Pack</span><span><b>R</b> Restart</span></div>
+    </section>
+
+    <section id="complete" class="panel hidden level5-panel">
+      <div class="eyebrow">LEVEL 05 COMPLETE</div>
+      <h2>BEACON<br><em>LIT</em></h2>
+      <p id="medal" class="medal" data-medal="bronze">BRONZE</p>
+      <div class="results"><span>COGS<strong id="finalCogs">0 / 15</strong></span><span>TIME<strong id="finalTime">00:00</strong></span><span>FALLS<strong id="finalFalls">0</strong></span></div>
+      <p id="resultLine">Pack has filed this as “too high.”</p>
+      <p id="saveNote" class="save-note" hidden></p>
+      <button id="replayButton">GO AGAIN <span>↻</span></button>
+      <a class="next-level" href="./index.html#levels">ALL LEVELS <span>→</span></a>
+    </section>
+
+    <div id="touchControls" aria-label="Touch controls">
+      <div class="touch-left"><div id="joystick" role="application" aria-label="Movement joystick"><span id="joystickKnob"></span></div></div>
+      <div class="touch-right"><button data-key="interact" aria-label="Action">ACT</button><button class="jump" data-key="jump" aria-label="Jump">↑</button></div>
+    </div>
+  </main>
+  <script src="./firebase-config.js"></script>
+  <script src="./progress.js?v=4"></script>
+  <script src="./level2-art.js?v=4"></script>
+  <script src="./audio.js?v=4"></script>
+  <script src="./level5-data.js?v=1"></script>
+  <script src="./level5.js?v=1"></script>
+  <script src="./auth.js" defer></script>
+</body>
+</html>
