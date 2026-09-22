@@ -65,7 +65,63 @@ function paintAsset(asset,bounds,cx,bottom,height){if(!asset.complete||!asset.na
 function cog(q,i){if(q.got||!cogSprite.complete||!cogSprite.naturalWidth)return;const t=performance.now()/1000,bob=Math.sin(t*2+i)*5;x.save();x.translate(S(q.x),q.y+bob);x.rotate(t*.55*(i%2?1:-1));x.shadowColor='#5ff7de';x.shadowBlur=9;paintAsset(cogSprite,artBounds.cog,0,27,54);x.restore()}
 function drawPack(now){if(!packSprite.complete||!packSprite.naturalWidth)return;const bob=Math.sin(now*3.6)*3,tilt=Math.max(-.12,Math.min(.12,P.vx/2600));x.save();x.translate(S(pack.x),pack.y+bob);x.rotate(tilt);x.scale(-P.face,1);x.shadowColor='#62dded';x.shadowBlur=5;paintAsset(packSprite,artBounds.pack,0,32,64);x.restore()}
 function ventHeight(v,i,now){const z=(now+v.p)%4.2;return z>.72&&z<2.05?(175+Math.sin(now*16+i)*16)*Math.min(1,(z-.72)/.2)*Math.min(1,(2.05-z)/.3):0}
-function vent(v,i,now){const z=(now+v.p)%4.2,charge=z<.72?z/.72:z>2.05?0:1,active=z>.72&&z<2.05,px=S(v.x),base=v.y,height=ventHeight(v,i,now);prop(2,v.x-49,base-58,104,86,.78);x.save();x.globalCompositeOperation='lighter';const light=x.createRadialGradient(px,base-12,1,px,base-12,active?125:48);light.addColorStop(0,active?'rgba(255,218,85,.48)':`rgba(255,151,30,${charge*.5})`);light.addColorStop(.4,'rgba(255,90,0,.12)');light.addColorStop(1,'rgba(255,35,0,0)');x.fillStyle=light;x.fillRect(px-125,base-137,250,250);x.restore();if(active&&height>0&&artBounds.blast.length){const frame=Math.floor((z-.72)*16+i)%artBounds.blast.length;x.save();x.shadowColor='#ff7900';x.shadowBlur=16;paintAsset(blastSprite,artBounds.blast[frame],px,base,height);x.restore();x.save();x.globalCompositeOperation='lighter';for(let n=0;n<12;n++){const travel=((now*1.5+n*.137)%1),rise=travel*height,dx=Math.sin(n*2.1)*travel*42;x.globalAlpha=(1-travel)*.85;x.fillStyle=n%3?'#ff9d23':'#fff2a0';x.beginPath();x.arc(px+dx,base-rise,1+n%2,0,Math.PI*2);x.fill()}x.restore()}}
+/* Molten pressure blast, drawn procedurally (the sprite sheet was replaced): a charge glow, an ignition
+   flash and shock ring, a tapered plume with a white-hot core, rising sparks and a cap of smoke.
+   Timings are unchanged, so the hitbox in ventHeight() still matches what the player sees. */
+const cl=(t,a=0,b=1)=>t<a?a:t>b?b:t;
+function vent(v,i,now){
+  const z=(now+v.p)%4.2,active=z>.72&&z<2.05,charge=z<.72?cl(z/.72):z>2.05?cl(1-(z-2.05)/.5):1,
+        px=S(v.x),base=v.y,height=ventHeight(v,i,now),ign=active?cl((z-.72)/.26):0,fade=active?cl((2.05-z)/.3):0;
+  prop(2,v.x-49,base-58,104,86,.78);
+  // nozzle heat: dull red while pressure builds, white-hot while firing
+  x.save();x.globalCompositeOperation='lighter';
+  const g=x.createRadialGradient(px,base-14,1,px,base-14,active?42+34*fade:22+30*charge);
+  g.addColorStop(0,active?`rgba(255,244,196,${.55*fade})`:`rgba(255,120,24,${.18+charge*.42})`);
+  g.addColorStop(.45,`rgba(255,96,0,${.10+charge*.14})`);g.addColorStop(1,'rgba(255,32,0,0)');
+  x.fillStyle=g;x.fillRect(px-140,base-150,280,290);
+  if(!active&&charge>.4){ // pre-fire tell: the mouth glows and heat ticks lick upward
+    const a=(charge-.4)/.6;
+    x.globalAlpha=a*.8;x.fillStyle='#ffca63';x.fillRect(px-19,base-16,38,4);
+    x.globalAlpha=a*.5;x.strokeStyle='#ff9b33';x.lineWidth=2;x.lineCap='round';
+    for(let n=0;n<4;n++){const ox=-14+n*9.5,t=(now*1.7+n*.27+i*.4)%1,ln=10+18*a;
+      x.globalAlpha=a*(1-t)*.7;x.beginPath();x.moveTo(px+ox,base-16-t*ln);
+      x.lineTo(px+ox+Math.sin(now*9+n)*3,base-22-t*ln);x.stroke()}
+    x.globalAlpha=1;
+  }
+
+  x.restore();
+  if(!active||height<=0)return;
+  x.save();x.globalCompositeOperation='lighter';
+  // plume body: wavering tapered column, hottest at the mouth
+  const w=17+20*Math.sin(cl(ign)*Math.PI*.7)+9*fade,pg=x.createLinearGradient(px,base,px,base-height);
+  pg.addColorStop(0,'#fffbd8');pg.addColorStop(.16,'#ffe23a');pg.addColorStop(.5,'#ff5a00');
+  pg.addColorStop(.84,`rgba(168,22,0,${.85*fade})`);pg.addColorStop(1,'rgba(92,8,0,0)');
+  x.shadowColor='#ff5200';x.shadowBlur=26;x.fillStyle=pg;x.globalAlpha=.55+.45*fade;
+  x.beginPath();x.moveTo(px-w*.36,base);
+  for(let n=0;n<=16;n++){const q=n/16,sw=w*(1-q*.72)*(1+Math.sin(q*19+now*9+i)*.17);x.lineTo(px-sw,base-height*q)}
+  for(let n=16;n>=0;n--){const q=n/16,sw=w*(1-q*.72)*(1+Math.cos(q*17+now*8+i*2)*.15);x.lineTo(px+sw,base-height*q)}
+  x.closePath();x.fill();
+  // white-hot inner jet
+  x.shadowBlur=12;x.shadowColor='#fff0b0';x.fillStyle='#fffdf0';x.globalAlpha=.5*fade;
+  x.beginPath();x.moveTo(px-4,base);
+  x.quadraticCurveTo(px-13+Math.sin(now*7+i)*6,base-height*.4,px+2,base-height*.72);
+  x.quadraticCurveTo(px+12+Math.cos(now*6+i)*6,base-height*.38,px+6,base);x.fill();
+  // sparks riding the jet
+  x.shadowBlur=8;x.globalAlpha=1;
+  for(let n=0;n<16;n++){const t=(now*1.35+n*.0977+i*.31)%1,rise=t*(height+34),dx=Math.sin(n*2.1+i)*t*46,a=(1-t)*.9*fade;
+    x.globalAlpha=a;x.shadowColor=n%3?'#ffab12':'#fff3a6';x.fillStyle=n%3?'#ff9d23':'#fff6c8';
+    x.beginPath();x.arc(px+dx,base-rise,1+(n%3?0:1.4),0,Math.PI*2);x.fill()}
+  // ignition flash and shock ring
+  if(ign<1){x.globalAlpha=(1-ign)*.7;x.shadowBlur=0;x.strokeStyle='#ffd489';x.lineWidth=6*(1-ign)+1;
+    x.beginPath();x.arc(px,base-8,26+ign*150,0,Math.PI*2);x.stroke();
+    x.fillStyle=`rgba(255,246,206,${(1-ign)*.5})`;x.beginPath();x.arc(px,base-10,34*(1-ign)+10,0,Math.PI*2);x.fill()}
+  x.restore();
+  // smoke cap, drawn normally so it reads dark against the plume
+  x.save();x.globalAlpha=.34*fade;x.fillStyle='#2a221d';
+  for(let n=0;n<5;n++){const t=(now*.5+n*.2+i*.13)%1,r=12+t*26;
+    x.globalAlpha=(1-t)*.3*fade;x.beginPath();x.arc(px+Math.sin(n*1.7+now*.8)*22,base-height-t*54,r,0,Math.PI*2);x.fill()}
+  x.restore();
+}
 function laser(g,now){const z=(now+g.p)%4,active=z>1.05&&z<2.35,warn=z>.6&&z<=1.05;prop(5,g.x-46,75,92,98,.8);x.save();x.globalCompositeOperation='lighter';if(warn){x.strokeStyle=`rgba(255,180,60,${.28+Math.sin(now*24)*.2})`;x.setLineDash([8,14]);x.lineWidth=2;x.beginPath();x.moveTo(S(g.x),150);x.lineTo(S(g.x),610);x.stroke();x.setLineDash([])}if(active){x.shadowColor='#ff174e';x.shadowBlur=30;x.strokeStyle='#ff245d';x.lineWidth=8+Math.sin(now*48)*2;x.beginPath();x.moveTo(S(g.x),150);x.lineTo(S(g.x),610);x.stroke();x.strokeStyle='#fff';x.lineWidth=2;x.stroke()}x.restore()}
 function drawBix(){if(!bix.complete||!bix.naturalWidth)return rect(P.x,P.y,P.w,P.h,'#59e2c2');const R=[[48,20,174,436],[305,20,176,436],[535,57,294,397],[862,57,260,397],[22,498,270,384],[301,480,260,402],[590,484,240,395],[860,457,275,330],[8,901,299,397],[311,1049,285,270],[643,879,180,451],[911,883,210,440]];let f=P.hang?10:P.climb?11:!P.ground?(P.vy<-120?6:P.vy<120?7:8):P.land?9:Math.abs(P.vx)>30?2+Math.floor(P.anim)%4:0;let ay=P.y+P.h;const r=R[f],dh=r[3]*.22,dw=r[2]*.22,ax=S(P.x+P.w/2);if(P.hang||P.climb){const t=P.climb?1-P.climb/.45:0;ay=P.hangRect.y+(dh-4)*(1-t)}x.save();x.translate(ax,0);x.scale(P.face,1);x.shadowColor='#59e2c2';x.shadowBlur=7;x.globalAlpha=P.inv&&Math.floor(performance.now()/70)%2?.48:1;x.drawImage(bix,r[0],r[1],r[2],r[3],-dw/2,ay-dh,dw,dh);x.restore();if(!P.ground)return;x.save();x.globalAlpha=.3;x.fillStyle='#000';x.beginPath();x.ellipse(ax,P.y+P.h+3,22,5,0,0,7);x.fill();x.restore()}
 function draw(){const now=performance.now()/1000;x.save();x.clearRect(0,0,viewW,H);if(shake)x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake*.65);const grd=x.createLinearGradient(0,0,0,H);grd.addColorStop(0,'#11313a');grd.addColorStop(.58,'#0a1a21');grd.addColorStop(1,'#050d11');x.fillStyle=grd;x.fillRect(-20,-20,viewW+40,H+40);if(bg.complete&&bg.naturalWidth){const bw=1720,bx=-((cam*.1)%bw);x.globalAlpha=.78;x.drawImage(bg,bx-2,0,bw+4,H);x.drawImage(bg,bx+bw-2,0,bw+4,H);x.globalAlpha=1;x.fillStyle='#02090d42';x.fillRect(0,0,viewW,H)}
