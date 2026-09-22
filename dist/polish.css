@@ -139,3 +139,31 @@
     user-select: text;
   }
 }
+
+/* ---- Phone controls: show only what is usable right now ----
+   ACT stays small and dim until something is actually within reach (the
+   prompt strip appears), then it lights up. The glove pads only exist once
+   Bix has the glove, and the shield pad fades out when it has no charges.
+   Fewer live buttons on screen, bigger targets for the ones that matter. */
+@media(pointer:coarse),(max-width:800px){
+  #touchControls [data-key="interact"]{
+    width:52px;height:52px;min-width:52px;min-height:52px;font-size:.62rem;letter-spacing:.06em;
+    opacity:.34;border-color:#dff7ee33;
+    transition:opacity .16s,transform .16s,box-shadow .16s,border-color .16s}
+  #shell:has(.prompt:not(.hidden)) #touchControls [data-key="interact"]{
+    opacity:1;width:66px;height:66px;min-width:66px;min-height:66px;font-size:.78rem;
+    border-color:var(--yellow);color:var(--yellow);
+    box-shadow:0 0 0 2px #ffd75a44,0 0 18px #ffd75a66}
+  #touchControls .jump{width:84px;height:84px;font-size:1.7rem;
+    border-width:2px;box-shadow:0 0 16px #ffd75a3d}
+  .touch-right{gap:16px}
+
+  /* the glove pads: hidden until the glove is picked up */
+  #shell:has(.glove-hud.off) .touch-glove{display:none}
+  .touch-glove{gap:14px;bottom:118px}
+  .touch-glove .blue{width:92px;height:92px}
+  .touch-glove .blue svg{width:50px;height:50px}
+  .touch-glove .red{width:84px;height:84px}
+  .touch-glove .shield{width:68px;height:68px;transition:opacity .18s}
+  .touch-glove .shield.empty{opacity:.28;pointer-events:none}
+}
