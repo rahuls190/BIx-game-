@@ -269,3 +269,12 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:40px
   .reveal{opacity:1;transform:none;transition:none}
   .card:hover{transform:none}
 }
+
+/* rules strip */
+.rules{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.rules li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);padding:14px 16px;font-size:16px;line-height:1.45;color:var(--mute)}
+.rules li strong{color:var(--cream);font-weight:700}
+@media (min-width:1000px){
+  .rules{grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
+  .rules li{padding:18px}
+}
