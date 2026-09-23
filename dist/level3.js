@@ -149,7 +149,8 @@ function reset(full=1){
     setPackAction(7,1,performance.now()/1000);
     ui.complete.classList.add('hidden');
     // ?at=N (a test switch, like ?banked=N): start at checkpoint N with the glove
-    try{const q=devHost()?new URLSearchParams(location.search).get('at'):null,cp=q!==null&&D.checkpoints[+q];
+    try{const q=devHost()?new URLSearchParams(location.search).get('at'):null,cp=q!==null&&(q.includes(',')?{x:+q.split(',')[0],y:+q.split(',')[1],name:'TEST',area:D.checkpoints[0].area}:D.checkpoints[+q]);   // ?at=x,y (localhost only) starts anywhere, for shooting screens
+
       if(cp){checkpoint=cp;seen.add(cp);gloveOn=1;Object.assign(P,{x:cp.x,y:cp.y-P.h});camX=Math.max(0,P.x-viewW*camLead());
         camY=isVertical(areaAt(P.x))?Math.max(D.world.yMin??0,Math.min((D.world.yMax??H)-H,P.y-H*.52)):flatCamY()}}catch(e){}
   }
@@ -774,10 +775,11 @@ function drawVault(now){
       if(best){x.save();x.strokeStyle=pol===1?BLUE:RED;x.globalAlpha=.55;x.setLineDash([8,10]);x.lineWidth=3;x.beginPath();x.moveTo(SX(cx),SY(cy));x.lineTo(SX(best.x+best.w/2),SY(best.y));x.stroke();x.restore()}}}
   const dt=D.doors.find(q=>q.id==='transit'),da=D.doors.find(q=>q.id==='archive'),lit=cogs>=da.needs,dh=dt.h+70,dw=dh*(sw('vault-door')||1)/(sh('vault-door')||1);
   const heat=doorNear?G.heat/100:0;
-  if(!blit('vault-door',dt.x+dt.w/2-dw/2,dt.y-dh+10,dw,dh)){box(dt.x,dt.y-dt.h,dt.w,dt.h,'#3a4a52','#7d9aa5')}
+  if(!blit('vault-door',dt.x-14,dt.y-dh+10,dw,dh)){box(dt.x,dt.y-dt.h,dt.w,dt.h,'#3a4a52','#7d9aa5')}   // its leading edge sits where he is stopped: it was centred, so he walked into the left half of the picture
   if(heat>0)glow(dt.x+dt.w/2,dt.y-dt.h/2,160,'#ff6a3c',.15+heat*.7);
   const ah=da.h+10,aw=ah*(sw('door')||1)/(sh('door')||1);
   blit('door',da.x+da.w/2-aw/2,da.y-ah,aw,ah);
+  if(!lit){x.save();x.globalAlpha=.6;x.fillStyle='#04090c';x.fillRect(SX(da.x+da.w/2-aw/2),SY(da.y-ah),aw,ah);x.restore()}   // unlit means dark: the sprite's baked-in cyan frame made it look open
   if(lit)glow(da.x+da.w/2,da.y-da.h/2,110,'#59e2c2',.35+.15*Math.sin(now*3));
   // the archive room
   const A2=D.archive,pl=D.platforms[D.platforms.length-1];
@@ -830,7 +832,7 @@ function chevron(px,py,ang,size){
   x.save();x.translate(SX(px),SY(py));x.rotate(ang);x.beginPath();x.moveTo(-size,-size);x.lineTo(0,0);x.lineTo(-size,size);x.stroke();x.restore();
 }
 function drawGloveFx(now){
-  const cx=P.x+P.w/2,cy=P.y+P.h/2,hx=cx+P.face*30,hy=cy-8;
+  const cx=P.x+P.w/2,cy=P.y+P.h/2,hx=cx+P.face*20,hy=cy+2;   // where the glove actually is on the sprite: the glow used to float about 30px ahead and a little high
   const pol=gloveOn&&!G.overloaded?G.pol:0;
   let gr;
   x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
@@ -859,7 +861,7 @@ function drawGloveFx(now){
   }
   // heat halo: climbs around Bix as the glove warms; amber near the warning, red at overload
   if(gloveOn&&(G.heat>6||G.overloaded)){
-    const h=Math.min(1,G.heat/100),c=G.overloaded?'255,80,60':h<.6?'95,212,255':h<.85?'255,190,80':'255,110,60';
+    const h=Math.min(1,G.heat/100),cool=G.pol===-1?'255,143,106':'95,212,255',c=G.overloaded?'255,80,60':h<.6?cool:h<.85?'255,190,80':'255,110,60';   // the cool colour follows the field held, so a Red effect is not ringed in cyan
     x.lineWidth=5;x.strokeStyle=`rgba(${c},${.35+.4*Math.sin(now*(h>.85?30:10))*(h>.6?1:.3)})`;x.globalAlpha=.9;
     x.beginPath();x.arc(SX(cx),SY(cy),68,-Math.PI/2,-Math.PI/2+(G.overloaded?1:h)*Math.PI*2);x.stroke();
   }
@@ -917,12 +919,7 @@ function draw(){
     x.restore();
   }
   for(const s of D.strips||[]){if(A.spr.strip){for(let yy=s.y0;yy<s.y1;yy+=180)blit('strip',s.x-6,yy,s.w+12,Math.min(181,s.y1-yy+1));continue}box(s.x,s.y0,s.w,s.y1-s.y0,'#1d4468','#5fd4ff55');x.save();x.strokeStyle='#5fd4ff33';for(let yy=s.y0;yy<s.y1;yy+=40){x.beginPath();x.moveTo(SX(s.x),SY(yy));x.lineTo(SX(s.x+s.w),SY(yy));x.stroke()}x.restore()}
-  for(const g of D.girders||[]){if(A.spr.girder){const len=g.x1-g.x0,n=Math.max(1,Math.round(len/170)),seg=len/n;for(let i=0;i<n;i++)blit('girder',g.x0+i*seg,g.y-30,seg+1,40);continue}box(g.x0,g.y-8,g.x1-g.x0,12,'#2b5f8f','#5fd4ff');chevrons(g.x0,g.y-8,g.x1-g.x0,12,1,'#bfeeff')}
-  for(const p of D.pads||[]){const pulse=now-padFx<.3;if(blit(pulse?'pad-fire':'pad',p.x-6,p.y-52,p.w+12,64))continue;box(p.x,p.y-6,p.w,10,pulse?'#ffd0bd':'#b8563a',RED);chevrons(p.x,p.y-30,p.w,24,1,RED)}
-  for(const n of D.nets||[]){const nn=Math.max(1,Math.round(n.w/200));let ok=1;for(let i=0;i<nn&&ok;i++)ok=blit('net',n.x+i*n.w/nn,n.y-14,n.w/nn+1,46,1,now-netFx<.3?1:.92);if(ok)continue;box(n.x,n.y,n.w,14,now-netFx<.3?'#ffd0bd':'#7a3a2a',RED);chevrons(n.x,n.y-16,n.w,16,1,RED)}
-  for(const p of D.perches||[]){if(!blit('steel-thin',p.x-4,p.y-8,p.w+8,34))box(p.x,p.y,p.w,10,'#2b3a42','#48707a')}
-  for(const l of D.lockers||[]){if(A.spr.locker){const h=120,w=h*sw('locker')/sh('locker');blit('locker',l.x-w/2,l.y-h,w,h);continue}box(l.x-22,l.y-84,44,84,gloveOn?'#22323a':'#4a5a30','#9bb05a');if(!gloveOn){x.fillStyle='#ffd75a';x.fillRect(SX(l.x)-6,SY(l.y-50),12,12)}}
-  for(const k of crates){if(blit('crate',k.x-6,k.y-4,k.w+12,k.h+6))continue;box(k.x,k.y,k.w,k.h,'#6b4a26','#c99a55');line(k.x,k.y,k.x+k.w,k.y+k.h,'#c99a5555',3);line(k.x+k.w,k.y,k.x,k.y+k.h,'#c99a5555',3)}
+  // the presses are drawn BEFORE the girders: the beam is in front of the rod and the head, so a slam reads as passing behind it
   for(const s of D.presses||[]){
     const ps=pressState(s,now);
     if(A.spr['press-head']){
@@ -935,6 +932,12 @@ function draw(){
     x.fillStyle=ps.ph==='tell'?`rgba(255,180,60,${.4+.6*(Math.floor(ps.tell*8)%2)})`:'#553';x.beginPath();x.arc(SX(s.x+s.w/2),SY(ps.rect.y+18),9,0,7);x.fill();
     if(ps.tell>0){x.save();x.strokeStyle='#ffb43c66';x.setLineDash([6,10]);x.beginPath();x.moveTo(SX(s.x),SY(ps.bottom));x.lineTo(SX(s.x),SY(s.anvil));x.moveTo(SX(s.x+s.w),SY(ps.bottom));x.lineTo(SX(s.x+s.w),SY(s.anvil));x.stroke();x.restore()}
   }
+  for(const g of D.girders||[]){if(A.spr.girder){const len=g.x1-g.x0,n=Math.max(1,Math.round(len/170)),seg=len/n;for(let i=0;i<n;i++)blit('girder',g.x0+i*seg,g.y-30,seg+1,40);continue}box(g.x0,g.y-8,g.x1-g.x0,12,'#2b5f8f','#5fd4ff');chevrons(g.x0,g.y-8,g.x1-g.x0,12,1,'#bfeeff')}
+  for(const p of D.pads||[]){const pulse=now-padFx<.3;if(blit(pulse?'pad-fire':'pad',p.x-6,p.y-52,p.w+12,64))continue;box(p.x,p.y-6,p.w,10,pulse?'#ffd0bd':'#b8563a',RED);chevrons(p.x,p.y-30,p.w,24,1,RED)}
+  for(const n of D.nets||[]){const nn=Math.max(1,Math.round(n.w/200));let ok=1;for(let i=0;i<nn&&ok;i++)ok=blit('net',n.x+i*n.w/nn,n.y-14,n.w/nn+1,46,1,now-netFx<.3?1:.92);if(ok)continue;box(n.x,n.y,n.w,14,now-netFx<.3?'#ffd0bd':'#7a3a2a',RED);chevrons(n.x,n.y-16,n.w,16,1,RED)}
+  for(const p of D.perches||[]){if(!blit('steel-thin',p.x-4,p.y-8,p.w+8,34))box(p.x,p.y,p.w,10,'#2b3a42','#48707a')}
+  for(const l of D.lockers||[]){if(A.spr.locker){const h=120,w=h*sw('locker')/sh('locker');blit('locker',l.x-w/2,l.y-h,w,h);continue}box(l.x-22,l.y-84,44,84,gloveOn?'#22323a':'#4a5a30','#9bb05a');if(!gloveOn){x.fillStyle='#ffd75a';x.fillRect(SX(l.x)-6,SY(l.y-50),12,12)}}
+  for(const k of crates){if(blit('crate',k.x-6,k.y-4,k.w+12,k.h+6))continue;box(k.x,k.y,k.w,k.h,'#6b4a26','#c99a55');line(k.x,k.y,k.x+k.w,k.y+k.h,'#c99a5555',3);line(k.x+k.w,k.y,k.x,k.y+k.h,'#c99a5555',3)}
   drawLab(now);drawTrain(now);drawVault(now);
   D.cogs.forEach((q,i)=>cog(q,i,now));
   for(const e of enemies)drawEnemy(e,now);
@@ -974,9 +977,9 @@ function drawEnemy(e,now){
   if(e.type==='crawler')cell=e.stun?6:ph==='wake'?5:ph==='turn'?4:Math.hypot(P.x-e.x,P.y-e.y)<72?7:Math.floor(now*7)%4;
   else if(e.type==='spitter')cell=ph==='wake'?6:ph==='charge'?(tell>.6?2:1):ph==='fire'?(e.t<.16?3:4):ph==='cooldown'?(e.t<.5?4:e.t>1.15?6:5):0;
   const hz=EN.hazard(e),pose=enemyPose(e),flip=e.dir<0?-1:1;
-  if(tell>0&&!hz){x.save();x.globalAlpha=.25+tell*.5;x.fillStyle='#ffb43c';x.beginPath();x.arc(SX(pose.cx),SY(pose.bottom-pose.h-18),14+tell*10,0,7);x.fill();x.restore()}
+  if(tell>0&&!hz){const tr=22+tell*22,tx=SX(pose.cx),ty=SY(pose.bottom-pose.h-18),tg=x.createRadialGradient(tx,ty,0,tx,ty,tr);tg.addColorStop(0,'rgba(255,236,170,'+(.55+tell*.4)+')');tg.addColorStop(.45,'rgba(255,180,60,'+(.35+tell*.3)+')');tg.addColorStop(1,'rgba(255,180,60,0)');x.save();x.fillStyle=tg;x.beginPath();x.arc(tx,ty,tr,0,7);x.fill();x.restore()}   // a soft glow that tightens as the shot comes, not a flat disc
   if(!blitFrame(e.type,cell,pose.cx,pose.bottom,pose.h,flip,e.type==='spitter')&&!sprite(plate,cell,pose.cx,pose.bottom,pose.h,flip,0))box(e.x,e.y,e.w,e.h,'#8a2a20','#ff4d3a');
-  if(e.shot){x.fillStyle='#ff9d23';x.beginPath();x.arc(SX(e.shot.x+e.shot.w/2),SY(e.shot.y+e.shot.h/2),9,0,7);x.fill()}
+  if(e.shot){x.save();x.shadowColor='#ffb43c';x.shadowBlur=14;x.fillStyle='#ffbe4a';x.beginPath();x.arc(SX(e.shot.x+e.shot.w/2),SY(e.shot.y+e.shot.h/2),9,0,7);x.fill();x.fillStyle='#fff1c4';x.beginPath();x.arc(SX(e.shot.x+e.shot.w/2),SY(e.shot.y+e.shot.h/2),4,0,7);x.fill();x.restore()}
 }
 function drawBix(now){
   const f=P.gird?10:P.cling?11:P.hang?10:P.climb?11:!P.ground?(P.vy<-120?6:P.vy<120?7:8):P.land?9:Math.abs(P.vx)>30?2+Math.floor(P.anim)%4:0;
@@ -1005,7 +1008,8 @@ function drawBixOld(now){
 }
 const BIX=img('bix-motion-v2.png');
 
-function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw()}
+const STEP=1/120;let acc=0;   // physics always advances in 1/120 s steps, so a 60, 144 or 240 Hz screen plays the same game: the jump used to rise ~4% higher at high refresh rates
+function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;acc+=dt;let n=0;while(acc>=STEP&&n<5){update(STEP);acc-=STEP;n++}if(n===5)acc=0;draw()}
 addEventListener('resize',resize);if(window.visualViewport)visualViewport.addEventListener('resize',resize);
 addEventListener('orientationchange',()=>setTimeout(resize,120));
 if(window.ResizeObserver)new ResizeObserver(resize).observe(c);

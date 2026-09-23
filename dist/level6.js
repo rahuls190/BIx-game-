@@ -251,7 +251,7 @@ function reset(full=1){
     D.cogs.forEach(v=>v.got=0);D.slips.forEach(v=>v.got=0);(D.triggers||[]).forEach(v=>v.used=0);
     pod.held=0;pod.burst=0;pod.x=D.hoppers[0].x-pod.w/2;pod.y=D.hoppers[0].y-pod.h;pod.vx=pod.vy=0;
     ui.complete.classList.add('hidden');ui.podChip.classList.add('hidden');
-    try{const q=devHost()?new URLSearchParams(location.search).get('at'):null,cp=q!==null&&D.checkpoints[+q];
+    try{const q=devHost()?new URLSearchParams(location.search).get('at'):null,cp=q!==null&&(q.includes(',')?{x:+q.split(',')[0],y:+q.split(',')[1],name:'TEST',area:'threshold'}:D.checkpoints[+q]);   // ?at=x,y (localhost only) starts anywhere, for shooting screens
       if(cp){checkpoint=cp;seen.add(cp);Object.assign(P,{x:cp.x,y:cp.y-P.h});
         if(D.checkpoints.indexOf(cp)>=4)alarmOn=1;                 // past the alarm, the pods are already live
         camX=Math.max(0,P.x-viewW*lead);camY=isVertical(areaAt(P.x))?Math.max(D.world.yMin,Math.min(D.world.yMax-H,P.y-H*.52)):flatCamY();
@@ -530,7 +530,20 @@ function drawWorld(now){
    x.strokeStyle='#8a7350';x.lineWidth=4;x.beginPath();x.moveTo(SX(ct.x-120),SY(ct.y+8));x.lineTo(SX(ct.x+ct.w+120),SY(ct.y+8));x.stroke();
    if(cartBaited)glow(ct.x+ct.w/2,ct.y-60,160,'#f0a83a',.5)}
   for(const q of D.slips)if(!q.got){if(blitH('slip',q.x,q.y+16+Math.sin(now*2+q.id)*4,34))continue;
-    x.save();x.translate(SX(q.x),SY(q.y));x.fillStyle='#e8ecef';x.fillRect(-11,-14,22,28);x.restore()}
+    drawSlip(q,now)}
+}
+// a folded paper note: cream sheet, a dog-eared corner, ruled lines, a soft warm glow so it reads as something to pick up
+function drawSlip(q,now){
+  const bob=Math.sin(now*2+q.id)*3,tilt=Math.sin(now*1.3+q.id*2)*.08,px=SX(q.x),py=SY(q.y+16+bob);
+  glow(q.x,q.y+16+bob,46,'#f0d9a8',.22+.08*Math.sin(now*3+q.id));
+  x.save();x.translate(px,py);x.rotate(tilt);
+  x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=6;x.shadowOffsetY=3;
+  x.fillStyle='#efe6cf';x.beginPath();x.moveTo(-12,-16);x.lineTo(6,-16);x.lineTo(12,-10);x.lineTo(12,16);x.lineTo(-12,16);x.closePath();x.fill();
+  x.shadowColor='transparent';x.fillStyle='#cdbf9c';x.beginPath();x.moveTo(6,-16);x.lineTo(6,-10);x.lineTo(12,-10);x.closePath();x.fill();
+  x.strokeStyle='#8a7a55';x.lineWidth=1;x.beginPath();x.moveTo(-12,-16);x.lineTo(6,-16);x.lineTo(12,-10);x.lineTo(12,16);x.lineTo(-12,16);x.closePath();x.stroke();
+  x.strokeStyle='rgba(120,100,60,.55)';for(let i=0;i<4;i++){x.beginPath();x.moveTo(-8,-6+i*6);x.lineTo(i===3?1:8,-6+i*6);x.stroke()}
+  x.fillStyle='#b0402f';x.fillRect(-8,-13,5,2);
+  x.restore()
 }
 function drawPod(now){
   if(pod.burst){const k=(now-pod.burstAt)/POD.BURST,cx=pod.x+pod.w/2,cy=pod.y+pod.h/2;
@@ -592,7 +605,8 @@ function draw(){
   if(endFx>0){x.fillStyle=`rgba(20,14,8,${Math.min(.88,endFx)})`;x.fillRect(0,0,viewW,H)}
   x.restore();
 }
-function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw()}
+const STEP=1/120;let acc=0;   // physics always advances in 1/120 s steps, so a 60, 144 or 240 Hz screen plays the same game: the jump used to rise ~4% higher at high refresh rates
+function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;acc+=dt;let n=0;while(acc>=STEP&&n<5){update(STEP);acc-=STEP;n++}if(n===5)acc=0;draw()}
 addEventListener('resize',resize);if(window.visualViewport)visualViewport.addEventListener('resize',resize);
 addEventListener('orientationchange',()=>setTimeout(resize,120));
 if(window.ResizeObserver)new ResizeObserver(resize).observe(c);

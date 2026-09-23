@@ -138,7 +138,7 @@ for (let i = 0; i + 1 < plats.length; i++) {
   legs.push({ A: A.id, B: B.id, gap: B.x - (A.x + A.w), rise: A.y - B.y, how });
   ok(how, `${A.id} -> ${B.id} (gap ${B.x - (A.x + A.w)}, rise ${A.y - B.y}) can be crossed`);
   // a leg the player can only clear from one exact pixel is a leg they will read as broken
-  if (how.window != null) ok(how.window >= 32,
+  if (how.window != null) ok(how.window >= 40,
     `${A.id} -> ${B.id} by ${how.how} gives ${how.window}px of take-off room, not a single frame`);
 }
 ok(legs.length >= 30, `${legs.length} legs of the route were played`);

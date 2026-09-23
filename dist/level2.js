@@ -499,7 +499,8 @@ function drawBix(){
 }
 const BIX=img('bix-motion-v2.png');
 
-function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);draw()}
+const STEP=1/120;let acc=0;   // physics always advances in 1/120 s steps, so a 60, 144 or 240 Hz screen plays the same game: the jump used to rise ~4% higher at high refresh rates
+function frame(t){requestAnimationFrame(frame);const dt=Math.min(.033,(t-last)/1000||0);last=t;acc+=dt;let n=0;while(acc>=STEP&&n<5){update(STEP);acc-=STEP;n++}if(n===5)acc=0;draw()}
 addEventListener('resize',resize);if(window.visualViewport)visualViewport.addEventListener('resize',resize);
 addEventListener('orientationchange',()=>setTimeout(resize,120));
 if(window.ResizeObserver)new ResizeObserver(resize).observe(c);
