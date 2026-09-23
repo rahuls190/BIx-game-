@@ -23,7 +23,8 @@ function mockCtx(){
   }
   return{AC,made};
 }
-function load(withAudio=true,store0={}){
+// The game ships muted, so every test that is about sound asks for sound; pass {} to test the state a new player arrives in.
+function load(withAudio=true,store0={'mayhem.muted':'0'}){
   const {AC,made}=mockCtx(),store={...store0},handlers={},timers=[],gains=[];
   const el=()=>({style:{},children:[],addEventListener(){},setAttribute(){},appendChild(c){this.children.push(c)},blur(){}});
   const sb={console,Math,Float32Array,Promise,setInterval:(f)=>{timers.push(f);return timers.length},clearInterval(){},setTimeout:()=>0,
@@ -54,8 +55,10 @@ function load(withAudio=true,store0={}){
 }
 // mute silences everything and is remembered; the M key toggles it
 {
-  const {A,made,store,handlers}=load();handlers.pointerdown();
-  A.play('jump');const a=made.osc;ok(a>0,'a sound plays when unmuted');
+  const fresh=load(true,{});fresh.handlers.pointerdown();
+  fresh.A.play('jump');ok(fresh.made.osc===0,'a player who has never chosen hears nothing: the game starts muted');
+  const {A,made,store,handlers}=load(true,{'mayhem.muted':'0'});handlers.pointerdown();
+  A.play('jump');const a=made.osc;ok(a>0,'a sound plays once the player turns it on');
   ok(A.toggleMute()===true&&A.isMuted()&&store['mayhem.muted']==='1','mute is switched on and remembered');
   A.play('jump');ok(made.osc===a,'a muted sound makes no nodes');
   handlers.keydown({code:'KeyM'});ok(!A.isMuted()&&store['mayhem.muted']==='0','the M key switches it back');
@@ -124,7 +127,7 @@ function load(withAudio=true,store0={}){
     AC.prototype.createBufferSource=function(){const n=orig.call(this);n.start=(...a)=>starts.push(a);n.stop=()=>{};return n};
     AC.prototype.decodeAudioData=function(ab,res){res({sampleRate:sr,duration:2,getChannelData:()=>data})};
     const store={},handlers={},el=()=>({style:{},addEventListener(){},setAttribute(){},appendChild(){},blur(){}});
-    const sb={console,Math,Float32Array,Promise,setInterval(){return 1},clearInterval(){},setTimeout:()=>0,localStorage:{getItem:()=>null,setItem(){}},
+    const sb={console,Math,Float32Array,Promise,setInterval(){return 1},clearInterval(){},setTimeout:()=>0,localStorage:{getItem:k=>k==='mayhem.muted'?'0':null,setItem(){}},   // this block is about the recordings, so it asks for sound
       fetch:u=>missing&&/jump/.test(u)?Promise.resolve({ok:false,status:404}):Promise.resolve({ok:true,arrayBuffer:()=>Promise.resolve(new ArrayBuffer(8))}),
       document:{readyState:'complete',body:el(),createElement:el,addEventListener(){},hidden:false,currentScript:{src:'http://x/y/audio.js?v=3'}}};
     sb.window=sb;sb.addEventListener=(t,f)=>{handlers[t]=f};sb.AudioContext=AC;vm.createContext(sb);vm.runInContext(src,sb);

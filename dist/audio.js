@@ -19,7 +19,7 @@
 (function () {
   'use strict';
   const KEY = 'mayhem.muted', AC = window.AudioContext || window.webkitAudioContext;
-  let ctx = null, master = null, sfxBus = null, musBus = null, reverbIn = null, noiseBuf = null, muted = false, sceneName = null, timer = null, nextAt = 0, beat = 0, btn = null;
+  let ctx = null, master = null, sfxBus = null, musBus = null, reverbIn = null, noiseBuf = null, muted = true, sceneName = null, timer = null, nextAt = 0, beat = 0, btn = null;
   const lastPlayed = {};
   const BASE = (document.currentScript && document.currentScript.src || '').replace(/[?#].*$/, '').replace(/[^/]*$/, '');
   // action name -> the takes to choose from (files in dist/sfx/), a longest playing time in seconds, and a volume trim
@@ -32,7 +32,7 @@
   const bank = {};      // name -> loaded takes: { buf, start, dur, norm }
   const VKEY = 'mayhem.volume', vol = { sfx: 1, music: 0.7 };
   const clamp01 = v => Math.max(0, Math.min(1, Number.isFinite(+v) ? +v : 0));
-  try { muted = localStorage.getItem(KEY) === '1' } catch (e) { /* private mode: not remembered */ }
+  try { const saved = localStorage.getItem(KEY); if (saved !== null) muted = saved === '1' } catch (e) { /* private mode: not remembered */ }
   try { const v = JSON.parse(localStorage.getItem(VKEY) || 'null'); if (v && typeof v === 'object') { if ('sfx' in v) vol.sfx = clamp01(v.sfx); if ('music' in v) vol.music = clamp01(v.music) } } catch (e) { /* not remembered */ }
 
   function init() {
