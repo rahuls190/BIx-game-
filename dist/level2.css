@@ -7,4 +7,4 @@
 @media(orientation:portrait){.pack-charge{top:96px;bottom:auto}}
 
 /* Landscape phone: the bottom strip belongs to the joystick, ACT, jump and the glove pad, so the Pack chip sits under the objective. */
-@media(orientation:landscape) and (pointer:coarse){.pack-charge{top:76px;bottom:auto;left:auto;right:max(14px,env(safe-area-inset-right));transform:none}}
+@media(orientation:landscape) and (pointer:coarse){.pack-charge{top:76px;bottom:auto;left:auto;right:max(62px,env(safe-area-inset-right));transform:none}}   /* clear of the 38px sound button on Levels 1, 2 and 5 */
