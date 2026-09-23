@@ -3,4 +3,4 @@
 .phase-chip{position:absolute;right:14px;top:186px;padding:5px 11px;background:#100d09d9;border:2px solid #7bbf6a;border-radius:10px;font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9ad18a;pointer-events:none;z-index:6}
 .pod-chip.hidden,.phase-chip.hidden{display:none}
 .slip-icon{margin-left:12px;color:#dfe8ef}
-@media(orientation:portrait){.pod-chip{top:160px;right:10px}.phase-chip{top:198px;right:10px}}
+@media(orientation:portrait){.pod-chip{top:242px;right:10px}.phase-chip{top:280px;right:10px}}

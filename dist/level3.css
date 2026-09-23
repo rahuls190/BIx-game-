@@ -9,8 +9,9 @@
 .glove-hud .tier{color:#7f9895;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .tier-line{color:#59e2c2;font-weight:800;letter-spacing:.06em}
 .touch-glove{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:104px;display:flex;flex-direction:column-reverse;gap:10px;align-items:flex-end;pointer-events:none}
-@media(orientation:landscape) and (pointer:coarse){.touch-glove{flex-direction:row-reverse;bottom:100px;right:max(120px,env(safe-area-inset-right))}}
-@media(orientation:portrait){.glove-hud{top:112px;left:10px;right:10px;justify-content:space-between}}
+@media(orientation:landscape) and (pointer:coarse){.touch-glove{flex-direction:row-reverse;bottom:max(8px,env(safe-area-inset-bottom));right:max(200px,env(safe-area-inset-right));gap:8px}}
+@media(orientation:portrait){.glove-hud{top:128px;left:10px;right:10px;justify-content:space-between}
+.dialogue,.dialogue.system,.dialogue:not(.system){top:182px}}
 .medal{display:inline-block;margin:0 0 14px;padding:6px 16px;border-radius:999px;font-weight:950;letter-spacing:.18em;font-size:.8rem;border:2px solid #b8863a;color:#ffd75a;background:#2a1f0a}
 .medal[data-medal="silver"]{border-color:#aab6bd;color:#e3edf2;background:#1c2429}
 .medal[data-medal="bronze"]{border-color:#a5673c;color:#e0a070;background:#26160c}
@@ -45,3 +46,6 @@
 .objective{background:linear-gradient(180deg,#040c10f2,#040c10bf);border-top-color:#ffd75a;box-shadow:0 10px 26px #000a}
 .objective span#zone{color:#7ff3d8;text-shadow:0 2px 6px #000,0 0 10px #000}
 .objective strong#objective{color:#fff;text-shadow:0 2px 6px #000,0 0 10px #000}
+
+/* Landscape phone: the glove pad sits along the bottom beside ACT and jump, small enough to leave the deck under Bix visible. */
+@media(orientation:landscape) and (pointer:coarse){.touch-glove .blue{width:78px;height:78px}.touch-glove .red{width:70px;height:70px}.touch-glove .shield{width:62px;height:62px}.touch-glove .blue svg{width:42px;height:42px}.touch-glove .red svg{width:38px;height:38px}.touch-glove .shield svg{width:32px;height:32px}}

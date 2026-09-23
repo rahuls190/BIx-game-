@@ -15,7 +15,7 @@ if(!D||!ART||!EN){fatal('Level 6 failed to load: '+[!D&&'level6-data.js',!ART&&'
 
 const H=720,GRAV=1450,JUMP=780,RUN=285,COG_TOTAL=D.cogs.length,SLIP_TOTAL=D.slips.length,CARRY_MAX=65;
 const POD={W:38,THROW_V:760,THROW_UP:280,CALL_RANGE:560,CALL_V:520,CATCH_R:64,PICKUP_R:96,BURST:6,REFILL:3};
-const K={left:0,right:0,down:0,up:0,jump:0,interact:0,blue:0,red:0,shield:0};
+const K={left:0,right:0,down:0,up:0,jump:0,interact:0,blue:0,red:0};
 let viewW=1280,dpr=1,running=0,done=0,last=0,camX=0,camY=0,cogs=0,slips=0,startTime=0,msgTime=0,msgLock=0,shake=0,flash=0,dust=0;
 let charge=1,prevRed=0,podDrops=0,staggered=0,ending=0,endFx=0,alarmOn=0,cartBaited=0;
 let pod={x:0,y:0,w:POD.W,h:POD.W,vx:0,vy:0,held:0,ground:0,support:null,dropTime:0,burst:0,burstAt:-99,thrown:0};
@@ -284,7 +284,6 @@ function key(code,on){
   if(['KeyE','Enter'].includes(code))K.interact=on;
   if(code==='KeyZ')K.blue=on;
   if(code==='KeyX')K.red=on;
-  if(['KeyC','ShiftLeft','ShiftRight'].includes(code))K.shield=on;
   if(code==='KeyR'&&on&&running&&!done&&!ending)reset(0);
 }
 addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'].includes(e.code))e.preventDefault();key(e.code,1)});

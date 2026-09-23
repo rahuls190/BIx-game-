@@ -2,4 +2,4 @@
 .mode-chip{position:absolute;right:14px;top:146px;padding:6px 12px;background:#071217d9;border:2px solid #8fa3b5;border-radius:10px;font-size:.66rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8fa3b5;pointer-events:none;z-index:6}
 .mode-chip.hidden{display:none}
 .slip-icon{margin-left:12px;color:#dfe8ef}
-@media(orientation:portrait){.mode-chip{top:196px;right:10px}}
+@media(orientation:portrait){.mode-chip{top:242px;right:10px}}

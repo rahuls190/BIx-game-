@@ -36,6 +36,7 @@ jobs:
           node --check dist/level6-art.js
           node --check dist/audio.js
           node tests/gameplay.cjs
+          node tests/level1-2-fuzz.cjs
           node tests/graphics.cjs
           node tests/level2-engine.cjs
           node tests/level2-enemies.cjs

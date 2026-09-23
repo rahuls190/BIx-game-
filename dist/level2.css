@@ -5,3 +5,6 @@
 .pack-charge.spent .dot{background:#2d444b;box-shadow:none}
 @media(pointer:coarse),(max-width:800px){.pack-charge{top:auto;bottom:max(12px,env(safe-area-inset-bottom));font-size:.58rem;padding:5px 11px}.pack-charge .dot{width:9px;height:9px}}
 @media(orientation:portrait){.pack-charge{top:96px;bottom:auto}}
+
+/* Landscape phone: the bottom strip belongs to the joystick, ACT, jump and the glove pad, so the Pack chip sits under the objective. */
+@media(orientation:landscape) and (pointer:coarse){.pack-charge{top:76px;bottom:auto;left:auto;right:max(14px,env(safe-area-inset-right));transform:none}}
