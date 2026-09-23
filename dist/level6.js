@@ -103,10 +103,11 @@ function spawnEnemies(){
 }
 
 // ---- the pod ----------------------------------------------------------------
+const inTrough=cx=>(D.troughs||[]).find(t=>cx>t.x-24&&cx<t.x+t.w+24);
 const podBox=()=>({x:pod.x,y:pod.y,w:pod.w,h:pod.h});
 const podBurstLive=now=>pod.burst&&now-pod.burstAt<POD.BURST;
 function takePod(h,now){pod.held=1;pod.burst=0;pod.thrown=0;pod.vx=pod.vy=0;pod.ground=0;if(h){h.t=POD.REFILL}ui.podChip.classList.remove('hidden')}
-function setDown(){pod.held=0;pod.burst=0;pod.thrown=0;pod.vx=P.face*40;pod.vy=0;pod.x=clamp(P.x+P.w/2+P.face*44-pod.w/2,0,D.world.w-pod.w);pod.y=P.y+P.h-pod.h;pod.ground=0}
+function setDown(){pod.held=0;pod.burst=0;pod.thrown=inTrough(P.x+P.w/2+P.face*44)?1:0;pod.vx=P.face*40;pod.vy=0;pod.x=clamp(P.x+P.w/2+P.face*44-pod.w/2,0,D.world.w-pod.w);pod.y=P.y+P.h-pod.h;pod.ground=0}
 function throwPod(){pod.held=0;pod.burst=0;pod.thrown=1;pod.x=clamp(P.x+P.w/2+P.face*28-pod.w/2,0,D.world.w-pod.w);pod.y=P.y+24;pod.vx=P.face*POD.THROW_V+P.vx*.3;pod.vy=-POD.THROW_UP;pod.ground=0}
 function burstPod(now){
   if(pod.burst)return;
@@ -146,6 +147,8 @@ function updatePod(dt,now,pol){
 function phaseAt(px){let id='none';for(const ph of D.boss.phases)if(px>=ph.from)id=ph.id;return id}
 function bossTarget(now){
   if(alarmOn&&podBurstLive(now))return pod.x+pod.w/2;             // the newest burst always wins
+  const bt=(D.troughs||[]).find(v=>baited[v.id]&&!fallen.has(v.column));
+  if(alarmOn&&bt)return bt.x+bt.w/2;                               // a baited trough keeps pulling her in after the burst fades
   return P.x+P.w/2-D.boss.leash;                                   // otherwise she walks the feed line, which runs where Bix runs
 }
 function updateBoss(dt,now){
@@ -404,7 +407,7 @@ function interact(now){
          ['PACK','The pods will work now. She will come to whichever is newest.']])}}
   else if(!ending&&!pod.held&&h){label='ACT · TAKE A FEED POD';act=()=>{pod.x=h.x-pod.w/2;pod.y=h.y-pod.h;takePod(h,now);
     if(!told.has('take')){told.add('take');say([['BIX','One pod.'],['PACK','Throw it with Red. Call it back with Blue.'],['PACK','It bursts where it lands. Things come to the burst.']])}}}
-  else if(!ending&&pod.held){label='ACT · SET THE POD DOWN';act=()=>setDown()}
+  else if(!ending&&pod.held){label=inTrough(P.x+P.w/2+P.face*44)?'ACT · DROP THE POD IN THE TROUGH':'ACT · SET THE POD DOWN';act=()=>setDown()}
   else if(!ending&&!pod.held&&!pod.burst&&nearPod(POD.PICKUP_R)){label='ACT · PICK UP THE POD';act=()=>takePod(null,now)}
   ui.prompt.textContent=label;ui.prompt.classList.toggle('hidden',!label);
   if(!K.interact)return;

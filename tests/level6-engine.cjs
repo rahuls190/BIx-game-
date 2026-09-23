@@ -128,6 +128,31 @@ const cp = (q, name) => q.D.checkpoints.find(c => c.name === name);
   ok(r.fallen().size === 0, 'an unbaited trough drops nothing');
 }
 
+// ---- baiting is what the HUD says it is ----------------------------------------------------------------------------------------
+{
+  // setting a pod down in a trough baits it, because that is what the prompt tells the player to do
+  const q = boot(); q.setAlarm(1); const t = q.D.troughs[0], k = q.D.columns[0];
+  q.place(t.x + 40, t.y); q.P.face = 1; q.pod().held = 1;
+  q.interact(q.S.clock);
+  ok(q.prompt() === 'ACT · DROP THE POD IN THE TROUGH', `standing at a trough with a pod, the prompt reads "${q.prompt()}"`);
+  q.setDown();
+  q.tick(Math.round(1.5 / dt), dt);
+  ok(q.baited()[t.id] === true, 'a pod set down in the trough baits it, not only a thrown one');
+  // away from a trough it is still just setting the pod down
+  const w = boot(); w.setAlarm(1); w.place(t.x - 800, t.y); w.P.face = 1; w.pod().held = 1;
+  w.interact(w.S.clock);
+  ok(w.prompt() === 'ACT · SET THE POD DOWN', 'away from a trough the prompt is the plain one');
+  w.setDown(); w.tick(Math.round(1.5 / dt), dt);
+  ok(Object.keys(w.baited()).length === 0, 'and it baits nothing');
+  // she keeps coming to a baited trough after the burst has faded, so the bait is not a six second timer
+  const r = boot(); r.setAlarm(1); r.place(t.x + 600, t.y); r.baited()[t.id] = true;
+  r.boss().in = 1; r.boss().x = t.x - 2400;
+  r.pod().burst = 0;                                            // nothing live to chase: only the bait
+  const far = Math.abs(r.boss().x - t.x);
+  r.tick(Math.round(18 / dt), dt, () => !r.fallen().has(k.id));
+  ok(r.fallen().has(k.id), `she walks ${Math.round(far)}px to a baited trough with no live burst, and takes the column`);
+}
+
 // ---- the ending is non-violent and ends the level -------------------------------------------------------------------------------
 {
   const saved = []; const mayhem = { getProgress: () => ({}), subscribe() {}, recordResult: (id, r) => { saved.push([id, r]); return Promise.resolve('Saved.') } };

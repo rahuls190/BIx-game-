@@ -175,7 +175,7 @@ triggers: [
   { x:12060, say:[['PACK','Ladders. Up. Up is good. Up is away from the feet.']] },
   { x:14460, say:[['PACK','The dome alarm. Pull it and the work lights come up.']] },
   { x:16060, say:[['PACK','Irrigation columns. Too heavy for you. Not for her.']] },
-  { x:16800, say:[['PACK','Bait the trough. Stand well clear. Let her lean in.']] },
+  { x:16800, say:[['PACK','Drop a pod in the trough, or throw one in. Then stand clear.']] },
   { x:22060, say:[['PACK','Bedding bay. Straw, rails, and one very tired machine.']] },
   { x:24600, say:[['PACK','Last pod, Bix. Put it on the cart.']] },
 ],

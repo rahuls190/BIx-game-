@@ -70,8 +70,8 @@ window.L5DATA={
     {id:'swC',x:14060,y:262,w:46,h:48,label:'RIGHT LOCK'}
   ],
   drones:[
-    {x:1880,y:346,range:360,speed:95,phase:.2},{x:5220,y:262,range:300,speed:110,phase:1.1},{x:8280,y:250,range:380,speed:120,phase:.7},
-    {x:12080,y:292,range:360,speed:130,phase:1.6},{x:13880,y:252,range:330,speed:135,phase:.4},{x:16850,y:275,range:360,speed:150,phase:.9},{x:19900,y:300,range:300,speed:155,phase:.4},{x:22200,y:250,range:340,speed:165,phase:1.3}
+    {x:1880,y:290,range:360,speed:95,phase:.2},{x:5220,y:234,range:300,speed:110,phase:1.1},{x:8280,y:250,range:380,speed:120,phase:.7},
+    {x:12080,y:292,range:360,speed:130,phase:1.6},{x:13880,y:252,range:330,speed:135,phase:.4},{x:16850,y:275,range:360,speed:150,phase:.9},{x:19900,y:274,range:300,speed:155,phase:.4},{x:22200,y:250,range:340,speed:165,phase:1.3}
   ],
   stalkers:[
     {x:18720,y:468,range:180,speed:125,period:3.8,warn:.7,charge:1.0,phase:.2},{x:20220,y:492,range:170,speed:135,period:3.5,warn:.65,charge:1.05,phase:1.1},

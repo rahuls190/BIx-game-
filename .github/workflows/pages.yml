@@ -61,6 +61,7 @@ jobs:
           node tests/level4-engine.cjs
           node tests/level5-gates.cjs
           node tests/level5-route.cjs
+          node tests/level5-hazards.cjs
           node tests/level6-geometry.cjs
           node tests/level6-engine.cjs
           node tests/audio.cjs
