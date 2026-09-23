@@ -28,12 +28,13 @@ service cloud.firestore {
       return p.keys().hasOnly(['v', 'levels', 'updatedAt'])
         && p.v == 1
         && p.updatedAt is number && p.updatedAt >= 0
-        && p.levels.keys().hasOnly(['level1', 'level2', 'level3', 'level4', 'level5'])
+        && p.levels.keys().hasOnly(['level1', 'level2', 'level3', 'level4', 'level5', 'level6'])
         && validLevel(p.levels.level1, 12)
         && validLevel(p.levels.level2, 14)
         && (!('level3' in p.levels) || validLevel(p.levels.level3, 12))     // records saved before Level 3 existed have no level3 entry
         && (!('level4' in p.levels) || validLevel(p.levels.level4, 12))     // ...and none saved before Level 4 has a level4 entry
-        && (!('level5' in p.levels) || validLevel(p.levels.level5, 15));    // ...and none saved before Level 5 has a level5 entry
+        && (!('level5' in p.levels) || validLevel(p.levels.level5, 15))
+        && (!('level6' in p.levels) || validLevel(p.levels.level6, 15));   // ...and none saved before Level 6 has a level6 entry    // ...and none saved before Level 5 has a level5 entry
     }
 
     match /players/{uid} {

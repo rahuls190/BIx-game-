@@ -1,0 +1,6 @@
+/* Level 6 only: the pod chip and the phase chip. Shares style.css, mobile.css, polish.css, level2.css and level3.css. */
+.pod-chip{position:absolute;right:14px;top:146px;padding:6px 12px;background:#100d09d9;border:2px solid #f0a83a;border-radius:10px;font-size:.66rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#f0a83a;pointer-events:none;z-index:6}
+.phase-chip{position:absolute;right:14px;top:186px;padding:5px 11px;background:#100d09d9;border:2px solid #7bbf6a;border-radius:10px;font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9ad18a;pointer-events:none;z-index:6}
+.pod-chip.hidden,.phase-chip.hidden{display:none}
+.slip-icon{margin-left:12px;color:#dfe8ef}
+@media(orientation:portrait){.pod-chip{top:160px;right:10px}.phase-chip{top:198px;right:10px}}

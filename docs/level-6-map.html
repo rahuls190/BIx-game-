@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Level 6 Plan</title>
+<style>
+:root{--bg:#100d09;--panel:#1a1510;--line:#3a2f22;--ink:#f2ece2;--dim:#a2917c;--amber:#f0a83a;--gold:#f2c94c;--green:#63d48a;--red:#e5533d;--cyan:#5fd4ff;--leaf:#7bbf6a;--dust:#c9b38a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;width:1600px}
+.page{padding:22px 26px 26px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;border-bottom:2px solid var(--amber);padding-bottom:10px;margin-bottom:14px}
+h1{margin:0;font-size:34px;letter-spacing:.5px}
+h1 small{display:block;font-size:12px;color:var(--amber);letter-spacing:2.4px;text-transform:uppercase;font-weight:700}
+.tag{color:var(--dim);max-width:620px;text-align:right;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 6px;text-align:center}
+.stat b{display:block;font-size:23px;line-height:1.1;color:var(--amber)}
+.stat span{font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--dim)}
+.map{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 12px 8px;margin-bottom:14px}
+h2{margin:0 0 8px 2px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--amber)}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:20px;flex-wrap:wrap;padding:8px 2px 0;color:var(--dim);font-size:12px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:13px;margin-bottom:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:5px 7px;border-bottom:1px solid var(--line);vertical-align:top;font-size:12.5px}
+th{color:var(--dim);font-weight:600;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}
+ul{margin:5px 0 0;padding-left:17px}li{margin:3px 0;color:#ddd3c4;font-size:12.5px}
+.ph{display:inline-block;width:19px;height:19px;border-radius:50%;background:var(--amber);color:#100d09;font-weight:900;font-size:11.5px;text-align:center;line-height:19px;margin-right:6px}
+.decide{background:#1c1a10;border-color:#5a4a1a}.decide h2{color:var(--gold)}
+footer{color:var(--dim);font-size:11.5px;margin-top:6px}
+</style></head><body><div class="page">
+
+<header>
+ <h1><small>Project Mayhem · Level 06 · spec v1 · not built</small>Mother Cluckzilla</h1>
+ <div class="tag">The finale of the first world. Bix cannot fight a four-storey brood machine — he throws feed pods and she goes to the newest one. Every puzzle is her weight, used on purpose. Nobody is hurt, including her.</div>
+</header>
+
+<section class="stats">
+ <div class="stat"><b>6</b><span>areas</span></div>
+ <div class="stat"><b>26,000</b><span>px wide</span></div>
+ <div class="stat"><b>15</b><span>cogs</span></div>
+ <div class="stat"><b>7</b><span>checkpoints</span></div>
+ <div class="stat"><b>4</b><span>boss phases</span></div>
+ <div class="stat"><b>3</b><span>columns to drop</span></div>
+ <div class="stat"><b>33 / 65</b><span>cogs to unlock</span></div>
+</section>
+
+<section class="map">
+ <h2>The route, side on, left to right · she enters at the orchard and never leaves</h2>
+ <svg viewBox="0 0 1540 470" role="img" aria-label="Side view plan of Level 6">
+  <defs>
+   <linearGradient id="grd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2418"/><stop offset="1" stop-color="#15110c"/></linearGradient>
+   <linearGradient id="phg" x1="0" x2="1"><stop offset="0" stop-color="#8a5a22"/><stop offset="1" stop-color="#c98b2f"/></linearGradient>
+  </defs>
+
+  <!-- area bands -->
+  <g font-size="11.5" font-weight="700">
+   <rect x="0"    y="2" width="178" height="21" fill="#4a5a3a"/><text x="7" y="17" fill="#fff">1 DOME THRESHOLD</text>
+   <rect x="178"  y="2" width="237" height="21" fill="#6b5a2a"/><text x="185" y="17" fill="#fff">2 FEED LINE</text>
+   <rect x="415"  y="2" width="296" height="21" fill="#4f7a3f"/><text x="422" y="17" fill="#fff">3 ORCHARD ROWS</text>
+   <rect x="711"  y="2" width="237" height="21" fill="#3f6a7a"/><text x="718" y="17" fill="#fff">4 ALARM SPINE</text>
+   <rect x="948"  y="2" width="355" height="21" fill="#7a5a2a"/><text x="955" y="17" fill="#fff">5 THE GRID</text>
+   <rect x="1303" y="2" width="237" height="21" fill="#6a4a3a"/><text x="1310" y="17" fill="#fff">6 NESTING BAY</text>
+  </g>
+
+  <!-- phase strip -->
+  <g font-size="10.5" font-weight="800" fill="#100d09">
+   <rect x="0" y="27" width="415" height="15" fill="#8fa3b5"/><text x="7" y="38">NO POD YET · SHE IS ONLY A SILHOUETTE</text>
+   <rect x="415" y="27" width="296" height="15" fill="#c9822f"/><text x="422" y="38">PHASE 1 · PURSUIT · RUN, DO NOT FIGHT</text>
+   <rect x="711" y="27" width="237" height="15" fill="#5fb0d4"/><text x="718" y="38">PHASE 2 · ALARM REVEAL</text>
+   <rect x="948" y="27" width="355" height="15" fill="#e0a13a"/><text x="955" y="38">PHASE 3 · LURE HER INTO THE THREE COLUMNS</text>
+   <rect x="1303" y="27" width="237" height="15" fill="#9ad18a"/><text x="1310" y="38">PHASE 4 · FED AND PUT TO BED</text>
+  </g>
+
+  <!-- the dome overhead, far behind -->
+  <g opacity=".5" fill="none" stroke="#6b5940" stroke-width="2">
+   <path d="M0 96 q380 -74 770 -62 q400 12 770 74"/>
+   <path d="M0 124 q380 -66 770 -54 q400 12 770 66"/>
+   <path d="M160 90 l0 34 M420 74 l0 30 M770 70 l0 30 M1120 78 l0 30 M1400 94 l0 32"/>
+  </g>
+  <g fill="#f0a83a" opacity=".65">
+   <g id="lamp"><path d="M0 0 l0 16" stroke="#6b5940" stroke-width="1.5"/><circle cx="0" cy="20" r="4"/></g>
+   <use href="#lamp" x="230" y="100"/><use href="#lamp" x="900" y="82"/><use href="#lamp" x="1230" y="86"/><use href="#lamp" x="1480" y="102"/>
+  </g>
+  <!-- terrain: flat, then the spine climbs, then high -->
+  <path d="M0 360 L178 360 L200 352 L415 352 L440 344 L711 344
+           L740 320 L780 286 L830 250 L880 216 L920 196 L948 190
+           L1000 190 L1060 182 L1140 182 L1200 176 L1303 176
+           L1340 170 L1440 170 L1540 166 L1540 470 L0 470 Z"
+        fill="url(#grd)" stroke="#6b5940" stroke-width="2"/>
+
+  <!-- platform ticks -->
+  <g fill="#7d6a4e">
+   <rect x="30" y="356" width="70" height="4"/><rect x="215" y="348" width="80" height="4"/><rect x="330" y="348" width="60" height="4"/>
+   <rect x="460" y="340" width="90" height="4"/><rect x="600" y="340" width="70" height="4"/>
+   <rect x="770" y="300" width="46" height="4"/><rect x="845" y="238" width="46" height="4"/>
+   <rect x="990" y="186" width="80" height="4"/><rect x="1150" y="172" width="60" height="4"/><rect x="1360" y="166" width="90" height="4"/>
+  </g>
+
+  <!-- MOTHER CLUCKZILLA: enters at the orchard and walks the whole way -->
+  <g>
+   <!-- legs, back pair darker so the body reads in front -->
+   <path d="M556 196 l-10 148" stroke="#5f5138" stroke-width="8" fill="none"/>
+   <path d="M614 198 l10 146" stroke="#5f5138" stroke-width="8" fill="none"/>
+   <path d="M528 198 l-20 146" stroke="#8a7350" stroke-width="11" fill="none"/>
+   <path d="M646 198 l24 146" stroke="#8a7350" stroke-width="11" fill="none"/>
+   <!-- feet -->
+   <g fill="#8a7350"><ellipse cx="508" cy="344" rx="17" ry="6"/><ellipse cx="670" cy="344" rx="17" ry="6"/></g>
+   <!-- body -->
+   <path d="M496 196 q4 -66 84 -76 q86 -10 100 62 q4 14 2 22 z" fill="#6b5940" stroke="#a08960" stroke-width="2"/>
+   <!-- grain hoppers along her back -->
+   <g fill="#5a4a34" stroke="#a08960" stroke-width="1.5"><rect x="566" y="126" width="26" height="16" rx="3"/><rect x="600" y="122" width="26" height="16" rx="3"/><rect x="634" y="130" width="24" height="15" rx="3"/></g>
+   <!-- neck curving down and forward to the feed, head at the end -->
+   <path d="M502 172 q-40 26 -50 62 q-6 24 8 34" stroke="#8a7350" stroke-width="15" fill="none" stroke-linecap="round"/>
+   <path d="M448 268 q-20 8 -18 26 q2 18 22 18 q22 0 26 -20 q3 -17 -14 -24 z" fill="#7a6746" stroke="#a08960" stroke-width="2"/>
+   <circle cx="444" cy="288" r="4.5" fill="#f0a83a"/>
+   <path d="M432 300 q-14 6 -16 14" stroke="#c9b38a" stroke-width="3" fill="none"/>
+   <!-- feed lamps -->
+   <g fill="#f0a83a"><circle cx="540" cy="150" r="3.5"/><circle cx="592" cy="140" r="3.5"/><circle cx="648" cy="152" r="3.5"/></g>
+   <text x="470" y="104" font-size="11.5" font-weight="800" fill="#f0a83a">MOTHER CLUCKZILLA · about 4 screens tall, rarely all on screen</text>
+   <!-- footfall tells on the ground -->
+   <ellipse cx="508" cy="346" rx="30" ry="7" fill="none" stroke="#f0a83a" stroke-width="2" stroke-dasharray="5 5"/>
+   <ellipse cx="670" cy="346" rx="30" ry="7" fill="none" stroke="#f0a83a" stroke-width="2" stroke-dasharray="5 5"/>
+   <text x="589" y="366" font-size="9.5" font-weight="700" fill="#f0a83a" text-anchor="middle">amber ring 0.7 s before every footfall</text>
+   <!-- she keeps walking right -->
+   <path d="M700 250 l64 0 m-12 -7 l12 7 l-12 7" stroke="#f0a83a" stroke-width="2" fill="none" opacity=".75"/>
+  </g>
+
+  <!-- the three columns -->
+  <g>
+   <rect x="1010" y="96" width="17" height="92" fill="#4a6a44" stroke="#7bbf6a" stroke-width="2"/>
+   <rect x="1120" y="76" width="17" height="108" fill="#4a6a44" stroke="#7bbf6a" stroke-width="2"/>
+   <rect x="1240" y="80" width="17" height="98" fill="#4a6a44" stroke="#7bbf6a" stroke-width="2"/>
+   <g font-size="10" font-weight="800" fill="#9ad18a" text-anchor="middle">
+    <text x="1018" y="90">1 STRAIGHT</text><text x="1128" y="70">2 HIGH THROW</text><text x="1248" y="74">3 TIMED</text>
+   </g>
+   <!-- troughs -->
+   <g fill="#c9822f"><rect x="1000" y="182" width="38" height="6"/><rect x="1110" y="146" width="38" height="6"/><rect x="1230" y="172" width="38" height="6"/></g>
+  </g>
+
+  <!-- alarm -->
+  <g><rect x="906" y="168" width="16" height="22" fill="#2c3a40" stroke="#5fd4ff" stroke-width="2"/>
+     <circle cx="914" cy="162" r="6" fill="#5fd4ff"/>
+     <text x="914" y="150" font-size="10" font-weight="800" fill="#5fd4ff" text-anchor="middle">ALARM</text></g>
+
+  <!-- bedding cart -->
+  <g><rect x="1420" y="140" width="74" height="26" fill="#6a5a3a" stroke="#c9b38a" stroke-width="2"/>
+     <circle cx="1436" cy="170" r="5" fill="#8a7350"/><circle cx="1478" cy="170" r="5" fill="#8a7350"/>
+     <line x1="1400" y1="176" x2="1520" y2="176" stroke="#8a7350" stroke-width="3"/>
+     <text x="1457" y="132" font-size="10" font-weight="800" fill="#c9b38a" text-anchor="middle">BEDDING CART</text></g>
+
+  <!-- pod hoppers -->
+  <g fill="#e0a13a">
+   <g id="hop"><rect x="-6" y="-14" width="12" height="14" rx="2"/><path d="M-6 0 l6 7 l6 -7 z"/></g>
+   <use href="#hop" x="120" y="360"/><use href="#hop" x="300" y="352"/><use href="#hop" x="660" y="344"/>
+   <use href="#hop" x="960" y="190"/><use href="#hop" x="1090" y="182"/><use href="#hop" x="1210" y="176"/><use href="#hop" x="1380" y="170"/>
+  </g>
+
+  <!-- cogs -->
+  <g fill="var(--gold)" stroke="#8a6a12">
+   <circle cx="70" cy="340" r="5"/><circle cx="240" cy="330" r="5"/><circle cx="360" cy="332" r="5"/>
+   <circle cx="480" cy="322" r="5"/><circle cx="620" cy="324" r="5"/><circle cx="690" cy="316" r="5"/>
+   <circle cx="790" cy="280" r="5"/><circle cx="866" cy="218" r="5"/><circle cx="930" cy="176" r="5"/>
+   <circle cx="1030" cy="166" r="5"/><circle cx="1150" cy="154" r="5"/><circle cx="1260" cy="158" r="5"/>
+   <circle cx="1350" cy="150" r="5"/><circle cx="1470" cy="148" r="5"/>
+   <circle cx="1300" cy="120" r="7" stroke="#fff" stroke-width="2"/>
+  </g>
+  <text x="1300" y="110" font-size="9.5" font-weight="800" fill="#f2c94c" text-anchor="middle">MASTERY COG · needs a fallen column</text>
+
+  <!-- checkpoints -->
+  <g stroke="var(--green)" stroke-width="2" fill="var(--green)">
+   <g id="cp"><line x1="0" y1="0" x2="0" y2="-15"/><path d="M0 -15 L9 -11 L0 -7 Z"/></g>
+   <use href="#cp" x="20"   y="360"/><use href="#cp" x="196" y="352"/><use href="#cp" x="432" y="344"/>
+   <use href="#cp" x="726"  y="344"/><use href="#cp" x="964" y="190"/><use href="#cp" x="1196" y="176"/><use href="#cp" x="1320" y="170"/>
+  </g>
+
+  <!-- pressure curve -->
+  <text x="6" y="416" font-size="10.5" fill="var(--dim)">PRESSURE</text>
+  <polyline fill="none" stroke="var(--red)" stroke-width="3"
+    points="60,462 178,458 300,452 415,448 470,404 600,396 711,400 790,424 900,428 948,418 1050,398 1160,392 1280,388 1303,436 1420,452 1540,458"/>
+  <text x="8" y="352" font-size="11.5" font-weight="800" fill="#fff">START</text>
+ </svg>
+ <div class="legend">
+  <span><span class="dot" style="background:var(--gold)"></span>15 cogs (ringed one is the mastery cog)</span>
+  <span><span class="dot" style="background:var(--green)"></span>7 checkpoints</span>
+  <span><span class="dot" style="background:var(--amber)"></span>pod hoppers · a pod is always replaceable</span>
+  <span><span class="dot" style="background:var(--leaf)"></span>irrigation columns · her weight drops them</span>
+  <span><span class="dot" style="background:var(--red)"></span>pressure (higher = harder) · the bay is the release</span>
+ </div>
+</section>
+
+<section class="row">
+ <div class="card">
+  <h2>The four phases</h2>
+  <table>
+   <tr><th>#</th><th>Phase</th><th>What happens</th></tr>
+   <tr><td><span class="ph">1</span></td><td>Pursuit</td><td>She follows the feed line, which runs where Bix is running. No pods yet. Learn her footfall tell and that she cannot be stopped.</td></tr>
+   <tr><td><span class="ph">2</span></td><td>Alarm reveal</td><td>Bix trips the dome alarm, the lights come up, and it turns out she was never chasing him. Pods go live from here.</td></tr>
+   <tr><td><span class="ph">3</span></td><td>Awakened grid</td><td>Bait a trough, get clear, let her lean in. Her weight drops the column and the column becomes the route. Three times, three set-ups.</td></tr>
+   <tr><td><span class="ph">4</span></td><td>Nesting bay</td><td>Lure her onto the bedding cart. It tips, she settles, the feed line stops. She is fed and put to bed, not beaten.</td></tr>
+  </table>
+ </div>
+ <div class="card">
+  <h2>The Lure · the one new idea</h2>
+  <ul>
+   <li><b>E</b> take a pod from a hopper, carry it, set it down</li>
+   <li><b>X (Red)</b> throw it — it bursts into a feed scatter</li>
+   <li><b>Z (Blue)</b> call an unburst pod back to your hand</li>
+   <li><b>Her rule:</b> she always walks to the newest burst, never to Bix</li>
+   <li>Same buttons as Level 4's core, so nothing new to learn at the hardest moment</li>
+   <li>A lost pod is always replaceable — there is no state with no pod</li>
+   <li>The lure opens the route; it is never how you survive. Every chase can be outrun</li>
+  </ul>
+ </div>
+ <div class="card">
+  <h2>What each area teaches</h2>
+  <table>
+   <tr><td>1</td><td>Pods, safely, with nothing watching</td></tr>
+   <tr><td>2</td><td>The standing feed line; her silhouette, far off</td></tr>
+   <tr><td>3</td><td>She arrives. Run, climb, use the rows as cover</td></tr>
+   <tr><td>4</td><td>Vertical climb: ladders, gusts, collapses, the alarm</td></tr>
+   <tr><td>5</td><td>The three columns: straight, high throw, timed</td></tr>
+   <tr><td>6</td><td>The cart, and the first silence in eleven years</td></tr>
+  </table>
+ </div>
+</section>
+
+<section class="row">
+ <div class="card">
+  <h2>Must be true when it ships</h2>
+  <ul>
+   <li>Every jump on the route simulated in the real engine, carrying a pod and empty-handed</li>
+   <li>From every checkpoint, with any columns already down, the exit is still reachable</li>
+   <li>A fallen column stays fallen through a respawn; a restart puts it back</li>
+   <li>Bix can never damage her, and she only hurts him by footfall, sweep or shockwave</li>
+   <li>16 random 40-second runs at 30 / 60 / 120 / 240 fps stay finite and throw nothing</li>
+   <li>32 carried cogs leave it locked; 33 open it</li>
+  </ul>
+ </div>
+ <div class="card">
+  <h2>Look and sound</h2>
+  <ul>
+   <li>Warm, dusty, overgrown: grain haze, green columns, work lamps, timber and galvanised steel</li>
+   <li>Must not read as Level 5 — that one is cold storm-grey. Own deck and backdrop per area</li>
+   <li>She is warm amber and machine-white. Never red: red means danger, and she is not the danger</li>
+   <li>Flat side-on camera, semi-realistic metal, never cartoon</li>
+   <li>Sound: footfalls near and far, pod burst, trough bait, column groan, cart on rails, then silence</li>
+   <li>Art ships as WebP, whole level under 4 MB</li>
+  </ul>
+ </div>
+ <div class="card decide">
+  <h2>The one decision left to you</h2>
+  <p style="margin:0 0 6px;color:#e6dcae;font-size:12.5px">Level 6 ends the first world, so it has to settle how much of the <b>BX-7</b> thread to answer. Two levels have been pointing at the same name: a work order open eleven years, signed by Bix, that he does not remember signing.</p>
+  <ul>
+   <li><b>Answer it</b> — the dome holds the last record</li>
+   <li><b>Name it and stop</b> — Bix says it aloud for the first time</li>
+   <li><b>Leave it</b> — keep it for the second world</li>
+  </ul>
+  <p style="margin:7px 0 0;color:var(--dim);font-size:12px">The rest of the plan works with any of the three.</p>
+ </div>
+</section>
+<footer>Source: docs/level-6-spec.md · x positions and tuning numbers are starting points; the physics constants are fixed.</footer>
+</div></body></html>

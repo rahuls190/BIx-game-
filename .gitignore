@@ -37,3 +37,11 @@ design/landing-l4/
 design/landing-combined/
 design/bix-poses/
 design/pack-poses/
+
+# Level 6 package zips (built from design/level6-art-krea by design/l3tmp/make_l6_zip*.py)
+design/level-6-mother-cluckzilla*.zip
+design/l3tmp/level-6-package*/
+design/level6-art-krea/
+
+# Level 6 landing-card working art (like the other landing-* folders)
+design/landing-l6/
