@@ -68,6 +68,33 @@ for (const e of D.electrics) {
   ok(dark >= 0.55, `the pulse rail at ${e.x} is dark for ${dark.toFixed(2)}s, long enough to run through`);
   ok(e.tell >= 0.28, `the pulse rail at ${e.x} tells for ${e.tell}s before it lights`);
 }
+// ---- hazards must arrive one at a time, not all at once -----------------------------------------------------------------------
+// A rail standing in a gap has to be timed at the same moment as the jump, so its dark window must be long enough to read it,
+// run it up and be across. And whatever sweeps a deck must leave the end you land on alone.
+for (let i = 0; i + 1 < plats.length; i++) {
+  const A = plats[i], B = plats[i + 1], g0 = A.x + A.w, g1 = B.x;
+  if (g1 <= g0) continue;
+  for (const e of D.electrics) {
+    if (!(e.x + e.w > g0 - 20 && e.x < g1 + 20)) continue;
+    ok(e.period - e.on >= 1.7,
+      `the rail in the ${A.id} -> ${B.id} gap is dark for ${(e.period - e.on).toFixed(2)}s, long enough to cross while it is out`);
+  }
+  const land = { x0: B.x, x1: B.x + 140 };
+  for (const e of D.sentinels || []) {
+    const x0 = e.dir > 0 ? e.x : e.x - e.reach, x1 = e.dir > 0 ? e.x + e.reach : e.x;
+    ok(!(x0 < land.x1 && x1 > land.x0 && e.y > B.y - 84 && e.y < B.y + 10),
+      `nothing sweeps the first 140px of ${B.id}, the part he lands on`);
+  }
+}
+for (const p of plats) {
+  let swept = 0;
+  for (const e of D.sentinels || []) {
+    const x0 = e.dir > 0 ? e.x : e.x - e.reach, x1 = e.dir > 0 ? e.x + e.reach : e.x;
+    if (e.y > p.y - 84 && e.y < p.y + 10) swept = Math.max(swept, Math.min(x1, p.x + p.w) - Math.max(x0, p.x));
+  }
+  if (swept > 0) ok(p.w - swept >= 140, `${p.id} keeps ${p.w - swept}px of deck outside the beam to stand in`);
+}
+
 for (const g of D.gusts) {
   const calm = g.period - g.on;
   ok(calm >= 1.2, `the duct at ${g.x} is calm for ${calm.toFixed(2)}s between gusts`);

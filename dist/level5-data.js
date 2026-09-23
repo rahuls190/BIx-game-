@@ -50,14 +50,14 @@ window.L5DATA={
   ],
   electrics:[
     {x:1340,y:378,w:34,h:118,period:2.7,on:1.05,tell:.45,phase:.1},
-    {x:3860,y:286,w:34,h:150,period:2.4,on:.9,tell:.4,phase:.8},
-    {x:6540,y:236,w:34,h:150,period:2.2,on:.9,tell:.38,phase:1.2},
-    {x:9360,y:220,w:34,h:200,period:2.5,on:1.0,tell:.45,phase:.4},
-    {x:11670,y:300,w:34,h:160,period:2.15,on:.85,tell:.38,phase:.2},
-    {x:12880,y:245,w:34,h:160,period:2.1,on:.85,tell:.38,phase:1.0},
-    {x:14490,y:188,w:34,h:170,period:2.0,on:.78,tell:.35,phase:.7},
+    {x:3860,y:286,w:34,h:150,period:2.7,on:.9,tell:.4,phase:.8},
+    {x:6540,y:236,w:34,h:150,period:2.7,on:.9,tell:.4,phase:1.2},
+    {x:9360,y:220,w:34,h:200,period:2.8,on:1.0,tell:.45,phase:.4},
+    {x:11670,y:300,w:34,h:160,period:2.65,on:.85,tell:.4,phase:.2},
+    {x:12880,y:245,w:34,h:160,period:2.65,on:.85,tell:.4,phase:1.0},
+    {x:14490,y:188,w:34,h:170,period:2.6,on:.78,tell:.4,phase:.7},
     {x:17490,y:205,w:34,h:180,period:1.9,on:.72,tell:.35,phase:.2},
-    {x:19100,y:250,w:34,h:190,period:1.85,on:.7,tell:.34,phase:.6},{x:20880,y:210,w:34,h:200,period:1.8,on:.68,tell:.32,phase:1.1},{x:22480,y:200,w:34,h:190,period:1.7,on:.62,tell:.3,phase:.2},{x:23620,y:165,w:34,h:205,period:1.65,on:.6,tell:.3,phase:.9}
+    {x:19100,y:250,w:34,h:190,period:2.5,on:.7,tell:.4,phase:.6},{x:20880,y:210,w:34,h:200,period:1.8,on:.68,tell:.32,phase:1.1},{x:22480,y:200,w:34,h:190,period:2.45,on:.62,tell:.4,phase:.2},{x:23620,y:165,w:34,h:205,period:1.65,on:.6,tell:.3,phase:.9}
   ],
   gates:[
     {id:'cargoA',x:6170,y:376,w:88,h:190,need:'swA',seconds:12},
@@ -78,8 +78,8 @@ window.L5DATA={
     {x:21600,y:370,range:150,speed:145,period:3.25,warn:.62,charge:1.05,phase:.5},{x:22930,y:392,range:150,speed:155,period:3.0,warn:.58,charge:1.0,phase:1.6}
   ],
   sentinels:[
-    {x:19480,y:365,dir:1,reach:620,period:3.4,warn:.8,fire:.55,phase:.3},{x:21180,y:350,dir:-1,reach:650,period:3.15,warn:.74,fire:.55,phase:1.4},
-    {x:22680,y:350,dir:1,reach:680,period:2.95,warn:.7,fire:.52,phase:.8},{x:23820,y:330,dir:-1,reach:620,period:2.75,warn:.66,fire:.5,phase:1.9}
+    {x:19480,y:365,dir:1,reach:620,period:3.4,warn:.8,fire:.55,phase:.3},{x:21180,y:350,dir:-1,reach:360,period:3.15,warn:.74,fire:.55,phase:1.4},
+    {x:23000,y:350,dir:1,reach:400,period:2.95,warn:.7,fire:.52,phase:.8},{x:23820,y:330,dir:-1,reach:300,period:2.75,warn:.66,fire:.5,phase:1.9}
   ],
   cogs:[
     {x:740,y:420},{x:1220,y:300},{x:2180,y:245},{x:3440,y:374},{x:4985,y:202},{x:6120,y:296},{x:7040,y:252},{x:8160,y:235},
