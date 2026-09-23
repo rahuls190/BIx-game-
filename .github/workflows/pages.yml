@@ -29,6 +29,11 @@ jobs:
           node --check dist/level4.js
           node --check dist/level4-core.js
           node --check dist/level4-data.js
+          node --check dist/level5.js
+          node --check dist/level5-data.js
+          node --check dist/level6.js
+          node --check dist/level6-data.js
+          node --check dist/level6-art.js
           node --check dist/audio.js
           node tests/gameplay.cjs
           node tests/graphics.cjs
@@ -54,6 +59,10 @@ jobs:
           node tests/level4-core.cjs
           node tests/level4-geometry.cjs
           node tests/level4-engine.cjs
+          node tests/level5-gates.cjs
+          node tests/level5-route.cjs
+          node tests/level6-geometry.cjs
+          node tests/level6-engine.cjs
           node tests/audio.cjs
           node tests/landing.cjs
           node tests/progress.cjs
