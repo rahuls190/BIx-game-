@@ -37,6 +37,7 @@
       level4: { have: P.carriedCogs ? P.carriedCogs(s.progress, 'level4') : 0, open: P.level4Unlocked ? P.level4Unlocked(s.progress) : false, note: n => 'Locked. Carry ' + P.LEVEL4_UNLOCK_COGS + ' of the 38 cogs from Levels 1 to 3 to open it (' + n + ' so far).' },
       level5: { have: P.carriedCogs ? P.carriedCogs(s.progress, 'level5') : 0, open: P.level5Unlocked ? P.level5Unlocked(s.progress) : false, note: n => 'Locked. Carry ' + P.LEVEL5_UNLOCK_COGS + ' of the 50 cogs from Levels 1 to 4 to open it (' + n + ' so far).' },
       level6: { have: P.carriedCogs ? P.carriedCogs(s.progress, 'level6') : 0, open: P.level6Unlocked ? P.level6Unlocked(s.progress) : false, note: n => 'Locked. Carry ' + P.LEVEL6_UNLOCK_COGS + ' of the 65 cogs from Levels 1 to 5 to open it (' + n + ' so far).' },
+      level7: { have: P.carriedCogs ? P.carriedCogs(s.progress, 'level7') : 0, open: P.level7Unlocked ? P.level7Unlocked(s.progress) : false, note: n => 'Locked. Complete Level 6 and carry ' + P.LEVEL7_UNLOCK_COGS + ' of the 80 cogs from Levels 1 to 6 (' + n + ' so far).' },
     };
     for (const id of Object.keys(LOCKS)) {
       const lk = LOCKS[id];

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07151a">
+  <title>Project Mayhem - Level 07: Clocking In</title>
+  <meta name="description" content="Bix and Pack leave the dome for an empty civic railway that still expects BX-7 to report for work.">
+  <link rel="stylesheet" href="./style.css?v=27">
+  <link rel="stylesheet" href="./mobile.css?v=28">
+  <link rel="stylesheet" href="./polish.css?v=29">
+  <link rel="stylesheet" href="./level2.css?v=4">
+  <link rel="stylesheet" href="./level3.css?v=6">
+  <link rel="stylesheet" href="./level7.css?v=1">
+</head>
+<body>
+  <main id="shell" aria-label="Project Mayhem Level 7 playable game">
+    <canvas id="game" width="1280" height="720" tabindex="0" aria-label="Side-scrolling platform game. Move with arrows or A and D, jump with Space, deploy or recall Pack with E, ping with Z, and reroute with X."></canvas>
+    <section id="hud" aria-live="polite">
+      <div class="brand"><span class="brand-mark">PM</span><span>LEVEL 07 · CLOCKING IN</span></div>
+      <div class="objective"><span id="zone">DOME EXIT</span><strong id="objective">Leave the dome and find the civic line</strong></div>
+      <div class="cogs"><span class="cog-icon">⚙</span><strong id="cogCount">0 / 15</strong><span class="fragment-icon">▰</span><strong id="fragmentCount">0 / 5</strong></div>
+      <div id="linkChip" class="link-chip">PACK · ATTACHED</div>
+      <div id="rangeMeter" class="range-meter hidden"><i id="rangeBar"></i><span id="rangeLabel">LINK 0%</span></div>
+    </section>
+    <div id="packCharge" class="pack-charge" aria-live="polite"><span class="dot"></span><span id="packChargeLabel">PACK READY</span></div>
+    <div id="dialogue" class="dialogue hidden"><span id="speaker">PACK</span><p id="line"></p></div>
+    <div id="prompt" class="prompt hidden">E · INTERACT</div>
+
+    <section id="start" class="panel level7-start">
+      <div class="eyebrow">LEVEL 07 · CLOCKING IN</div>
+      <h1>CLOCKING<br><em>IN</em></h1>
+      <p>The dome opens onto a civic railway that has kept the first shift waiting for eleven years. Link Pack into relay sockets to move the city around Bix, but while Pack is deployed there is no emergency catch.</p>
+      <p id="lockNote" class="lock-note" hidden></p>
+      <button id="startButton">START <span>→</span></button>
+      <div class="controls"><span><b>A D</b> or <b>← →</b> Move</span><span><b>SPACE</b> Jump</span><span><b>E</b> Deploy / recall Pack</span><span><b>Z</b> Ping auditor</span><span><b>X</b> Reroute signal</span><span><b>R</b> Restart</span></div>
+    </section>
+
+    <section id="story" class="story-panel hidden" aria-live="polite">
+      <img id="storyImage" src="" alt="">
+      <div><p id="storyKicker" class="eyebrow"></p><h2 id="storyTitle"></h2><p id="storyCopy"></p><button id="storyClose">CONTINUE <span>→</span></button></div>
+    </section>
+
+    <section id="complete" class="panel hidden">
+      <div class="eyebrow">LEVEL 07 COMPLETE</div>
+      <h2>FIRST TRAIN<br><em>ON TIME</em></h2>
+      <p id="medal" class="medal" data-medal="bronze">BRONZE</p>
+      <div class="results"><span>COGS<strong id="finalCogs">0 / 15</strong></span><span>TIME<strong id="finalTime">00:00</strong></span><span>FALLS<strong id="finalFalls">0</strong></span></div>
+      <p id="resultLine">Departure status: on time.</p><p id="saveNote" class="save-note" hidden></p>
+      <button id="replayButton">GO AGAIN <span>↻</span></button><a class="next-level" href="./index.html#levels">ALL LEVELS <span>→</span></a>
+    </section>
+
+    <div id="touchControls" aria-label="Touch controls">
+      <div class="touch-left"><div id="joystick" role="application" aria-label="Movement joystick"><span id="joystickKnob"></span></div></div>
+      <div class="touch-right"><button data-key="interact" aria-label="Deploy or recall Pack">ACT</button><button class="jump" data-key="jump" aria-label="Jump">↑</button></div>
+      <div class="touch-glove"><button class="blue" data-key="blue" aria-label="Ping signal">PING</button><button class="red" data-key="red" aria-label="Reroute signal">ROUTE</button></div>
+    </div>
+  </main>
+  <script src="./firebase-config.js"></script><script src="./progress.js?v=7"></script><script src="./level2-art.js?v=4"></script>
+  <script src="./level7-art.js?v=1"></script><script src="./level7-data.js?v=1"></script><script src="./level7.js?v=1"></script><script src="./auth.js" defer></script>
+</body>
+</html>

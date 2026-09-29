@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920,initial-scale=1">
+<title>Project Mayhem - Level 7 Master Plan</title>
+<style>
+:root{
+  --bg:#061317;--panel:#0c232a;--panel2:#102d35;--line:#24505a;
+  --ink:#f2f1df;--dim:#9fb2b4;--cyan:#58dbc3;--yellow:#f4cb53;
+  --orange:#ef7b45;--red:#ff526d;--blue:#6bb8db;--black:#041014;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1200px;overflow:hidden;background:var(--bg)}
+body{color:var(--ink);font-family:Arial,Helvetica,sans-serif;letter-spacing:0}
+.page{width:1920px;height:1200px;padding:24px 28px 18px;display:grid;grid-template-rows:88px 320px 266px 234px 134px 30px;gap:11px;background:var(--bg)}
+header{display:grid;grid-template-columns:1.1fr 1fr;gap:34px;align-items:end;border-bottom:2px solid var(--cyan);padding-bottom:12px}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:2.5px;color:var(--cyan);text-transform:uppercase;margin-bottom:5px}
+h1{font-size:48px;line-height:.94;margin:0;text-transform:uppercase;font-stretch:condensed}
+.lede{margin:0 0 2px;color:#c4d0cd;font-size:15px;line-height:1.45;text-align:right}
+.stats{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}
+.stat{min-width:91px;border:1px solid var(--line);background:var(--panel);padding:6px 8px;text-align:center;border-radius:5px}
+.stat b{display:block;color:var(--yellow);font-size:18px;line-height:1}.stat span{display:block;color:var(--dim);font-size:9px;text-transform:uppercase;margin-top:4px;font-weight:700}
+.hero{display:grid;grid-template-columns:.95fr 1.05fr;gap:12px;min-height:0}
+.hero-visual{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#0a1c21}
+.hero-visual img{width:100%;height:100%;object-fit:cover;object-position:center 53%;display:block}
+.hero-visual:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.05);pointer-events:none}
+.hero-label{position:absolute;right:15px;bottom:14px;background:rgba(4,16,20,.9);border-left:4px solid var(--cyan);padding:8px 12px;max-width:500px}
+.hero-label b{font-size:17px;text-transform:uppercase;color:var(--cyan)}
+.hero-label span{display:block;font-size:12px;color:#cfdbd8;margin-top:3px}
+.hero-info{display:grid;grid-template-rows:174px 136px;gap:10px;min-height:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:13px 15px;overflow:hidden}
+.panel h2,.section-title{font-size:12px;line-height:1;margin:0 0 10px;text-transform:uppercase;letter-spacing:1.8px;color:var(--cyan)}
+.mechanic{font-size:17px;line-height:1.35;color:#e9eee8;margin:0 0 11px}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0 10px}
+.flow div{background:#0a1b20;border-top:3px solid var(--cyan);padding:7px 5px;text-align:center;font-size:10px;font-weight:800;text-transform:uppercase;color:#dbe8e5}
+.flow div:nth-child(3){border-color:var(--red)}
+.rule{display:grid;grid-template-columns:115px 1fr;gap:8px;padding:4px 0;border-top:1px solid #173b43;font-size:11px;line-height:1.25}.rule b{color:var(--yellow);text-transform:uppercase}.rule span{color:#c7d4d1}
+.continuity{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.continuity div{background:#091b20;border-left:3px solid var(--orange);padding:6px 8px;font-size:10px;line-height:1.2;color:#cbd7d4}
+.continuity b{display:block;color:var(--orange);text-transform:uppercase;font-size:10px;margin-bottom:3px}
+.route{background:#081b20;border:1px solid var(--line);border-radius:6px;padding:11px 10px 9px;display:grid;grid-template-rows:20px 1fr;gap:7px;min-height:0}
+.route-head{display:flex;align-items:center;justify-content:space-between}
+.route-head h2{margin:0;color:var(--cyan);font-size:12px;letter-spacing:1.8px;text-transform:uppercase}.route-head span{font-size:11px;color:var(--dim)}
+.areas{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;min-height:0}
+.area{background:var(--panel);border:1px solid #214750;border-top:3px solid var(--cyan);border-radius:5px;overflow:hidden;display:grid;grid-template-rows:103px auto 1fr;min-width:0}
+.area:nth-child(2){border-top-color:var(--blue)}.area:nth-child(3){border-top-color:var(--yellow)}.area:nth-child(4){border-top-color:var(--orange)}.area:nth-child(5){border-top-color:var(--red)}.area:nth-child(6){border-top-color:var(--cyan)}
+.thumb{position:relative;width:100%;height:103px;overflow:hidden;background:#0a171b}.thumb img{width:100%;height:103px;object-fit:cover;display:block;filter:saturate(.72) contrast(1.08) brightness(.72)}
+.route-line{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 1px 2px #021014)}.route-line .under{fill:none;stroke:#061317;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}.route-line .path{fill:none;stroke:var(--yellow);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:7 5}.route-line circle{fill:var(--cyan);stroke:#061317;stroke-width:3}.route-line .danger{fill:var(--red)}
+.thumb-tag{position:absolute;left:7px;top:6px;padding:4px 6px;background:rgba(4,16,20,.88);border-left:3px solid var(--cyan);color:#e9f3ef;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.area-title{padding:7px 9px 5px;border-top:1px solid #1f4650;display:flex;justify-content:space-between;gap:4px;align-items:flex-start}
+.area-title b{font-size:13px;text-transform:uppercase;color:var(--ink);line-height:1.1}.area-title span{font-size:9px;color:var(--yellow);font-weight:800;white-space:nowrap}
+.area-copy{padding:0 9px 7px;display:grid;grid-template-rows:auto auto;align-content:space-between;gap:5px}
+.area-copy p{font-size:10px;line-height:1.27;color:#b9c9c6;margin:0}.difficulty{display:flex;align-items:center;gap:4px;font-size:9px;text-transform:uppercase;color:var(--dim);font-weight:700}.dots{display:flex;gap:3px}.dots i{display:block;width:17px;height:5px;background:#1b3c44}.dots i.on{background:var(--yellow)}.dots i.half{background:linear-gradient(90deg,var(--yellow) 50%,#1b3c44 50%)}
+.lower{display:grid;grid-template-columns:1.08fr 1.02fr 1.08fr 1.18fr;gap:10px;min-height:0}
+.compact{padding:12px 13px}
+.role{display:grid;grid-template-columns:64px 1fr;gap:7px;padding:5px 0;border-top:1px solid #183c45}.role:first-of-type{border-top:0}.role b{font-size:10px;color:var(--yellow);text-transform:uppercase}.role span{font-size:10.5px;line-height:1.25;color:#c4d2cf}
+.curve{position:relative;height:70px;border-left:1px solid #315862;border-bottom:1px solid #315862;margin:7px 2px 8px}
+.bar{position:absolute;bottom:0;width:12%;background:var(--cyan);border-top:2px solid #a5f5e7}.bar:nth-child(2){left:16%;height:40%}.bar:nth-child(3){left:32%;height:62%}.bar:nth-child(4){left:48%;height:82%;background:var(--orange);border-color:#ffb18b}.bar:nth-child(5){left:64%;height:96%;background:var(--red);border-color:#ff9bac}.bar:nth-child(6){left:80%;height:84%;background:var(--yellow);border-color:#fff0a8}.bar:nth-child(1){left:0;height:20%}
+.curve-labels{display:grid;grid-template-columns:repeat(6,1fr);font-size:8px;text-align:center;color:var(--dim);margin-top:3px}
+.mini-list{margin:8px 0 0;padding:0;list-style:none}.mini-list li{font-size:10.5px;line-height:1.28;color:#c3d0ce;margin:4px 0;padding-left:12px;position:relative}.mini-list li:before{content:"";position:absolute;left:0;top:5px;width:5px;height:5px;background:var(--cyan)}
+.beat{display:grid;grid-template-columns:21px 1fr;gap:7px;padding:3px 0}.beat i{font-style:normal;width:19px;height:19px;border-radius:50%;background:var(--yellow);color:var(--black);font-size:10px;font-weight:900;text-align:center;line-height:19px}.beat p{margin:0;font-size:10.5px;line-height:1.25;color:#c7d3d0}.beat b{color:var(--ink)}
+.numbers{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}.number{background:#091b20;padding:6px 7px;border-left:3px solid var(--cyan)}.number b{display:block;font-size:16px;color:var(--yellow);line-height:1}.number span{font-size:9px;color:var(--dim);text-transform:uppercase;font-weight:700}
+.medals{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.medal{padding:6px;background:#091b20;text-align:center;font-size:9px;line-height:1.25;color:#c5d2cf;border-top:3px solid #a8793c}.medal:nth-child(2){border-color:#aeb8bf}.medal:nth-child(3){border-color:var(--yellow)}.medal b{display:block;color:var(--ink);font-size:10px;text-transform:uppercase}
+.roadmap{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:11px 13px;display:grid;grid-template-rows:18px 1fr;gap:8px}
+.roadmap h2{margin:0;color:var(--cyan);font-size:12px;letter-spacing:1.8px;text-transform:uppercase}
+.phases{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.phase{background:#091b20;border-top:3px solid var(--cyan);padding:7px 8px;min-width:0}.phase:nth-child(5),.phase:nth-child(6){border-color:var(--orange)}.phase:nth-child(7),.phase:nth-child(8){border-color:var(--yellow)}.phase b{display:block;color:var(--ink);font-size:10px;text-transform:uppercase;margin-bottom:4px}.phase span{display:block;color:#acbfbc;font-size:9px;line-height:1.25}.phase em{font-style:normal;color:var(--cyan);font-size:9px;font-weight:800}
+footer{display:flex;justify-content:space-between;align-items:center;color:#83999b;font-size:10px;border-top:1px solid #173840;padding-top:7px}.status{color:var(--yellow);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div>
+      <div class="eyebrow">Project Mayhem / World Two / Level 07 Master Plan</div>
+      <h1>Clocking In</h1>
+    </div>
+    <div>
+      <p class="lede">The dome is quiet. The city is not. An eleven-year-old routine recognizes Bix as <b>BX-7</b>, while Pack powers a route that drops below the streets and climbs above the trains.</p>
+      <div class="stats">
+        <div class="stat"><b>27,500</b><span>world px</span></div>
+        <div class="stat"><b>6</b><span>areas</span></div>
+        <div class="stat"><b>9</b><span>checkpoints</span></div>
+        <div class="stat"><b>15</b><span>cogs</span></div>
+        <div class="stat"><b>5</b><span>fragments</span></div>
+        <div class="stat"><b>22-30</b><span>minutes</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-visual">
+      <img src="../design/level7-art-comfy/production/l7-landing-v1.png" alt="Bix and the canonical Pack waiting beside the first train">
+      <div class="hero-label"><b>World Two begins with separation</b><span>Keep Pack for one emergency catch, or deploy him to power the city. Every separation is visible, readable, and reversible.</span></div>
+    </div>
+    <div class="hero-info">
+      <div class="panel">
+        <h2>Signature mechanic / The Link</h2>
+        <p class="mechanic">Deploy Pack as a wireless relay anchor. Powered systems wake inside his signal field, but his emergency catch is unavailable until recalled.</p>
+        <div class="flow"><div>1 Deploy Pack</div><div>2 Power route</div><div>3 Cross no-catch</div><div>4 Recall Pack</div></div>
+        <div class="rule"><b>HUD contract</b><span>PACK LINKED - NO CATCH, plus chain icon, cyan tether and audio pulse.</span></div>
+        <div class="rule"><b>Fail-safe</b><span>Reset terminal restores the last safe relay arrangement. Pack can never be stranded.</span></div>
+        <div class="rule"><b>Controls</b><span>ACT deploys or recalls. Blue and Red move repeaters. No new button.</span></div>
+      </div>
+      <div class="panel">
+        <h2>Level 6 continuity</h2>
+        <div class="continuity">
+          <div><b>Live ending</b>Mother Cluckzilla sleeps, the feed line stops, and Bix follows the door above the dome.</div>
+          <div><b>Progress gate</b>Complete Level 6 and carry 40 of the 80 cogs available across Levels 1-6.</div>
+          <div><b>BX-7 thread</b>The city confirms BX-7 is Bix's employee identity. The missing eleven years remain unresolved.</div>
+          <div><b>Final choice</b>VELA warns: BX-7, DO NOT CLOCK IN. Bix boards the first train anyway.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="route">
+    <div class="route-head"><h2>Complete route / vertical sawtooth</h2><span>Yellow = playable path / cyan = safe anchors / red = enemy pressure</span></div>
+    <div class="areas">
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-dome-exit-v2.png" alt="Dome Exit"><span class="thumb-tag">Down / cradle / up</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="8,28 62,30 104,76 160,80 210,42 288,24"/><polyline class="path" points="8,28 62,30 104,76 160,80 210,42 288,24"/><circle cx="8" cy="28" r="5"/><circle cx="288" cy="24" r="5"/></svg></div><div class="area-title"><b>1 Dome Exit</b><span>0-3,000 / 2-3 min</span></div><div class="area-copy"><p>Dome descent, suspended cradle, civic climb and BX-7 scan.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="half"></i><i></i><i></i><i></i></span></div></div></article>
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-civic-intake-v2.png" alt="Civic Intake"><span class="thumb-tag">3 floors / route switch</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="8,24 50,78 104,78 126,34 170,28 190,82 240,80 288,18"/><polyline class="path" points="8,24 50,78 104,78 126,34 170,28 190,82 240,80 288,18"/><circle cx="8" cy="24" r="5"/><circle class="danger" cx="218" cy="80" r="5"/><circle cx="288" cy="18" r="5"/></svg></div><div class="area-title"><b>2 Civic Intake</b><span>3,000-7,000 / 4-5 min</span></div><div class="area-copy"><p>Basement Link, lobby lift, Turnstile Ram, mezzanine recall.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="on"></i><i class="half"></i><i></i><i></i></span></div></div></article>
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-relay-court-v2.png" alt="Relay Court"><span class="thumb-tag">W route / bridge wheel</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="8,24 55,78 108,24 150,82 206,30 250,76 290,22"/><polyline class="path" points="8,24 55,78 108,24 150,82 206,30 250,76 290,22"/><circle cx="8" cy="24" r="5"/><circle class="danger" cx="150" cy="82" r="5"/><circle cx="290" cy="22" r="5"/></svg></div><div class="area-title"><b>3 Relay Court</b><span>7,000-12,000 / 4-5 min</span></div><div class="area-copy"><p>W-shaped relay route, hand wheel, Sweeper plus Ticket Drone.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="half"></i><i></i></span></div></div></article>
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-archive-spine-v2.png" alt="Archive Spine"><span class="thumb-tag">4 floors / loop choice</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="10,86 62,62 98,22 142,72 180,40 222,18 252,60 290,20"/><polyline class="path" points="10,86 62,62 98,22 142,72 180,40 222,18 252,60 290,20"/><circle cx="10" cy="86" r="5"/><circle class="danger" cx="180" cy="40" r="5"/><circle cx="290" cy="20" r="5"/></svg></div><div class="area-title"><b>4 Archive Spine</b><span>12,000-17,500 / 5-6 min</span></div><div class="area-copy"><p>Four-floor climb, counterweight drop, clamps and blackout loop.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="half"></i></span></div></div></article>
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-ghost-platform-v2.png" alt="Ghost Platform"><span class="thumb-tag">Roof / tunnel / roof</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="8,74 50,24 96,18 126,82 172,84 204,28 246,18 290,62"/><polyline class="path" points="8,74 50,24 96,18 126,82 172,84 204,28 246,18 290,62"/><circle cx="8" cy="74" r="5"/><circle class="danger" cx="154" cy="84" r="5"/><circle cx="290" cy="62" r="5"/></svg></div><div class="area-title"><b>5 Ghost Platform</b><span>17,500-23,000 / 5-6 min</span></div><div class="area-copy"><p>Moving tram, carriage drop, Auditor reroute and roof recovery.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div></div></article>
+      <article class="area"><div class="thumb"><img src="../design/level7-art-comfy/production/l7-bg-first-train-v2.png" alt="First Train"><span class="thumb-tag">Pit / gantry / train</span><svg class="route-line" viewBox="0 0 300 103" preserveAspectRatio="none"><polyline class="under" points="8,22 52,82 108,78 154,18 210,20 252,40 286,86"/><polyline class="path" points="8,22 52,82 108,78 154,18 210,20 252,40 286,86"/><circle cx="8" cy="22" r="5"/><circle class="danger" cx="210" cy="20" r="5"/><circle cx="286" cy="86" r="5"/></svg></div><div class="area-title"><b>6 First Train</b><span>23,000-27,500 / 3-5 min</span></div><div class="area-copy"><p>Service pit, luggage lifts, gantry, train roof and hatch descent.</p><div class="difficulty">Difficulty <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="half"></i></span></div></div></article>
+    </div>
+  </section>
+
+  <section class="lower">
+    <div class="panel compact">
+      <h2>Roles</h2>
+      <div class="role"><b>Bix</b><span>Traversal, glove control and the safety-versus-access decision.</span></div>
+      <div class="role"><b>Pack</b><span>One catch, relay anchor, timing guidance and guarded memory.</span></div>
+      <div class="role"><b>VELA</b><span>Five optional words that assemble the warning.</span></div>
+      <div class="role"><b>City</b><span>Gates, bridges, scanners and trains following old procedure.</span></div>
+      <div class="role"><b>Enemies</b><span>Sweeper, Drone, Ram, Clamp and Auditor reshape lanes and Link paths.</span></div>
+    </div>
+    <div class="panel compact">
+      <h2>Difficulty and fairness</h2>
+      <div class="curve"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
+      <div class="curve-labels"><span>Exit</span><span>Intake</span><span>Court</span><span>Archive</span><span>Platform</span><span>Train</span></div>
+      <ul class="mini-list">
+        <li>Platform and Train form a two-part difficulty peak.</li>
+        <li>Every area descends, climbs and changes its own geometry.</li>
+        <li>Five enemies combine only after isolated introductions.</li>
+        <li>9 checkpoints keep repeat runs under 45 seconds.</li>
+      </ul>
+    </div>
+    <div class="panel compact">
+      <h2>Story spine</h2>
+      <div class="beat"><i>1</i><p><b>Recognition:</b> the terminal names Bix as BX-7.</p></div>
+      <div class="beat"><i>2</i><p><b>Deflection:</b> Pack calls it a database collision.</p></div>
+      <div class="beat"><i>3</i><p><b>Separation:</b> Bix leaves Pack behind by choice.</p></div>
+      <div class="beat"><i>4</i><p><b>Evidence:</b> an archive frame shows them arriving together.</p></div>
+      <div class="beat"><i>5</i><p><b>Warning:</b> five fragments form DO NOT CLOCK IN.</p></div>
+      <div class="beat"><i>6</i><p><b>Choice:</b> Bix boards because the city holds the answer.</p></div>
+    </div>
+    <div class="panel compact">
+      <h2>Progression and results</h2>
+      <div class="numbers"><div class="number"><b>15</b><span>cogs / max total 95</span></div><div class="number"><b>5</b><span>VELA fragments</span></div><div class="number"><b>9</b><span>safe checkpoints</span></div><div class="number"><b>40/80</b><span>plus Level 6 complete</span></div></div>
+      <div class="medals"><div class="medal"><b>Bronze</b>Finish</div><div class="medal"><b>Silver</b>7 cogs / 20 falls / 28:00</div><div class="medal"><b>Gold</b>12 cogs / 8 falls / 20:00</div></div>
+      <ul class="mini-list"><li>All five fragments award Full Warning.</li><li>Assists never remove completion or medal credit.</li><li>Best result improves; carried totals never decrease.</li></ul>
+    </div>
+  </section>
+
+  <section class="roadmap">
+    <h2>Production roadmap / approval gates</h2>
+    <div class="phases">
+      <div class="phase"><em>0</em><b>Creative approval</b><span>Title, Link, story reveal, final train.</span></div>
+      <div class="phase"><em>1</em><b>Paper layout</b><span>Elevation, machines, enemies and relay states.</span></div>
+      <div class="phase"><em>2</em><b>Greybox</b><span>Six sawtooth areas and five civic enemies.</span></div>
+      <div class="phase"><em>3</em><b>Validation</b><span>Combos, timing, saves, assists and 30-240 Hz.</span></div>
+      <div class="phase"><em>4</em><b>Narrative</b><span>Dialogue, five fragments and subtitles.</span></div>
+      <div class="phase"><em>5</em><b>Art and audio</b><span>Canonical assets, animation, cues, budget.</span></div>
+      <div class="phase"><em>6</em><b>Integration</b><span>Unlock, progress, medals, mobile and landing.</span></div>
+      <div class="phase"><em>7</em><b>Release</b><span>Regression, compatibility, sign-off, rollback.</span></div>
+    </div>
+  </section>
+
+  <footer><span>Source: docs/level-7-plan.md / Visual concepts: local ComfyUI + canonical Pack composite</span><span class="status">Plan only / no game integration</span></footer>
+</main>
+</body>
+</html>

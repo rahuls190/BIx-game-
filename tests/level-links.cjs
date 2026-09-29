@@ -6,7 +6,7 @@ const assert = require('assert'), fs = require('fs'), path = require('path');
 let checks = 0;
 const ok = (c, m) => { assert(c, m); checks++ };
 const dist = f => path.join(__dirname, '..', 'dist', f);
-const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5', 'level6'];
+const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7'];
 ORDER.forEach((lvl, i) => {
   const html = fs.readFileSync(dist(lvl + '.html'), 'utf8');
   const m = html.match(/<a class="next-level" href="\.\/([^"]+)">([^<]*)/);

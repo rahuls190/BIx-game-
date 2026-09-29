@@ -17,13 +17,14 @@
   'use strict';
 
   const KEY = 'mayhem.progress.v1';
-  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 }, level5: { cogs: 15 }, level6: { cogs: 15 } };
-  const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5', 'level6'];       // play order: cogs banked in every earlier level carry forward into the next
+  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 }, level5: { cogs: 15 }, level6: { cogs: 15 }, level7: { cogs: 15 } };
+  const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7'];       // play order: cogs banked in every earlier level carry forward into the next
   const MAX_TIME = 86399, MAX_FALLS = 9999, MAX_PLAYS = 1000000;
   const LEVEL3_UNLOCK_COGS = 13;      // Level 3 opens once Levels 1 and 2 have banked MORE than 12 cogs between them
   const LEVEL4_UNLOCK_COGS = 19;      // Level 4 opens once Levels 1 to 3 have banked 19 of their 38 cogs (half, as Level 3 asks 13 of 26)
   const LEVEL5_UNLOCK_COGS = 25;
   const LEVEL6_UNLOCK_COGS = 33;      // Level 6 opens once Levels 1 to 5 have carried 33 of their 65 cogs      // Level 5 opens once Levels 1 to 4 have carried 25 of their 50 cogs
+  const LEVEL7_UNLOCK_COGS = 40;      // Level 7 also requires Level 6 completion; its own screen and the landing page enforce both parts
 
   const int = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && Number.isInteger(v) && v >= lo && v <= hi) ? v : null;
 
@@ -107,6 +108,10 @@
   const level4Unlocked = progress => carriedCogs(progress, 'level4') >= LEVEL4_UNLOCK_COGS;
   const level5Unlocked = progress => carriedCogs(progress, 'level5') >= LEVEL5_UNLOCK_COGS;
   const level6Unlocked = progress => carriedCogs(progress, 'level6') >= LEVEL6_UNLOCK_COGS;
+  const level7Unlocked = progress => {
+    const p = sanitize(progress);
+    return p.levels.level6.completed && carriedCogs(p, 'level7') >= LEVEL7_UNLOCK_COGS;
+  };
 
   const same = (a, b) => JSON.stringify(sanitize(a)) === JSON.stringify(sanitize(b));
 
@@ -158,5 +163,5 @@
     return M;
   }
 
-  return { KEY, LEVELS, ORDER, LEVEL3_UNLOCK_COGS, LEVEL4_UNLOCK_COGS, LEVEL5_UNLOCK_COGS, LEVEL6_UNLOCK_COGS, bankedCogs, level3Unlocked, carriedCogs, carriedMax, level4Unlocked, level5Unlocked, level6Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
+  return { KEY, LEVELS, ORDER, LEVEL3_UNLOCK_COGS, LEVEL4_UNLOCK_COGS, LEVEL5_UNLOCK_COGS, LEVEL6_UNLOCK_COGS, LEVEL7_UNLOCK_COGS, bankedCogs, level3Unlocked, carriedCogs, carriedMax, level4Unlocked, level5Unlocked, level6Unlocked, level7Unlocked, emptyProgress, sanitize, merge, applyResult, same, isConfigured, fmtTime, makeMayhem };
 });

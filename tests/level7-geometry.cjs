@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),vm=require('vm');let checks=0;const ok=(c,m)=>{assert(c,m);checks++};
+const sb={window:{}};vm.createContext(sb);vm.runInContext(fs.readFileSync('dist/level7-data.js','utf8'),sb);const D=sb.window.L7DATA;
+ok(D.world.w===27500&&D.world.finishX<D.world.w,'world is the planned 27,500px route');
+ok(D.areas.length===6&&D.checkpoints.length===9,'six areas and nine checkpoints');
+ok(D.cogs.length===15&&D.fragments.length===5,'15 cogs and five VELA fragments');
+ok(D.relays.length===9&&D.relays.every(r=>r.range>=1000),'nine usable relay sockets with authored ranges');
+ok(new Set(D.relays.map(r=>r.target)).size===9,'every relay powers a distinct route target');
+ok(['sweeper','ticket','ram','clamp'].every(t=>D.enemies.some(e=>e.type===t))&&D.auditors.length>=4,'all five enemy roles are placed');
+ok(D.bridges.length>=2&&D.lifts.length>=2&&D.trams.length>=1&&D.gates.length>=3,'route mixes bridges, lifts, a tram and gates');
+for(let i=1;i<D.checkpoints.length;i++)ok(D.checkpoints[i].x>D.checkpoints[i-1].x,'checkpoints advance through the route');
+for(const p of D.platforms)ok(p[0]>=0&&p[0]+p[2]<=D.world.w&&p[2]>=500,'every major platform is inside the world and broad enough to land on');
+for(const q of [...D.cogs,...D.fragments])ok(q.x>=0&&q.x<=D.world.w&&q.y>D.world.yMin&&q.y<D.world.yMax,'collectible is inside world bounds');
+const ys=D.platforms.map(p=>p[1]);ok(Math.max(...ys)-Math.min(...ys)>=600,'the route has substantial vertical movement');
+const html=fs.readFileSync('dist/level7.html','utf8');ok(/level7-data\.js/.test(html)&&/level7-art\.js/.test(html)&&/level7\.js/.test(html),'page loads data, art and engine');
+for(const f of Object.values(sb.window.L7DATA?{page:'dist/level7.html',js:'dist/level7.js',css:'dist/level7.css'}:{}))ok(fs.existsSync(f),f+' exists');
+console.log(JSON.stringify({checks}));
