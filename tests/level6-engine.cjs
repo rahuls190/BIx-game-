@@ -155,6 +155,17 @@ const cp = (q, name) => q.D.checkpoints.find(c => c.name === name);
 
 // ---- the ending is non-violent and ends the level -------------------------------------------------------------------------------
 {
+  const q = boot(); q.setAlarm(1); const ct = q.D.cart;
+  q.place(ct.x + 35, ct.y); q.P.face = 1; q.takePod(null, q.S.clock); q.tick(2, dt);
+  ok(/PUT THE POD ON THE CART/.test(q.prompt()), 'ACT explains the final cart placement on touch controls');
+  q.K.interact = 1; q.tick(2, dt);
+  q.tick(20, dt);
+  ok(q.state().cartBaited, 'ACT placement bursts the pod on the cart');
+  q.boss().in = 1; q.boss().x = ct.x - 2400;
+  q.tick(Math.round(16 / dt), dt, () => q.state().ending <= 0);
+  ok(q.state().ending > 0, 'persistent cart bait brings her from far away and starts the ending');
+}
+{
   const saved = []; const mayhem = { getProgress: () => ({}), subscribe() {}, recordResult: (id, r) => { saved.push([id, r]); return Promise.resolve('Saved.') } };
   const q = boot({ mayhem }); q.setAlarm(1); q.setCogs(12); const ct = q.D.cart;
   q.place(ct.x - 200, ct.y); q.tick(4, dt);
