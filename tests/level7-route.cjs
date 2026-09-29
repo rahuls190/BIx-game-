@@ -57,7 +57,7 @@ function canLedge(A, B, ledges, relay) {
 }
 
 // ---- which relay (if any) gates each platform pair: found by the x-column the relay's target obstacle occupies -------------------
-const GATE_RELAY = { gate1: 'r1', gate2: 'r5', gate3: 'r7' };
+const GATE_RELAY = { gate1: 'r1', gate2: 'r5', gate3: 'r7', gate4: 'r9' };
 function gatingRelay(A, B) {
   for (const g of D.gates) if (g.x > A.x && g.x < B.x + B.w) return D.relays.find(r => r.id === GATE_RELAY[g.id]);
   return null;
@@ -78,6 +78,14 @@ for (const area of D.areas) {
     if (how) ok(how.window >= 40, `${area.id}: ${A.id} -> ${B.id} gives ${how.window}px of take-off room, not a sliver`);
     legs++;
   }
+}
+for (let i = 0; i + 1 < D.areas.length; i++) {
+  const from = plats.filter(p => p.area === D.areas[i].id).at(-1);
+  const to = plats.find(p => p.area === D.areas[i + 1].id);
+  const relay = gatingRelay(from, to);
+  const how = canJump(from, to, relay) || canLedge(from, to, ledgesAll, relay);
+  ok(how, `${D.areas[i].id} -> ${D.areas[i + 1].id} boundary can be crossed`);
+  if (how) ok(how.window >= 40, `${D.areas[i].id} -> ${D.areas[i + 1].id} boundary has room for a jump`);
 }
 ok(legs >= 25, `${legs} legs of the route were played`);
 
@@ -100,7 +108,7 @@ for (const r of D.relays) {
 ok(D.repeaters.length === D.relays.length, 'every relay has its own repeater, and the engine (linkRatio in dist/level7.js) actually uses it');
 
 // ---- every cog, fragment and checkpoint sits within reach of a real surface -------------------------------------------------------
-const surf = [...plats, ...ledgesAll];
+const surf = [...plats, ...ledgesAll, ...D.secretPlatforms.map((p,i)=>({id:'secret'+i,x:p[0],y:p[1],w:p[2]}))];
 const nearBelow = o => surf.filter(s => s.y > o.y - 4 && o.x > s.x - 260 && o.x < s.x + s.w + 260).sort((a, b) => (a.y - o.y) - (b.y - o.y))[0];
 for (const c of D.cogs) { const s = nearBelow(c); ok(s && s.y - c.y <= 260, `cog ${c.id} has a surface within reach`) }
 for (const f of D.fragments) { const s = nearBelow(f); ok(s && s.y - f.y <= 260, `fragment ${f.id} has a surface within reach`) }

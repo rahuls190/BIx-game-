@@ -17,7 +17,7 @@
   'use strict';
 
   const KEY = 'mayhem.progress.v1';
-  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 }, level5: { cogs: 15 }, level6: { cogs: 15 }, level7: { cogs: 15 } };
+  const LEVELS = { level1: { cogs: 12 }, level2: { cogs: 14 }, level3: { cogs: 12 }, level4: { cogs: 12 }, level5: { cogs: 15 }, level6: { cogs: 15 }, level7: { cogs: 20 } };
   const ORDER = ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7'];       // play order: cogs banked in every earlier level carry forward into the next
   const MAX_TIME = 86399, MAX_FALLS = 9999, MAX_PLAYS = 1000000;
   const LEVEL3_UNLOCK_COGS = 13;      // Level 3 opens once Levels 1 and 2 have banked MORE than 12 cogs between them

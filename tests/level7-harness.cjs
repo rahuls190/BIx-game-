@@ -3,13 +3,13 @@ const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..'),HOOK='resize();reset(1);requestAnimationFrame(frame);';
 function boot(opts={}){
   const S={clock:0},noop=()=>{},ctx=new Proxy({createLinearGradient:()=>({addColorStop:noop}),createRadialGradient:()=>({addColorStop:noop})},{get:(o,k)=>o[k]||noop});
-  const el=()=>({classList:{add:noop,remove:noop,toggle:noop},style:{},dataset:{},hidden:false,addEventListener:noop,setPointerCapture:noop,getBoundingClientRect:()=>({width:1280,height:720,left:0,top:0}),getContext:()=>ctx,focus:noop,textContent:'',src:'',alt:''});
+  const el=()=>({classList:{add:noop,remove:noop,toggle:noop},style:{},dataset:{},hidden:false,addEventListener:noop,setAttribute:noop,setPointerCapture:noop,getBoundingClientRect:()=>({width:1280,height:720,left:0,top:0}),getContext:()=>ctx,focus:noop,textContent:'',src:'',alt:''});
   const els={},listeners={};
   const sb={console,Math,JSON,URLSearchParams,performance:{now:()=>S.clock*1000},location:{search:opts.search||'?unlocked=1',hostname:opts.host||'localhost'},document:{getElementById:id=>els[id]??=el(),querySelectorAll:()=>[],addEventListener:noop,hidden:false},Image:class{set src(v){this.p=v;this.complete=true;this.naturalWidth=1536;this.naturalHeight=864}get src(){return this.p}},addEventListener:(t,fn)=>(listeners[t]??=[]).push(fn),devicePixelRatio:1,requestAnimationFrame:noop,setTimeout:noop,ResizeObserver:null};
   sb.window=sb;if(opts.mayhem)sb.Mayhem=opts.mayhem;if(opts.progress)sb.MayhemProgress=opts.progress;vm.createContext(sb);
-  for(const f of ['dist/level2-art.js','dist/level7-art.js',opts.data||'dist/level7-data.js'])vm.runInContext(fs.readFileSync(path.join(ROOT,f),'utf8'),sb,{filename:f});
+  for(const f of ['dist/level2-art.js','dist/level7-art.js',opts.data||'dist/level7-data.js','dist/level7-audio.js'])vm.runInContext(fs.readFileSync(path.join(ROOT,f),'utf8'),sb,{filename:f});
   let src=fs.readFileSync(path.join(ROOT,'dist/level7.js'),'utf8');if(!src.includes(HOOK))throw new Error('Level 7 boot hook missing');
-  src=src.replace(HOOK,`resize();reset(1);globalThis.qa={P,K,D,update,draw,reset,start,solids,hurt,interact,deploy,recall,breakLink,finish,powered,medalFor,carried,locked,showStory,
+  src=src.replace(HOOK,`resize();reset(1);globalThis.qa={P,K,D,update,draw,reset,start,solids,hurt,interact,deploy,recall,breakLink,finish,powered,medalFor,carried,locked,showStory,linkPath,
     pack:()=>pack,enemies:()=>enemies,auditors:()=>auditors,moving:()=>moving,target:()=>targetState,sayQ:()=>sayQ,
     state:()=>({running,done,storyOpen,cogs,fragments,charge,checkpoint,ending,linkBreaks,camX,camY}),
     setCP:q=>{checkpoint=q;seen.add(q)},setEnemies:q=>{enemies=q},setCogs:q=>{cogs=q},setFragments:q=>{fragments=q},setRunning:q=>{running=q}};`);

@@ -35,7 +35,7 @@ service cloud.firestore {
         && (!('level4' in p.levels) || validLevel(p.levels.level4, 12))     // ...and none saved before Level 4 has a level4 entry
         && (!('level5' in p.levels) || validLevel(p.levels.level5, 15))
         && (!('level6' in p.levels) || validLevel(p.levels.level6, 15))
-        && (!('level7' in p.levels) || validLevel(p.levels.level7, 15));
+        && (!('level7' in p.levels) || validLevel(p.levels.level7, 20));
     }
 
     match /players/{uid} {

@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="./polish.css?v=29">
   <link rel="stylesheet" href="./level2.css?v=4">
   <link rel="stylesheet" href="./level3.css?v=6">
-  <link rel="stylesheet" href="./level7.css?v=1">
+  <link rel="stylesheet" href="./level7.css?v=2">
 </head>
 <body>
   <main id="shell" aria-label="Project Mayhem Level 7 playable game">
@@ -19,21 +19,22 @@
     <section id="hud" aria-live="polite">
       <div class="brand"><span class="brand-mark">PM</span><span>LEVEL 07 · CLOCKING IN</span></div>
       <div class="objective"><span id="zone">DOME EXIT</span><strong id="objective">Leave the dome and find the civic line</strong></div>
-      <div class="cogs"><span class="cog-icon">⚙</span><strong id="cogCount">0 / 15</strong><span class="fragment-icon">▰</span><strong id="fragmentCount">0 / 5</strong></div>
+      <div class="cogs"><span class="cog-icon">⚙</span><strong id="cogCount">0 / 20</strong><span class="fragment-icon">▰</span><strong id="fragmentCount">0 / 5</strong></div>
       <div id="linkChip" class="link-chip">PACK · ATTACHED</div>
       <div id="rangeMeter" class="range-meter hidden"><i id="rangeBar"></i><span id="rangeLabel">LINK 0%</span></div>
     </section>
     <div id="packCharge" class="pack-charge" aria-live="polite"><span class="dot"></span><span id="packChargeLabel">PACK READY</span></div>
+    <button id="audioToggle" class="level7-audio" type="button" aria-label="Mute music and sound" aria-pressed="false">♪ SOUND ON</button>
     <div id="dialogue" class="dialogue hidden"><span id="speaker">PACK</span><p id="line"></p></div>
     <div id="prompt" class="prompt hidden">E · INTERACT</div>
 
     <section id="start" class="panel level7-start">
       <div class="eyebrow">LEVEL 07 · CLOCKING IN</div>
       <h1>CLOCKING<br><em>IN</em></h1>
-      <p>The dome opens onto a civic railway that has kept the first shift waiting for eleven years. Link Pack into relay sockets to move the city around Bix, but while Pack is deployed there is no emergency catch.</p>
+      <p>The first train is still running an eleven-year-old timetable. Climb through the empty civic district, find the doors missing from its map, and link Pack to outwit the machines on the way to the final departure.</p>
       <p id="lockNote" class="lock-note" hidden></p>
       <button id="startButton">START <span>→</span></button>
-      <div class="controls"><span><b>A D</b> or <b>← →</b> Move</span><span><b>SPACE</b> Jump</span><span><b>E</b> Deploy / recall Pack</span><span><b>Z</b> Ping auditor</span><span><b>X</b> Reroute signal</span><span><b>R</b> Restart</span></div>
+      <div class="controls"><span><b>A D</b> or <b>← →</b> Move</span><span><b>SPACE</b> Jump</span><span><b>E</b> Deploy / recall Pack</span><span><b>Z</b> Ping auditor</span><span><b>X</b> Reroute signal</span><span><b>R</b> Restart</span><span><b>M</b> Sound</span></div>
     </section>
 
     <section id="story" class="story-panel hidden" aria-live="polite">
@@ -45,7 +46,7 @@
       <div class="eyebrow">LEVEL 07 COMPLETE</div>
       <h2>FIRST TRAIN<br><em>ON TIME</em></h2>
       <p id="medal" class="medal" data-medal="bronze">BRONZE</p>
-      <div class="results"><span>COGS<strong id="finalCogs">0 / 15</strong></span><span>TIME<strong id="finalTime">00:00</strong></span><span>FALLS<strong id="finalFalls">0</strong></span></div>
+      <div class="results"><span>COGS<strong id="finalCogs">0 / 20</strong></span><span>TIME<strong id="finalTime">00:00</strong></span><span>FALLS<strong id="finalFalls">0</strong></span></div>
       <p id="resultLine">Departure status: on time.</p><p id="saveNote" class="save-note" hidden></p>
       <button id="replayButton">GO AGAIN <span>↻</span></button><a class="next-level" href="./index.html#levels">ALL LEVELS <span>→</span></a>
     </section>
@@ -57,6 +58,6 @@
     </div>
   </main>
   <script src="./firebase-config.js"></script><script src="./progress.js?v=7"></script><script src="./level2-art.js?v=4"></script>
-  <script src="./level7-art.js?v=1"></script><script src="./level7-data.js?v=2"></script><script src="./level7.js?v=2"></script><script src="./auth.js" defer></script>
+  <script src="./level7-art.js?v=3"></script><script src="./level7-data.js?v=3"></script><script src="./level7-audio.js?v=2"></script><script src="./level7.js?v=13"></script><script src="./auth.js" defer></script>
 </body>
 </html>

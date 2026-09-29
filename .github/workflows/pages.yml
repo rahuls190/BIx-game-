@@ -37,6 +37,7 @@ jobs:
           node --check dist/level7.js
           node --check dist/level7-data.js
           node --check dist/level7-art.js
+          node --check dist/level7-audio.js
           node --check dist/audio.js
           node tests/gameplay.cjs
           node tests/level1-2-fuzz.cjs
@@ -72,6 +73,7 @@ jobs:
           node tests/level7-geometry.cjs
           node tests/level7-engine.cjs
           node tests/level7-route.cjs
+          node tests/level7-audio.cjs
           node tests/audio.cjs
           node tests/landing.cjs
           node tests/progress.cjs
