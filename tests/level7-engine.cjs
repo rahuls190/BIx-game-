@@ -20,6 +20,26 @@ const assert=require('assert'),fs=require('fs');const {boot}=require('./level7-h
   ok(q.pack().mode==='linked'&&q.state().linkBreaks===0,'standing past the relay\'s own range but near its repeater keeps the link alive');
 }
 {
+  // standing on a moving surface must move with it — Bix used to stay put in world space while a bridge or the tram slid out from
+  // under him, since nothing carried him along (every other level does; this one never did)
+  const q=boot(),r=q.D.relays.find(v=>v.target==='bridge1'),b=q.D.bridges.find(v=>v.id==='bridge1');
+  q.place(r.x,r.y);q.deploy(r);q.tick(120,dt);   // let the bridge rise fully, as the powered-position test above does
+  // land on it naturally (q.place() alone clears P.support, which is a test artefact, not how a player ever actually arrives)
+  Object.assign(q.P,{x:b.x+b.w/2-21,y:q.moving()[b.id].y-q.P.h-40,vx:0,vy:50,ground:0,support:null});
+  q.tick(20,dt);
+  ok(q.P.support&&q.P.support.dynamic==='bridge1','Bix lands on the bridge');
+  const beforeY=q.P.y;q.recall();q.tick(20,dt);   // recall sends it back down; a stationary Bix must travel down with it
+  ok(q.P.support&&q.P.support.dynamic==='bridge1'&&q.P.y>beforeY+5,'standing still as a bridge lowers, Bix rides it down rather than staying put in the air');
+  const t=q.D.trams[0],rt=q.D.relays.find(v=>v.target===t.id);
+  q.reset(1);q.place(rt.x,rt.y);q.deploy(rt);q.tick(90,dt);
+  const m0=q.moving()[t.id];
+  Object.assign(q.P,{x:m0.x+t.w/2-21,y:t.y-q.P.h-40,vx:0,vy:50,ground:0,support:null});
+  q.tick(20,dt);
+  ok(q.P.support&&q.P.support.dynamic===t.id,'Bix lands on the tram');
+  const tx0=q.P.x;q.tick(60,dt);
+  ok(q.P.support&&q.P.support.dynamic===t.id&&(q.P.x-tx0)>50,'standing on the tram as it moves, Bix travels with it rather than falling off the back');
+}
+{
   const q=boot(),r=q.D.relays.find(v=>v.target==='bridge1'),b=q.D.bridges.find(v=>v.id==='bridge1');q.place(r.x,r.y);q.deploy(r);q.tick(120,dt);ok(Math.abs(q.moving()[b.id].y-b.onY)<10,'a linked bridge reaches its powered position');q.recall();q.tick(120,dt);ok(Math.abs(q.moving()[b.id].y-b.y)<12,'recalling Pack returns the bridge');
 }
 {

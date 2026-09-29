@@ -71,11 +71,11 @@ window.L7DATA = {
     {type:'sweeper',x:1260,y:390,range:250},{type:'ticket',x:3700,y:180,range:260},{type:'ram',x:5100,y:310,range:250},
     {type:'sweeper',x:7750,y:300,range:230},{type:'clamp',x:9160,y:-110,range:300},{type:'ticket',x:10800,y:-40,range:280},
     {type:'ram',x:12950,y:260,range:220},{type:'clamp',x:14650,y:-430,range:300},{type:'ticket',x:16100,y:-420,range:270},
-    {type:'sweeper',x:18500,y:180,range:210},{type:'ticket',x:19550,y:-300,range:300},{type:'clamp',x:21100,y:-410,range:280},
-    {type:'ram',x:23480,y:20,range:250},{type:'ticket',x:25000,y:-300,range:300},{type:'sweeper',x:26700,y:20,range:250}
+    {type:'sweeper',x:18500,y:180,range:260},{type:'ticket',x:19550,y:-300,range:350},{type:'clamp',x:21100,y:-410,range:320},
+    {type:'ram',x:23480,y:20,range:250},{type:'ticket',x:25000,y:-300,range:350},{type:'sweeper',x:26700,y:20,range:300}
   ],
   auditors: [
-    {id:'au1',relay:'r3',speed:.13},{id:'au2',relay:'r5',speed:.15},{id:'au3',relay:'r7',speed:.16},{id:'au4',relay:'r9',speed:.18}
+    {id:'au1',relay:'r3',speed:.13},{id:'au2',relay:'r5',speed:.15},{id:'au3',relay:'r7',speed:.19},{id:'au4',relay:'r9',speed:.23}
   ],
 
   cogs: [

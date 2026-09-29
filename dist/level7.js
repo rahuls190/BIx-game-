@@ -32,6 +32,12 @@ function areaAt(px){let a=D.areas[0];for(const q of D.areas)if(px>=q.x0&&px<q.x1
 const killYAt=px=>areaAt(px).killY||960;
 const powered=id=>pack.mode==='linked'&&pack.relay&&pack.relay.target===id&&!targetState.interrupted;
 function linkRatio(){if(!(pack.mode==='linked'&&pack.relay))return 0;const r=pack.relay;let d=Math.hypot(P.x+21-pack.x,P.y+48-pack.y);const rep=D.repeaters.find(q=>q.relay===r.id);if(rep)d=Math.min(d,Math.hypot(P.x+21-rep.x,P.y+48-rep.y));return d/r.range}
+function movingRect(id){
+  for(const b of D.bridges)if(b.id===id){const m=moving[id];return{x:b.x,y:m?m.y:b.y}}
+  for(const l of D.lifts)if(l.id===id){const m=moving[id];return{x:l.x,y:m?m.y:l.y}}
+  for(const t of D.trams)if(t.id===id){const m=moving[id];return{x:m?m.x:t.x0,y:t.y}}
+  return null
+}
 function dynamicState(dt){
   for(const b of D.bridges){const want=powered(b.id)?b.onY:b.y,m=moving[b.id]||(moving[b.id]={y:b.y});m.y+=(want-m.y)*Math.min(1,dt*3)}
   for(const l of D.lifts){const want=powered(l.id)?l.onY:l.y,m=moving[l.id]||(moving[l.id]={y:l.y});m.y+=(want-m.y)*Math.min(1,dt*2.4)}
@@ -103,7 +109,13 @@ function interact(now){let label='',act=null;const r=D.relays.find(q=>near(q,115
   ui.prompt.textContent=label;ui.prompt.classList.toggle('hidden',!label);if(!K.interact)return;K.interact=0;if(act)act()}
 
 function update(dt){if(!running||done||storyOpen)return;const now=performance.now()/1000;P.inv=Math.max(0,P.inv-dt);P.grabCD=Math.max(0,P.grabCD-dt);P.dropTime=Math.max(0,P.dropTime-dt);msgTime=Math.max(0,msgTime-dt);msgLock=Math.max(0,msgLock-dt);if(msgTime<=0&&sayQ.length===0)ui.dialogue.classList.add('hidden');pumpSay(dt);
-  dynamicState(dt);updatePack(dt);updateEnemies(dt,now);updateAuditors(dt);
+  // carry Bix along with whatever dynamic surface he is standing on (a bridge, a lift, or the tram) before it advances this
+  // frame. Bridges and lifts only move vertically, so the normal landing re-check happened to paper over the gap; the tram
+  // moves horizontally, where nothing else corrects for it, and he would simply be left behind as it slid out from under him.
+  const dynBefore=(P.ground&&P.support&&P.support.dynamic)?{id:P.support.dynamic,...movingRect(P.support.dynamic)}:null;
+  dynamicState(dt);
+  if(dynBefore){const r=movingRect(dynBefore.id);if(r){P.x+=r.x-dynBefore.x;P.y+=r.y-dynBefore.y}}
+  updatePack(dt);updateEnemies(dt,now);updateAuditors(dt);
   if(P.hang){P.vx=P.vy=0;if(K.down){P.hang=0;P.dropTime=.24;P.grabCD=.25;P.vy=80}else if(P.buffer>0||K.up){P.hang=0;P.climb=.22;P.vy=-JUMP*.72;P.vx=P.face*RUN*.34;P.buffer=0}}
   else{const axis=(K.right?1:0)-(K.left?1:0);if(axis)P.face=axis;const max=targetState.interrupted?RUN*.82:RUN;P.vx+=(axis*max-P.vx)*Math.min(1,dt*(P.ground?18:8));if(!axis)P.vx*=Math.exp(-(P.ground?15:2.5)*dt);P.coyote=P.ground?.13:Math.max(0,P.coyote-dt);P.buffer=Math.max(0,P.buffer-dt);if(P.buffer>0&&P.coyote>0){P.vy=-JUMP;P.ground=0;P.coyote=0;P.buffer=0;P.jumpTime=.25}P.vy+=GRAV*dt;if(!K.jump&&P.vy<0)P.vy+=1500*dt;move(P,dt);grab(now)}
   P.anim+=Math.abs(P.vx)*dt/55;
