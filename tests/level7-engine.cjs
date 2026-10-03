@@ -72,6 +72,21 @@ const assert=require('assert'),fs=require('fs');const {boot}=require('./level7-h
   const q=boot(),r=q.D.relays.find(v=>v.id==='r3');q.place(r.x,r.y);q.deploy(r);q.tick(2,dt);const a=q.auditors().find(v=>v.relay===r.id),p=a.p;q.K.blue=1;q.tick(1,dt);ok(a.p<p&&a.dir===-1,'Ping sends a Signal Auditor back');q.K.red=1;q.tick(1,dt);ok(a.p<=.23&&a.stun>0,'Reroute diverts and stalls it');
 }
 {
+  const q=boot(),r=q.D.relays.find(v=>v.target==='gate4'),gate=q.D.gates.find(v=>v.id==='gate4');
+  q.place(r.x-21,r.y);q.deploy(r);ok(q.powered('gate4'),'linking the transfer relay opens its shutter');
+  q.target().interrupted=.9;q.place(gate.x-q.P.w-3,gate.y+gate.h);q.tick(4,dt);
+  ok(q.powered('gate4')&&!q.solids().some(s=>s.x===gate.x&&s.y===gate.y&&s.w===gate.w),'auditor interruption cannot shut the transfer shutter in front of Bix');
+  q.K.right=1;q.tick(45,dt);ok(q.P.x>gate.x+gate.w,'Bix can cross the shutter after the auditor interrupts the link');
+  q.recall();ok(q.powered('gate4'),'the transfer shutter remains open after Pack returns');
+  q.reset(1);ok(!q.powered('gate4'),'a new run resets the transfer shutter');
+}
+{
+  const q=boot(),r=q.D.relays.find(v=>v.id==='r7');q.place(r.x,r.y);q.deploy(r);
+  const a=q.auditors().find(v=>v.relay===r.id);a.p=.959;a.dir=1;q.tick(1,dt);
+  ok(a.dir===-1&&q.target().interrupted>0,'an auditor turns around after reaching the link endpoint');
+  q.tick(120,dt);ok(q.target().interrupted===0&&a.p<.96,'the interruption expires while the auditor retreats');
+}
+{
   const q=boot(),cg=q.D.cogs[0],fr=q.D.fragments[0];q.place(cg.x-21,cg.y+54);q.tick(1,dt);ok(q.state().cogs===1,'cog collects');q.place(fr.x-21,fr.y+54);q.tick(1,dt);ok(q.state().fragments===1&&/Shift fragment/.test(q.line()),'VELA fragment collects and speaks');
 }
 {

@@ -34,7 +34,7 @@ function glow(px,py,r,col,a){const g=x.createRadialGradient(SX(px),SY(py),0,SX(p
 
 function areaAt(px){let a=D.areas[0];for(const q of D.areas)if(px>=q.x0&&px<q.x1)a=q;return a}
 const killYAt=px=>areaAt(px).killY||960;
-const powered=id=>pack.mode==='linked'&&pack.relay&&pack.relay.target===id&&!targetState.interrupted;
+const powered=id=>(id==='gate4'&&targetState.transferOpen)||!!(pack.mode==='linked'&&pack.relay&&pack.relay.target===id&&!targetState.interrupted);
 function linkRatio(){if(!(pack.mode==='linked'&&pack.relay))return 0;const r=pack.relay;let d=Math.hypot(P.x+21-pack.x,P.y+48-pack.y);const rep=D.repeaters.find(q=>q.relay===r.id);if(rep)d=Math.min(d,Math.hypot(P.x+21-rep.x,P.y+48-rep.y));return d/r.range}
 function movingRect(id){
   for(const b of D.bridges)if(b.id===id){const m=moving[id];return{x:b.x,y:m?m.y:b.y}}
@@ -62,7 +62,7 @@ function setCharge(v){charge=v;ui.packCharge.classList.toggle('spent',!v);ui.pac
 function setCP(cp){checkpoint=cp;if(pack.mode==='attached')setCharge(1);sound('checkpoint');toast('SYSTEM',`Checkpoint · ${cp.name}`,1.3)}
 const near=(o,r=105)=>Math.hypot(P.x+P.w/2-o.x,P.y+P.h/2-(o.y-48))<r;
 
-function deploy(r,anchor){pack.mode='linked';pack.relay=r;pack.x=anchor?anchor.x:r.x;pack.y=anchor?anchor.y-25:r.y-72;pack.returnT=0;targetState.interrupted=0;setCharge(0);sound('deploy');shake=5;say([['PACK',`${r.label} linked. I will hold it from here.`]])}
+function deploy(r,anchor){pack.mode='linked';pack.relay=r;pack.x=anchor?anchor.x:r.x;pack.y=anchor?anchor.y-25:r.y-72;pack.returnT=0;targetState.interrupted=0;if(r.target==='gate4')targetState.transferOpen=1;setCharge(0);sound('deploy');shake=5;say([['PACK',r.target==='gate4'?'Transfer shutter locked open. The auditor cannot close it on us.':`${r.label} linked. I will hold it from here.`]])}
 function recall(reason){if(pack.mode==='attached')return;pack.mode='returning';pack.relay=null;pack.returnT=.65;targetState.interrupted=0;sound('recall');if(reason)toast('PACK',reason,1.8,1)}
 function breakLink(){if(pack.mode!=='linked')return;linkBreaks++;targetState.interrupted=1;pack.mode='broken';pack.returnT=1;shake=10;flash=.12;setCharge(0);sound('linkbreak');toast('PACK','Link lost. The machinery will hold before it resets.',2.2,1)}
 function updatePack(dt){
@@ -108,7 +108,7 @@ function updateEnemies(dt,now){for(const e of enemies){
     }
   }
   if(targetState.interrupted)targetState.interrupted=Math.max(0,targetState.interrupted-dt)}
-function updateAuditors(dt){for(const a of auditors){const live=pack.mode==='linked'&&pack.relay&&pack.relay.id===a.relay;if(!live){a.active=0;a.p=.08;continue}a.active=1;a.stun=Math.max(0,a.stun-dt);if(!a.stun)a.p+=a.speed*a.dir*dt;if(a.p<.05){a.p=.05;a.dir=1}if(a.p>=.96){a.p=.96;targetState.interrupted=.9;a.stun=.9;shake=7;toast('SYSTEM','Relay inspection interrupted.',1.3,1)}if(K.blue){a.p=Math.max(.05,a.p-.32);a.dir=-1;a.stun=.18}if(K.red){a.p=.22;a.dir=1;a.stun=.55}}}
+function updateAuditors(dt){for(const a of auditors){const live=pack.mode==='linked'&&pack.relay&&pack.relay.id===a.relay;if(!live){a.active=0;a.p=.08;continue}a.active=1;a.stun=Math.max(0,a.stun-dt);if(!a.stun)a.p+=a.speed*a.dir*dt;if(a.p<.05){a.p=.05;a.dir=1}if(a.p>=.96&&a.dir>0){a.p=.96;a.dir=-1;targetState.interrupted=.9;a.stun=.9;shake=7;toast('SYSTEM','Relay inspection interrupted.',1.3,1)}if(K.blue){a.p=Math.max(.05,a.p-.32);a.dir=-1;a.stun=.18}if(K.red){a.p=.22;a.dir=1;a.stun=.55}}}
 
 function buildWorld(full){if(full){targetState={interrupted:0};moving={};enemies=spawnEnemies();auditors=spawnAuditors();told=new Set();linkBreaks=0;blackoutSeen=new Set();blackoutT=0;D.cogs.forEach(q=>q.got=0);D.fragments.forEach(q=>q.got=0);D.triggers.forEach(q=>q.used=0);D.terminals.forEach(q=>q.used=0);D.hiddenDoors.forEach(q=>q.discovered=0)}else{enemies=spawnEnemies();targetState.interrupted=0}doorCooldown=0;dynamicState(0)}
 function reset(full=1){Object.assign(P,{x:full?D.start.x:checkpoint.x,y:(full?D.start.y:checkpoint.y)-P.h,vx:0,vy:0,ground:0,coyote:0,buffer:0,face:1,falls:full?0:P.falls+1,hang:0,hangRect:null,climb:0,grabCD:.3,support:null,dropTime:0,jumpTime:0,inv:.8});
